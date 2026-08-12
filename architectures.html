@@ -103,7 +103,7 @@
 </math></div>
       <div class="canvas-wrap"><canvas class="op tall" data-block="conv" data-period="9" role="img" aria-label="Animation of a convolution kernel sliding over two variables across twelve days and producing two feature maps"></canvas></div>
       <p class="fig-note">
-        Two variables over twelve days, two kernels of width three. The highlighted window is the
+        Two variables over twelve days, three kernels of width three. The highlighted window is the
         current kernel position and the value beneath is the output after the activation.
       </p>
     </div>
@@ -125,6 +125,7 @@
   <msub><mi>a</mi><mrow><mi>q</mi><mo>,</mo><mi>t</mi></mrow></msub>
   <mo form="postfix" stretchy="false">)</mo>
 </math></div>
+      <div class="canvas-wrap"><canvas class="op" data-block="gelu" data-period="7" role="img" aria-label="Animation of the GELU activation curve with a value sweeping along it, compared against the identity line"></canvas></div>
     </div>
 
     <div class="card">
@@ -179,11 +180,28 @@
     <mo stretchy="false">(</mo><mi>k</mi><mo>&minus;</mo><mn>1</mn><mo stretchy="false">)</mo>
     <mo>+</mo><mn>1</mn></mrow>
 </math></div>
-      <div class="canvas-wrap"><canvas class="op" data-block="dilated" data-period="12" role="img" aria-label="Animation of a dilated convolution cycling through dilation rates one, two, four and eight"></canvas></div>
+
+          <div class="canvas-wrap"><canvas class="op" data-block="dilated" data-period="12" role="img" aria-label="Animation of a dilated convolution cycling through dilation rates one, two, four and eight"></canvas></div>
     </div>
 
     <div class="card">
-      <h3>5. Adaptive average pooling</h3>
+      <h3>5. Growth of the receptive field</h3>
+      <p>
+        Each layer widens the span of the input record that a single output position depends on.
+        Strided layers double the reach because the positions they read are already spaced apart,
+        and dilated layers add their own spacing on top. The selected model stacks three strided
+        layers and four dilated layers, which is what carries one feature position from seven days
+        to 763 days, a little over two annual cycles.
+      </p>
+      <div class="canvas-wrap"><canvas class="op tall" data-block="rf" data-period="10" role="img" aria-label="Animation of the receptive field growing layer by layer from seven days to 763 days against the full record"></canvas></div>
+      <p class="fig-note">
+        The receptive field is the reach of one convolutional position before the bridge. After the
+        pooling and the fully connected layers, every latent dimension depends on the whole record.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>6. Adaptive average pooling</h3>
       <p>
         Dilated stacks reach the bridge still holding their full length, so a separate reduction is
         needed. Adaptive average pooling divides the time axis into a fixed number of bins and
@@ -196,7 +214,7 @@
     </div>
 
     <div class="card">
-      <h3>6. Flattening and the fully connected bridge</h3>
+      <h3>7. Flattening and the fully connected bridge</h3>
       <p>
         The convolutional stack produces features at many temporal positions, but the regionalisation
         needs one vector per location. The bridge is where that happens. The feature tensor is
@@ -213,7 +231,7 @@
   <mi>z</mi><mo>=</mo><msub><mi>W</mi><mn>2</mn></msub><mi>h</mi>
   <mo>+</mo><msub><mi>b</mi><mn>2</mn></msub>
 </math></div>
-      <div class="canvas-wrap"><canvas class="op tall" data-block="bridge" data-period="9" role="img" aria-label="Animation of a feature tensor being flattened and passed through a small network to an embedding"></canvas></div>
+      <div class="canvas-wrap"><canvas class="op xl" data-block="bridge" data-period="9" role="img" aria-label="Animation of a feature tensor being flattened and passed through a small network to an embedding"></canvas></div>
       <p class="fig-note">
         The shape chain along the top is the real one used by the selected model. The small network
         below carries toy values through four inputs, three hidden units and two latent units so the
@@ -222,29 +240,30 @@
     </div>
 
     <div class="card">
-      <h3>7. Decoder bridge and reshape</h3>
+      <h3>8. Decoder bridge and reshape</h3>
       <p>
         Reconstruction begins by reversing the change in shape, expanding the embedding back to a
         feature tensor the convolutional decoder can work on. The mapping is separately learned
         rather than an inverse of the encoder bridge, so the decoder is free to use different
         weights to rebuild what the encoder compressed.
       </p>
-      <div class="canvas-wrap"><canvas class="op" data-block="decbridge" data-period="7" role="img" aria-label="Animation of the decoder bridge expanding a five-dimensional embedding back to a feature tensor"></canvas></div>
+      <div class="canvas-wrap"><canvas class="op tall" data-block="reshape" data-period="8" role="img" aria-label="Animation of a feature tensor flattening into one long vector and folding back into channels and positions"></canvas></div>
+      <p class="fig-note">Flattening and reshaping only rearrange values. The order is fixed, so the two operations are exact inverses of one another.</p>
     </div>
 
     <div class="card">
-      <h3>8. Linear interpolation</h3>
+      <h3>9. Linear interpolation</h3>
       <p>
         Where the encoder pooled the time axis, the decoder has to restore the length before the
         convolutional layers can run. Linear interpolation fills the gaps between neighbouring
         feature values. It carries no weights, changes only the temporal resolution, and does not
         recover values that pooling discarded.
       </p>
-      <div class="canvas-wrap"><canvas class="op" data-block="interp" data-period="7" role="img" aria-label="Animation of linear interpolation inserting points between known feature values"></canvas></div>
+      <div class="canvas-wrap"><canvas class="op tall" data-block="interp" data-period="7" role="img" aria-label="Animation of linear interpolation inserting points between known feature values"></canvas></div>
     </div>
 
     <div class="card">
-      <h3>9. Transposed convolution</h3>
+      <h3>10. Transposed convolution</h3>
       <p>
         The transposed convolution is the decoder counterpart of the strided layer. Each input
         position multiplies the entire kernel and scatters its contributions across several output
@@ -265,7 +284,7 @@
     </div>
 
     <div class="card">
-      <h3>10. Parallel-branch fusion and the 1 x 1 convolution</h3>
+      <h3>11. Parallel-branch fusion and the 1 x 1 convolution</h3>
       <p>
         Two of the Stage 2 architectures run a short-range strided branch alongside a long-range
         dilated branch and then have to join them. Concatenation stacks the two feature tensors and
@@ -278,7 +297,7 @@
     </div>
 
     <div class="card">
-      <h3>11. Variational sampling</h3>
+      <h3>12. Variational sampling</h3>
       <p>
         The variational models replace the single projection to the embedding with two, one
         producing a mean and one a log variance, and then draw the embedding from that distribution.

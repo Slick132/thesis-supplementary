@@ -65,15 +65,39 @@
   }
   var CAP = 40;            /* reserved band at the foot of every canvas */
 
+  /* Captions shrink to fit rather than being clipped at the canvas edge,
+     which matters most on a narrow phone where a long sub-line would
+     otherwise lose half its words with no indication anything is missing. */
+  function fitText(ctx, text, avail, sizes, weight) {
+    for (var i = 0; i < sizes.length; i++) {
+      ctx.font = (weight || '') + sizes[i] + 'px ' + cssVar('--font', 'sans-serif');
+      if (ctx.measureText(text).width <= avail) return true;
+    }
+    return false;
+  }
+
   function caption(ctx, W, H, text, sub) {
+    var avail = W - 24;
     ctx.textAlign = 'left';
     if (sub) {
       ctx.fillStyle = cssVar('--muted', '#6B5D63');
-      ctx.font = '9px ' + cssVar('--font', 'sans-serif');
+      if (!fitText(ctx, sub, avail, [9, 8.5, 8, 7.5])) {
+        var cut = sub;
+        while (cut.length > 12 && ctx.measureText(cut + '...').width > avail) {
+          cut = cut.slice(0, cut.lastIndexOf(' ') > 0 ? cut.lastIndexOf(' ') : cut.length - 1);
+        }
+        sub = cut + '...';
+      }
       ctx.fillText(sub, 12, H - 24);
     }
     ctx.fillStyle = cssVar('--ink', '#2B1F24');
-    ctx.font = '600 10px ' + cssVar('--font', 'sans-serif');
+    if (!fitText(ctx, text, avail, [10, 9.5, 9, 8.5, 8], '600 ')) {
+      var cut2 = text;
+      while (cut2.length > 12 && ctx.measureText(cut2 + '...').width > avail) {
+        cut2 = cut2.slice(0, cut2.lastIndexOf(' ') > 0 ? cut2.lastIndexOf(' ') : cut2.length - 1);
+      }
+      text = cut2 + '...';
+    }
     ctx.fillText(text, 12, H - 9);
   }
   function title(ctx, text, x, y) {
@@ -91,9 +115,10 @@
   ];
   var Kq = [
     [[0.5, -0.2, 0.3], [0.1, 0.6, -0.4]],
-    [[-0.3, 0.7, 0.2], [0.4, -0.1, 0.5]]
+    [[-0.3, 0.7, 0.2], [0.4, -0.1, 0.5]],
+    [[0.2, 0.4, -0.6], [-0.5, 0.2, 0.3]]
   ];
-  var BIAS = [0.05, -0.02];
+  var BIAS = [0.05, -0.02, 0.10];
 
   function convAt(q, t) {
     var s = BIAS[q];
@@ -118,26 +143,30 @@
     var cS = cssVar('--d-strided', '#61223B'), cD = cssVar('--d-dilated', '#8C6B2F');
     var n = 12, labelW = 48;
     var avail = W - labelW - 20;
-    var cw = Math.min(42, avail / n), ch = 20;
-    var pad = labelW + Math.max(0, (avail - cw * n) / 2);
-    var contentH = 2 * (ch + 2) + 52 + 2 * (ch + 2);
+    var cw = Math.min(42, avail / (n + 2)), ch = 20;
+    var pad = labelW + cw + Math.max(0, (avail - cw * (n + 2)) / 2);
+    var contentH = 2 * (ch + 2) + 52 + Kq.length * (ch + 2);
     var yIn = Math.max(28, 20 + (H - CAP - 20 - contentH) / 2);
     var yOut = yIn + 2 * (ch + 2) + 52;
     var pos = Math.floor(t * n) % n;
     var sub = t * n - Math.floor(t * n);
 
     title(ctx, 'input, 2 variables x 12 days', pad, yIn - 8);
+    var neutral = cssVar('--ink', '#2B1F24');
     for (var c = 0; c < 2; c++) {
+      /* the implicit zero padding the kernel reads at the two ends */
+      cell(ctx, pad - cw, yIn + c * (ch + 2), cw - 2, ch, muted, 0.10);
+      cell(ctx, pad + n * cw, yIn + c * (ch + 2), cw - 2, ch, muted, 0.10);
       for (var i = 0; i < n; i++) {
         var inWin = Math.abs(i - pos) <= 1;
         cell(ctx, pad + i * cw, yIn + c * (ch + 2), cw - 2, ch,
-             c === 0 ? cS : cD, inWin ? 0.75 : 0.16, X[c][i].toFixed(2),
+             neutral, inWin ? 0.62 : 0.13, X[c][i].toFixed(2),
              inWin ? '#fff' : muted);
       }
       ctx.fillStyle = muted;
       ctx.font = '8px ' + cssVar('--mono', 'monospace');
       ctx.textAlign = 'right';
-      ctx.fillText(c === 0 ? 'tmax' : 'rain', pad - 5, yIn + c * (ch + 2) + 12);
+      ctx.fillText(c === 0 ? 'tmax' : 'rain', pad - cw - 5, yIn + c * (ch + 2) + 12);
     }
 
     /* the kernel window */
@@ -147,20 +176,20 @@
     ctx.strokeRect(wx, yIn - 2, cw * 3 - 2, (ch + 2) * 2);
 
     /* output feature maps */
-    title(ctx, 'feature maps, 2 learned kernels x 12 positions', pad, yOut - 8);
-    for (var q = 0; q < 2; q++) {
+    title(ctx, 'feature maps, ' + Kq.length + ' learned kernels x 12 positions', pad, yOut - 8);
+    for (var q = 0; q < Kq.length; q++) {
       for (i = 0; i < n; i++) {
         var done = i < pos || (i === pos && sub > 0.4);
         var a = convAt(q, i);
         var h = gelu(a);
         cell(ctx, pad + i * cw, yOut + q * (ch + 2), cw - 2, ch,
-             q === 0 ? cS : cD, done ? 0.30 + 0.45 * Math.min(1, Math.abs(h)) : 0.08,
+             cS, done ? 0.26 + 0.42 * Math.min(1, Math.abs(h)) : 0.08,
              done ? h.toFixed(2) : '', ink);
       }
       ctx.fillStyle = muted;
       ctx.font = '8px ' + cssVar('--mono', 'monospace');
       ctx.textAlign = 'right';
-      ctx.fillText('q' + (q + 1), pad - 5, yOut + q * (ch + 2) + 12);
+      ctx.fillText('q' + (q + 1), pad - cw - 5, yOut + q * (ch + 2) + 12);
     }
     arrow(ctx, pad + pos * cw + cw / 2, yIn + (ch + 2) * 2 + 5,
           pad + pos * cw + cw / 2, yOut - 18, accent, 0.85);
@@ -169,7 +198,7 @@
     caption(ctx, W, H,
       'position ' + (pos + 1) + ':  pre-activation ' + a0.toFixed(2) +
       ',  after GELU ' + gelu(a0).toFixed(2),
-      'one kernel reads every variable at once, so a feature map is not a reconstructed variable');
+      'two variables in, three feature maps out: the channel count is set by the number of kernels');
   };
 
   /* 2. strided convolution with same-padding */
@@ -183,7 +212,7 @@
     var step = Math.floor(t * nOut) % nOut;
     var centre = step * s;
 
-    title(ctx, 'input with 3 padding cells at each end', pad, yIn - 9);
+    title(ctx, 'input, 17 positions with 3 padding cells at each end', pad, yIn - 9);
     for (var i = -p; i < n + p; i++) {
       var isPad = i < 0 || i >= n;
       var inWin = i >= centre - (k - 1) / 2 + 0 && i <= centre + (k - 1) / 2;
@@ -195,10 +224,10 @@
     ctx.lineWidth = 1.3;
     ctx.strokeRect(pad + (centre - 3 + p) * cw - 1, yIn - 2, cw * k, chh + 4);
 
-    title(ctx, 'output, one position per two inputs', pad, yOut - 9);
-    var ow = (W - pad * 2) / nOut;
+    title(ctx, 'output, ' + nOut + ' positions, one per two inputs', pad, yOut - 9);
+    var ow = cw;                       /* same pitch, so the row is visibly shorter */
     for (i = 0; i < nOut; i++) {
-      cell(ctx, pad + i * ow, yOut, ow - 2, chh, colour, i < step ? 0.62 : (i === step ? 0.8 : 0.1));
+      cell(ctx, pad + i * ow, yOut, ow - 1.5, chh, colour, i < step ? 0.62 : (i === step ? 0.8 : 0.1));
     }
     arrow(ctx, pad + (centre + p) * cw + cw / 2, yIn + chh + 4,
           pad + step * ow + ow / 2, yOut - 5, accent, 0.8);
@@ -214,7 +243,15 @@
     var colour = cssVar('--d-dilated', '#8C6B2F');
     var rates = [1, 2, 4, 8];
     var phase = t * rates.length;
-    var d = rates[Math.floor(phase) % rates.length];
+    var idx = Math.floor(phase) % rates.length;
+    var d = rates[idx];
+    /* Ease the tap spacing between rates so the kernel visibly opens out
+       instead of teleporting, while the labels stay on the exact rate. */
+    var local = phase - Math.floor(phase);
+    var nxt = rates[(idx + 1) % rates.length];
+    var ease = local < 0.72 ? 0 : (local - 0.72) / 0.28;
+    var eased = ease * ease * (3 - 2 * ease);
+    var dEff = d + (nxt - d) * eased;
     var k = 7, n = 57;
     var pad = 20, cw = (W - pad * 2) / n, chh = 16;
     var yIn = 40, yOut = H - CAP - 22;
@@ -222,8 +259,12 @@
     var span = d * (k - 1) + 1;
 
     title(ctx, 'input, stride 1 so the length never changes', pad, yIn - 9);
-    var taps = [];
-    for (var j = 0; j < k; j++) taps.push(centre + (j - (k - 1) / 2) * d);
+    var taps = [];        /* integer cells for the highlight */
+    var tapsF = [];       /* continuous positions for the moving marks */
+    for (var j = 0; j < k; j++) {
+      taps.push(Math.round(centre + (j - (k - 1) / 2) * dEff));
+      tapsF.push(centre + (j - (k - 1) / 2) * dEff);
+    }
     for (var i = 0; i < n; i++) {
       var isTap = taps.indexOf(i) !== -1;
       var inSpan = i >= taps[0] && i <= taps[k - 1];
@@ -234,8 +275,8 @@
     ctx.globalAlpha = 0.8;
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(pad + taps[0] * cw, yIn - 5);
-    ctx.lineTo(pad + (taps[k - 1] + 1) * cw, yIn - 5);
+    ctx.moveTo(pad + tapsF[0] * cw, yIn - 5);
+    ctx.lineTo(pad + (tapsF[k - 1] + 1) * cw, yIn - 5);
     ctx.stroke();
     ctx.globalAlpha = 1;
 
@@ -245,8 +286,8 @@
            i === centre ? 0.85 : 0.14);
     }
     for (j = 0; j < k; j++) {
-      if (taps[j] < 0 || taps[j] >= n) continue;
-      arrow(ctx, pad + taps[j] * cw + cw / 2, yIn + chh + 3,
+      if (tapsF[j] < 0 || tapsF[j] >= n) continue;
+      arrow(ctx, pad + tapsF[j] * cw + cw / 2, yIn + chh + 3,
             pad + centre * cw + cw / 2, yOut - 4, accent, 0.28);
     }
 
@@ -256,6 +297,9 @@
   };
 
   /* 4. adaptive average pooling */
+  var POOLV = [0.42, 0.61, 0.35, 0.28, 0.77, 0.64, 0.52, 0.81,
+               0.19, 0.33, 0.47, 0.25, 0.68, 0.72, 0.55, 0.60];
+
   BLOCKS.pool = function (ctx, W, H, t) {
     var muted = cssVar('--muted', '#6B5D63'), accent = cssVar('--accent', '#8C2F4A');
     var colour = cssVar('--d-pool', '#4A6670');
@@ -268,15 +312,24 @@
     for (var c = 0; c < chan; c++) {
       for (var i = 0; i < nIn; i++) {
         var inBin = Math.floor(i / (nIn / nOut)) === bin;
-        cell(ctx, pad + i * cw, yIn + c * (chh + 2), cw - 2, chh, colour, inBin ? 0.72 : 0.15);
+        var val = POOLV[(i + c * 3) % nIn];
+        cell(ctx, pad + i * cw, yIn + c * (chh + 2), cw - 2, chh, colour,
+             inBin ? 0.72 : 0.15, c === 0 ? val.toFixed(2) : '',
+             inBin ? '#fff' : muted);
       }
     }
     var ow = (W - pad * 2) / nOut;
     title(ctx, 'pooled, 4 channels x 4 positions, channels unchanged', pad, yOut - 9);
+    var perBin = nIn / nOut;
     for (c = 0; c < chan; c++) {
       for (i = 0; i < nOut; i++) {
+        var mean = 0;
+        for (var q = 0; q < perBin; q++) mean += POOLV[(i * perBin + q + c * 3) % nIn];
+        mean /= perBin;
         cell(ctx, pad + i * ow, yOut + c * (chh + 2), ow - 3, chh, colour,
-             i < bin ? 0.55 : (i === bin ? 0.75 : 0.12));
+             i < bin ? 0.55 : (i === bin ? 0.75 : 0.12),
+             (c === 0 && i <= bin) ? mean.toFixed(2) : '',
+             i === bin ? '#fff' : muted);
       }
     }
     arrow(ctx, pad + (bin + 0.5) * (nIn / nOut) * cw, yIn + chan * (chh + 2) + 2,
@@ -291,98 +344,153 @@
   BLOCKS.bridge = function (ctx, W, H, t) {
     var muted = cssVar('--muted', '#6B5D63'), ink = cssVar('--ink', '#2B1F24');
     var accent = cssVar('--accent', '#8C2F4A'), cM = cssVar('--d-mlp', '#3F6B4A');
-    var cL = cssVar('--d-latent', '#C2761F');
+    var cL = cssVar('--d-latent', '#C2761F'), border = cssVar('--border', '#E0D6C9');
 
-    /* shape chain across the top */
+    /* the real shape chain of the selected model, across the top */
     var shapes = ['256 x 109', '27,904', '128', '5'];
-    var labels = ['feature tensor', 'flattened', 'hidden', 'embedding'];
-    var bw = Math.min(96, (W - 60) / 4 - 18), y0 = 24, bh = 26;
+    var names = ['feature tensor', 'flattened', 'hidden', 'embedding'];
+    var bw = Math.min(110, (W - 60) / 4 - 16), y0 = 18, bh = 24;
     var gap = (W - 30 - bw * 4) / 3;
-    var stage = Math.min(3, Math.floor(t * 4));
     for (var i = 0; i < 4; i++) {
       var x = 15 + i * (bw + gap);
-      cell(ctx, x, y0, bw, bh, i === 3 ? cL : cM, i <= stage ? 0.45 : 0.13);
-      ctx.fillStyle = i <= stage ? ink : muted;
-      ctx.font = '600 9.5px ' + cssVar('--mono', 'monospace');
+      cell(ctx, x, y0, bw, bh, i === 3 ? cL : cM, 0.34);
+      ctx.fillStyle = ink;
+      ctx.font = '600 10px ' + cssVar('--mono', 'monospace');
       ctx.textAlign = 'center';
-      ctx.fillText(shapes[i], x + bw / 2, y0 + 17);
+      ctx.fillText(shapes[i], x + bw / 2, y0 + 16);
       ctx.fillStyle = muted;
       ctx.font = '8px ' + cssVar('--font', 'sans-serif');
-      ctx.fillText(labels[i], x + bw / 2, y0 - 6);
-      if (i < 3) arrow(ctx, x + bw + 3, y0 + bh / 2, x + bw + gap - 3, y0 + bh / 2, muted, i < stage ? 0.8 : 0.3);
+      ctx.fillText(names[i], x + bw / 2, y0 - 5);
+      if (i < 3) arrow(ctx, x + bw + 3, y0 + bh / 2, x + bw + gap - 3, y0 + bh / 2, muted, 0.55);
     }
 
-    /* toy network below: 4 inputs, 3 hidden with GELU, 2 outputs */
+    /* toy network, computed one unit at a time so the sum is visible */
     var vIn = [0.80, -0.35, 0.42, 0.11];
-    var W1 = [[0.6, -0.4, 0.2, 0.5], [-0.3, 0.8, 0.1, -0.2], [0.2, 0.3, -0.7, 0.4]];
-    var b1 = [0.05, -0.1, 0.2];
-    var W2 = [[0.7, -0.5, 0.3], [-0.2, 0.6, 0.4]];
-    var b2 = [0.0, 0.1];
-    var hid = W1.map(function (row, j) {
-      return gelu(row.reduce(function (s, w, i2) { return s + w * vIn[i2]; }, b1[j]));
+    var W1 = [[0.60, -0.40, 0.20, 0.50], [-0.30, 0.80, 0.10, -0.20], [0.20, 0.30, -0.70, 0.40]];
+    var b1 = [0.05, -0.10, 0.20];
+    var W2 = [[0.70, -0.50, 0.30], [-0.20, 0.60, 0.40]];
+    var b2 = [0.00, 0.10];
+    var pre = W1.map(function (row, j) {
+      return row.reduce(function (a, w, i2) { return a + w * vIn[i2]; }, b1[j]);
     });
+    var hid = pre.map(gelu);
     var out = W2.map(function (row, j) {
-      return row.reduce(function (s, w, i2) { return s + w * hid[i2]; }, b2[j]);
+      return row.reduce(function (a, w, i2) { return a + w * hid[i2]; }, b2[j]);
     });
 
-    var yTop = y0 + bh + 34, yBot = H - CAP - 14;
-    var colX = [W * 0.16, W * 0.46, W * 0.76];
-    var phase = t * 3;
+    var yTop = y0 + bh + 40, yBot = H - CAP - 26;
+    var colX = [W * 0.15, W * 0.45, W * 0.78];
+    var R = Math.min(19, (yBot - yTop) / 9);
 
-    function nodes(count, x, vals, colour, showFrom) {
-      var pts = [];
+    /* Six stages: three hidden units, two outputs, then a hold so the
+       finished embedding is actually on screen long enough to read. */
+    var STAGES = 6;
+    var stage = Math.min(STAGES - 1, Math.floor(t * STAGES));
+    var hold = stage === 5;
+    var frac = hold ? 1 : Math.min(1, (t * STAGES) - stage);
+    var active = Math.min(4, stage);
+    var target = active < 3 ? active : active - 3;
+    var inHidden = !hold && active < 3;
+
+    function pts(count, x) {
+      var out2 = [];
       for (var j = 0; j < count; j++) {
-        var cy = yTop + ((yBot - yTop) * (j + 0.5)) / count;
-        var lit = phase > showFrom;
-        ctx.beginPath();
-        ctx.arc(x, cy, 11, 0, Math.PI * 2);
-        ctx.fillStyle = colour;
-        ctx.globalAlpha = lit ? 0.55 : 0.15;
-        ctx.fill();
-        ctx.globalAlpha = 1;
-        ctx.fillStyle = lit ? '#fff' : muted;
-        ctx.font = '8px ' + cssVar('--mono', 'monospace');
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(vals[j].toFixed(2), x, cy);
-        ctx.textBaseline = 'alphabetic';
-        pts.push({ x: x, y: cy });
+        out2.push({ x: x, y: yTop + ((yBot - yTop) * (j + 0.5)) / count });
       }
-      return pts;
+      return out2;
     }
+    var pIn = pts(4, colX[0]), pHid = pts(3, colX[1]), pOut = pts(2, colX[2]);
 
-    function edges(a, b, weights, lit) {
-      for (var i2 = 0; i2 < a.length; i2++) {
-        for (var j = 0; j < b.length; j++) {
-          var w = weights[j][i2];
+    /* edges: the active unit reveals its terms one at a time */
+    function drawEdges(a, b, Wm, activeJ, reveal, done) {
+      for (var j = 0; j < b.length; j++) {
+        for (var i2 = 0; i2 < a.length; i2++) {
+          var w = Wm[j][i2];
+          var live = (j === activeJ && i2 < reveal) || done[j];
           ctx.strokeStyle = w >= 0 ? cM : accent;
-          ctx.globalAlpha = lit ? 0.15 + Math.min(0.55, Math.abs(w) * 0.7) : 0.08;
-          ctx.lineWidth = 0.5 + Math.abs(w) * 1.6;
+          ctx.globalAlpha = live ? 0.30 + Math.min(0.55, Math.abs(w)) : 0.07;
+          ctx.lineWidth = live ? 0.8 + Math.abs(w) * 2.2 : 0.6;
           ctx.beginPath();
-          ctx.moveTo(a[i2].x + 11, a[i2].y);
-          ctx.lineTo(b[j].x - 11, b[j].y);
+          ctx.moveTo(a[i2].x + R, a[i2].y);
+          ctx.lineTo(b[j].x - R, b[j].y);
           ctx.stroke();
+          if (j === activeJ && i2 === reveal - 1) {
+            var mx = (a[i2].x + R + b[j].x - R) / 2, my = (a[i2].y + b[j].y) / 2;
+            ctx.fillStyle = w >= 0 ? cM : accent;
+            ctx.font = '600 8.5px ' + cssVar('--mono', 'monospace');
+            ctx.textAlign = 'center';
+            ctx.fillText(w.toFixed(2), mx, my - 3);
+          }
         }
       }
       ctx.globalAlpha = 1;
     }
+    var hidDone = [hold || stage > 0, hold || stage > 1, hold || stage > 2];
+    var outDone = [hold || stage > 3, hold];
+    drawEdges(pIn, pHid, W1, inHidden ? target : -1,
+              inHidden ? Math.round(frac * 4) : 4, hidDone);
+    drawEdges(pHid, pOut, W2, (hold || inHidden) ? -1 : target,
+              inHidden ? 0 : Math.round(frac * 3), outDone);
 
-    var pIn = nodes(4, colX[0], vIn, cM, -1);
-    var pHid = nodes(3, colX[1], hid, cM, 1);
-    var pOut = nodes(2, colX[2], out, cL, 2);
-    edges(pIn, pHid, W1, phase > 1);
-    edges(pHid, pOut, W2, phase > 2);
+    function nodes(p, vals, colour, lit, label) {
+      for (var j = 0; j < p.length; j++) {
+        ctx.beginPath();
+        ctx.arc(p[j].x, p[j].y, R, 0, Math.PI * 2);
+        ctx.fillStyle = colour;
+        ctx.globalAlpha = lit[j] ? 0.62 : 0.14;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = lit[j] ? colour : border;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.fillStyle = lit[j] ? '#fff' : muted;
+        ctx.font = '600 10px ' + cssVar('--mono', 'monospace');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(lit[j] ? vals[j].toFixed(2) : '?', p[j].x, p[j].y);
+        ctx.textBaseline = 'alphabetic';
+      }
+      ctx.fillStyle = muted;
+      ctx.font = '9px ' + cssVar('--font', 'sans-serif');
+      ctx.textAlign = 'center';
+      ctx.fillText(label, p[0].x, yTop - 14);
+    }
+    nodes(pIn, vIn, cM, [true, true, true, true], 'inputs');
+    nodes(pHid, hid, cM,
+          [hidDone[0] || (inHidden && target === 0 && frac > 0.92),
+           hidDone[1] || (inHidden && target === 1 && frac > 0.92),
+           hidDone[2] || (inHidden && target === 2 && frac > 0.92)], 'hidden, GELU');
+    nodes(pOut, out, cL,
+          [outDone[0] || (!hold && !inHidden && target === 0 && frac > 0.92),
+           outDone[1] || (!hold && !inHidden && target === 1 && frac > 0.92)], 'embedding');
 
-    ctx.fillStyle = muted;
-    ctx.font = '8.5px ' + cssVar('--font', 'sans-serif');
-    ctx.textAlign = 'center';
-    ctx.fillText('inputs', colX[0], yTop - 8);
-    ctx.fillText('hidden, GELU', colX[1], yTop - 8);
-    ctx.fillText('embedding', colX[2], yTop - 8);
-
-    caption(ctx, W, H,
-            'the bridge turns features at many temporal positions into one vector for the site',
-            'every latent dimension therefore depends on the whole record, not on one part of it');
+    /* the running arithmetic for the unit being computed */
+    var terms = [], sum;
+    if (hold) {
+      caption(ctx, W, H,
+              'the five-day site record is now two numbers: ' + out[0].toFixed(2) + ' and ' + out[1].toFixed(2),
+              'the real model carries 6 x 6,935 values down to five numbers in exactly this way');
+    } else if (inHidden) {
+      var kk = Math.round(frac * 4);
+      for (i = 0; i < kk; i++) {
+        terms.push(W1[target][i].toFixed(2) + '(' + vIn[i].toFixed(2) + ')');
+      }
+      sum = b1[target];
+      for (i = 0; i < kk; i++) sum += W1[target][i] * vIn[i];
+      var line = 'h' + (target + 1) + ' = GELU(' + (terms.length ? terms.join(' + ') + ' + ' : '') +
+                 b1[target].toFixed(2) + ')';
+      if (kk === 4) line += ' = GELU(' + pre[target].toFixed(2) + ') = ' + hid[target].toFixed(2);
+      caption(ctx, W, H, line, 'each hidden unit sums every input, adds a bias, then passes through GELU');
+    } else {
+      var mm = Math.round(frac * 3);
+      for (i = 0; i < mm; i++) {
+        terms.push(W2[target][i].toFixed(2) + '(' + hid[i].toFixed(2) + ')');
+      }
+      var line2 = 'z' + (target + 1) + ' = ' + (terms.length ? terms.join(' + ') + ' + ' : '') +
+                  b2[target].toFixed(2);
+      if (mm === 3) line2 += ' = ' + out[target].toFixed(2);
+      caption(ctx, W, H, line2, 'the final layer is linear, so the embedding is not squashed by an activation');
+    }
   };
 
   /* 6. decoder bridge and reshape */
@@ -412,55 +520,98 @@
   /* 7. linear interpolation */
   BLOCKS.interp = function (ctx, W, H, t) {
     var muted = cssVar('--muted', '#6B5D63'), accent = cssVar('--accent', '#8C2F4A');
-    var colour = cssVar('--d-pool', '#4A6670');
-    var known = [0.25, 0.72, 0.45, 0.83, 0.35];
-    var pad = 46, span = W - pad * 2;
-    var yBase = H - CAP - 22, hgt = H - CAP - 74;
-    var reveal = Math.min(1, t * 1.4);
+    var colour = cssVar('--d-pool', '#4A6670'), ink = cssVar('--ink', '#2B1F24');
+    var known = [0.30, 0.78, 0.44, 0.86, 0.38];
+    var per = 4;                         /* new positions inserted per gap */
+    var nOut = (known.length - 1) * per + 1;
+    var pad = 40, span = W - pad * 2;
+    var base = H - CAP - 16, hgt = H - CAP - 92;
 
-    title(ctx, 'known feature values', pad, 22);
-    ctx.strokeStyle = colour;
-    ctx.globalAlpha = 0.85;
-    ctx.lineWidth = 1.4;
-    ctx.beginPath();
-    for (var i = 0; i < known.length; i++) {
-      var x = pad + (span * i) / (known.length - 1);
-      var y = yBase - known[i] * hgt;
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    /* axis */
+    ctx.strokeStyle = cssVar('--border', '#E0D6C9');
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad, base); ctx.lineTo(pad + span, base); ctx.stroke();
+
+    var gaps = known.length - 1;
+    var prog = t * gaps;                  /* which gap is being filled */
+    var g = Math.min(gaps - 1, Math.floor(prog));
+    var f = prog - g;
+
+    function kx(i) { return pad + (span * i) / (known.length - 1); }
+    function oy(v) { return base - v * hgt; }
+
+    /* straight segments between known values, revealed as we go */
+    for (var i = 0; i < gaps; i++) {
+      var shown = i < g ? 1 : (i === g ? f : 0);
+      if (shown <= 0) continue;
+      ctx.strokeStyle = colour;
+      ctx.globalAlpha = 0.5;
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.moveTo(kx(i), oy(known[i]));
+      ctx.lineTo(kx(i) + (kx(i + 1) - kx(i)) * shown,
+                 oy(known[i] + (known[i + 1] - known[i]) * shown));
+      ctx.stroke();
+      ctx.globalAlpha = 1;
     }
-    ctx.stroke();
-    ctx.globalAlpha = 1;
 
-    /* interpolated points appearing between the known ones */
-    var per = 4;
-    for (i = 0; i < known.length - 1; i++) {
+    /* inserted positions as small bars, so the change in resolution is visible */
+    for (i = 0; i < gaps; i++) {
       for (var j = 1; j < per; j++) {
-        var f = j / per;
-        var gx = pad + (span * (i + f)) / (known.length - 1);
-        var gv = known[i] * (1 - f) + known[i + 1] * f;
-        var gy = yBase - gv * hgt;
-        var appear = (i * (per - 1) + j) / ((known.length - 1) * (per - 1));
-        if (appear > reveal) continue;
-        ctx.beginPath();
-        ctx.arc(gx, gy, 2.6, 0, Math.PI * 2);
+        var ff = j / per;
+        var shown2 = i < g || (i === g && f > ff);
+        if (!shown2) continue;
+        var x = kx(i) + (kx(i + 1) - kx(i)) * ff;
+        var v = known[i] * (1 - ff) + known[i + 1] * ff;
         ctx.fillStyle = accent;
-        ctx.globalAlpha = 0.7;
-        ctx.fill();
+        ctx.globalAlpha = 0.20;
+        ctx.fillRect(x - 2, oy(v), 4, base - oy(v));
         ctx.globalAlpha = 1;
+        ctx.beginPath();
+        ctx.arc(x, oy(v), 3, 0, Math.PI * 2);
+        ctx.fillStyle = accent;
+        ctx.fill();
       }
     }
+
+    /* known values as tall bars with their numbers */
     for (i = 0; i < known.length; i++) {
-      var kx = pad + (span * i) / (known.length - 1);
-      var ky = yBase - known[i] * hgt;
+      ctx.fillStyle = colour;
+      ctx.globalAlpha = 0.22;
+      ctx.fillRect(kx(i) - 4, oy(known[i]), 8, base - oy(known[i]));
+      ctx.globalAlpha = 1;
       ctx.beginPath();
-      ctx.arc(kx, ky, 4.5, 0, Math.PI * 2);
+      ctx.arc(kx(i), oy(known[i]), 5.5, 0, Math.PI * 2);
       ctx.fillStyle = colour;
       ctx.fill();
+      ctx.fillStyle = ink;
+      ctx.font = '600 9px ' + cssVar('--mono', 'monospace');
+      ctx.textAlign = 'center';
+      ctx.fillText(known[i].toFixed(2), kx(i), oy(known[i]) - 10);
     }
 
+    /* the moving blend marker between the current pair */
+    var mx = kx(g) + (kx(g + 1) - kx(g)) * f;
+    var mv = known[g] * (1 - f) + known[g + 1] * f;
+    ctx.strokeStyle = accent;
+    ctx.globalAlpha = 0.55;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(mx, oy(mv)); ctx.lineTo(mx, base); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 1;
+    ctx.beginPath();
+    ctx.arc(mx, oy(mv), 5, 0, Math.PI * 2);
+    ctx.fillStyle = accent;
+    ctx.fill();
+
+    title(ctx, known.length + ' known values become ' + nOut +
+          ' positions   (the model expands 109 back to 867)', pad, 20);
+    var fq = Math.floor(f * per) / per;
+    var mvq = known[g] * (1 - fq) + known[g + 1] * fq;
     caption(ctx, W, H,
-            'linear interpolation carries no weights and changes only the temporal resolution',
-            'the filled points are known feature values, the small markers are interpolated between them');
+      'new value = (1 - f) x ' + known[g].toFixed(2) + ' + f x ' + known[g + 1].toFixed(2) +
+      ',  with f = ' + fq.toFixed(2) + ' giving ' + mvq.toFixed(2),
+      'the inserted points lie exactly on the straight line between two known values, so no new information is created');
   };
 
   /* 8. transposed convolution */
@@ -471,11 +622,11 @@
     var kern = [0.6, 0.9, 0.5, 0.2];
     var inVals = [0.7, 0.4, 0.9, 0.3, 0.6];
     var nOut = (nIn - 1) * s + k;
-    var pad = 40, iw = (W - pad * 2) / nIn, ow = (W - pad * 2) / nOut;
+    var pad = 40, ow = (W - pad * 2) / nOut, iw = ow * s;   /* input spans less */
     var yIn = 34, yOut = H - CAP - 26, chh = 16;
     var cur = Math.floor(t * nIn) % nIn;
 
-    title(ctx, 'input positions, each one multiplies the whole kernel', pad, yIn - 9);
+    title(ctx, 'input, ' + nIn + ' positions, each multiplies the whole kernel', pad, yIn - 9);
     for (var i = 0; i < nIn; i++) {
       cell(ctx, pad + i * iw, yIn, iw - 4, chh, colour, i === cur ? 0.85 : (i < cur ? 0.35 : 0.13),
            inVals[i].toFixed(1), i === cur ? '#fff' : muted);
@@ -487,12 +638,13 @@
       for (var j = 0; j < k; j++) acc[i * s + j] += inVals[i] * kern[j];
     }
     var maxV = Math.max.apply(null, acc.concat([1]));
-    title(ctx, 'output, overlapping contributions are added', pad, yOut - 9);
+    title(ctx, 'output, ' + nOut + ' positions, overlapping contributions are added', pad, yOut - 9);
     for (i = 0; i < nOut; i++) {
       var touched = i >= cur * s && i < cur * s + k;
       cell(ctx, pad + i * ow, yOut, ow - 3, chh, colour,
            acc[i] > 0 ? 0.18 + 0.6 * (acc[i] / maxV) : 0.08,
-           acc[i] > 0 ? acc[i].toFixed(2) : '', touched ? '#fff' : muted);
+           acc[i] > 0 ? acc[i].toFixed(2) : '',
+           acc[i] / maxV > 0.55 ? '#fff' : cssVar('--ink', '#2B1F24'));
       if (touched) {
         ctx.strokeStyle = accent;
         ctx.lineWidth = 1.2;
@@ -514,49 +666,78 @@
     var muted = cssVar('--muted', '#6B5D63'), ink = cssVar('--ink', '#2B1F24');
     var cS = cssVar('--d-strided', '#61223B'), cD = cssVar('--d-dilated', '#8C6B2F');
     var cL = cssVar('--d-latent', '#C2761F'), cM = cssVar('--d-mlp', '#3F6B4A');
+    var border = cssVar('--border', '#E0D6C9');
     var half = W / 2;
-    var phase = t * 2;
 
-    ctx.strokeStyle = cssVar('--border', '#E0D6C9');
+    ctx.strokeStyle = border;
     ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(half, 20); ctx.lineTo(half, H - CAP); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(half, 18); ctx.lineTo(half, H - CAP - 4); ctx.stroke();
 
-    function branchPair(cx, y, lit) {
-      cell(ctx, cx - 54, y, 48, 16, cS, lit ? 0.6 : 0.18, '128 x 109', '#fff');
-      cell(ctx, cx + 6, y, 48, 16, cD, lit ? 0.6 : 0.18, '128 x 109', '#fff');
+    var yTop = 42;
+    var rows = 4;
+    var pitch = (H - CAP - 14 - yTop) / rows;
+    var bh = Math.min(18, pitch * 0.52);
+    function ry(r) { return yTop + pitch * r; }
+
+    /* reveals spread across the whole loop so nothing sits frozen at the end */
+    function lit(at) { return t > at; }
+
+    function box(cx, w, r, colour, on, label) {
+      var x = cx - w / 2, y = ry(r);
+      cell(ctx, x, y, w, bh, colour, on ? 0.55 : 0.13, label, on ? '#fff' : muted);
+      return { x: x, y: y, w: w, h: bh, cx: cx, cy: y + bh / 2 };
+    }
+    function link(a, b, on) {
+      arrow(ctx, a.cx, a.y + a.h, b.cx, b.y - 3, on ? muted : border, on ? 0.75 : 0.25);
     }
 
-    /* left: concatenation then 1x1 */
+    /* ---- left: concatenation then a 1 x 1 convolution ---- */
+    var lx = half / 2;
     ctx.fillStyle = ink;
     ctx.font = '600 10px ' + cssVar('--font', 'sans-serif');
     ctx.textAlign = 'center';
-    ctx.fillText('concatenation fusion', half / 2, 24);
-    branchPair(half / 2, 38, phase > 0.3);
-    cell(ctx, half / 2 - 54, 70, 108, 16, muted, phase > 0.6 ? 0.5 : 0.15, '256 x 109', '#fff');
-    cell(ctx, half / 2 - 40, 100, 80, 16, cM, phase > 0.9 ? 0.55 : 0.15, '1x1 conv', '#fff');
-    cell(ctx, half / 2 - 40, 130, 80, 16, cM, phase > 1.1 ? 0.5 : 0.15, '128 x 109', '#fff');
-    ctx.fillStyle = muted;
-    ctx.font = '8.5px ' + cssVar('--font', 'sans-serif');
-    ctx.fillText('mixes channels at each position,', half / 2, 160);
-    ctx.fillText('without widening the receptive field', half / 2, 172);
+    ctx.fillText('concatenation fusion', lx, 24);
 
-    /* right: latent summation */
+    var la = box(lx - 30, 56, 0, cS, lit(0.05), '128 x 109');
+    var lb = box(lx + 30, 56, 0, cD, lit(0.05), '128 x 109');
+    var lc = box(lx, 118, 1, muted, lit(0.28), '256 x 109');
+    var ld = box(lx, 92, 2, cM, lit(0.5), '1x1 conv');
+    var le = box(lx, 92, 3, cM, lit(0.72), '128 x 109');
+    link(la, lc, lit(0.28)); link(lb, lc, lit(0.28));
+    link(lc, ld, lit(0.5)); link(ld, le, lit(0.72));
+
+    /* ---- right: a bridge per branch, then the latents are added ---- */
+    var rx = half + half / 2;
     ctx.fillStyle = ink;
     ctx.font = '600 10px ' + cssVar('--font', 'sans-serif');
-    ctx.fillText('latent summation', half + half / 2, 24);
-    branchPair(half + half / 2, 38, phase > 0.3);
-    cell(ctx, half + half / 2 - 54, 70, 48, 16, cM, phase > 0.6 ? 0.5 : 0.15, 'MLP', '#fff');
-    cell(ctx, half + half / 2 + 6, 70, 48, 16, cM, phase > 0.6 ? 0.5 : 0.15, 'MLP', '#fff');
-    cell(ctx, half + half / 2 - 54, 100, 48, 16, cL, phase > 0.9 ? 0.55 : 0.15, 'z_A', '#fff');
-    cell(ctx, half + half / 2 + 6, 100, 48, 16, cL, phase > 0.9 ? 0.55 : 0.15, 'z_B', '#fff');
-    cell(ctx, half + half / 2 - 24, 130, 48, 16, cL, phase > 1.2 ? 0.6 : 0.15, 'z', '#fff');
+    ctx.fillText('latent summation', rx, 24);
+
+    var ra = box(rx - 32, 56, 0, cS, lit(0.05), '128 x 109');
+    var rb = box(rx + 32, 56, 0, cD, lit(0.05), '128 x 109');
+    var rc = box(rx - 32, 56, 1, cM, lit(0.28), 'MLP');
+    var rd = box(rx + 32, 56, 1, cM, lit(0.28), 'MLP');
+    var re = box(rx - 32, 46, 2, cL, lit(0.5), 'z_A');
+    var rf2 = box(rx + 32, 46, 2, cL, lit(0.5), 'z_B');
+    var rg = box(rx, 46, 3, cL, lit(0.72), 'z');
+    link(ra, rc, lit(0.28)); link(rb, rd, lit(0.28));
+    link(rc, re, lit(0.5)); link(rd, rf2, lit(0.5));
+    link(re, rg, lit(0.72)); link(rf2, rg, lit(0.72));
+    if (lit(0.72)) {
+      ctx.fillStyle = cL;
+      ctx.font = '600 11px ' + cssVar('--mono', 'monospace');
+      ctx.textAlign = 'center';
+      ctx.fillText('+', rx, ry(2) + bh + (pitch - bh) / 2 + 4);
+    }
+
     ctx.fillStyle = muted;
     ctx.font = '8.5px ' + cssVar('--font', 'sans-serif');
-    ctx.fillText('each branch gets its own bridge,', half + half / 2, 160);
-    ctx.fillText('and the two latents are added', half + half / 2, 172);
+    ctx.textAlign = 'center';
+    ctx.fillText('mixes channels at each position', lx, H - CAP - 2);
+    ctx.fillText('one bridge per branch, latents added', rx, H - CAP - 2);
 
     caption(ctx, W, H,
-            'the fusion choice is why the two parallel architectures differ in bridge size and parameter count');
+      'the fusion choice is why the two parallel architectures differ in bridge size and parameter count',
+      'concatenation fuses before the bridge at 13,952 inputs, summation gives each branch its own bridge');
   };
 
   /* 10. variational sampling */
@@ -581,8 +762,13 @@
       cell(ctx, W * 0.20 - 26, y - 8, 52, 16, cM, 0.45, mu[i].toFixed(2), '#fff');
       cell(ctx, W * 0.42 - 26, y - 8, 52, 16, cM, 0.30, sd[i].toFixed(2), ink);
       /* a deterministic pseudo-noise per draw so the value visibly jitters */
-      var eps = Math.sin((i + 1) * 12.9898 + draw * 4.1414) * 43758.5453;
-      eps = (eps - Math.floor(eps)) * 2 - 1;
+      /* Sum of three uniforms on [-1,1) has unit variance, so draws leave the
+         one-standard-deviation band at about the rate a normal would. */
+      var eps = 0;
+      for (var q = 0; q < 3; q++) {
+        var r = Math.sin((i + 1) * 12.9898 + draw * 4.1414 + q * 7.233) * 43758.5453;
+        eps += (r - Math.floor(r)) * 2 - 1;
+      }
       var z = mu[i] + sd[i] * eps;
       var bx = W * 0.62;
       var bw = W * 0.28;
@@ -611,6 +797,195 @@
             'this sampling block is the only structural difference from the deterministic models');
   };
 
+  BLOCKS.gelu = function (ctx, W, H, t) {
+    var muted = cssVar('--muted', '#6B5D63'), ink = cssVar('--ink', '#2B1F24');
+    var accent = cssVar('--accent', '#8C2F4A'), cM = cssVar('--d-mlp', '#3F6B4A');
+    var border = cssVar('--border', '#E0D6C9');
+    var padL = 54, padR = 22, padT = 22;
+    var x0 = padL, x1 = W - padR;
+    var yb = H - CAP - 10, yt = padT;
+    var XMIN = -4, XMAX = 4, YMIN = -1.2, YMAX = 4;
+
+    function px(v) { return x0 + ((v - XMIN) / (XMAX - XMIN)) * (x1 - x0); }
+    function py(v) { return yb - ((v - YMIN) / (YMAX - YMIN)) * (yb - yt); }
+
+    /* axes */
+    ctx.strokeStyle = border;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x0, py(0)); ctx.lineTo(x1, py(0));
+    ctx.moveTo(px(0), yt); ctx.lineTo(px(0), yb);
+    ctx.stroke();
+    ctx.fillStyle = muted;
+    ctx.font = '8px ' + cssVar('--mono', 'monospace');
+    ctx.textAlign = 'center';
+    for (var v = -4; v <= 4; v += 2) {
+      if (v === 0) continue;
+      ctx.fillText(String(v), px(v), py(0) + 12);
+    }
+
+    /* identity, for reference */
+    ctx.strokeStyle = muted;
+    ctx.globalAlpha = 0.45;
+    ctx.setLineDash([4, 4]);
+    var lo = Math.max(XMIN, YMIN), hi = Math.min(XMAX, YMAX);
+    ctx.beginPath();
+    ctx.moveTo(px(lo), py(lo)); ctx.lineTo(px(hi), py(hi));
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 1;
+
+    /* the curve */
+    ctx.strokeStyle = cM;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (var i = 0; i <= 220; i++) {
+      var xv = XMIN + ((XMAX - XMIN) * i) / 220;
+      var yv = gelu(xv);
+      if (i === 0) ctx.moveTo(px(xv), py(yv)); else ctx.lineTo(px(xv), py(yv));
+    }
+    ctx.stroke();
+
+    /* a value sweeping back and forth through the curve */
+    var tri = t < 0.5 ? t * 2 : 2 - t * 2;
+    var a = XMIN + (XMAX - XMIN) * tri;
+    var h = gelu(a);
+    ctx.strokeStyle = accent;
+    ctx.globalAlpha = 0.6;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(px(a), py(0)); ctx.lineTo(px(a), py(h));
+    ctx.lineTo(px(XMIN), py(h));
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 1;
+    ctx.beginPath();
+    ctx.arc(px(a), py(h), 5.5, 0, Math.PI * 2);
+    ctx.fillStyle = accent;
+    ctx.fill();
+
+    ctx.fillStyle = ink;
+    ctx.font = '600 10px ' + cssVar('--mono', 'monospace');
+    ctx.textAlign = 'left';
+    var aShown = Math.round(a * 2) / 2;
+    ctx.fillText('in  ' + aShown.toFixed(1), x0 + 6, yt + 12);
+    ctx.fillText('out ' + gelu(aShown).toFixed(2), x0 + 6, yt + 26);
+    ctx.fillStyle = cM;
+    ctx.font = '9px ' + cssVar('--font', 'sans-serif');
+    ctx.textAlign = 'right';
+    ctx.fillText('GELU', x1 - 4, py(gelu(3.4)) - 6);
+    ctx.fillStyle = muted;
+    ctx.fillText('identity', x1 - 4, py(3.6) + 12);
+
+    caption(ctx, W, H,
+      'large positive values pass through almost unchanged, negatives are damped towards zero',
+      'the curve is smooth and never perfectly flat, so a negative unit still passes a gradient and can recover during training');
+  };
+
+  BLOCKS.reshape = function (ctx, W, H, t) {
+    var muted = cssVar('--muted', '#6B5D63'), ink = cssVar('--ink', '#2B1F24');
+    var cM = cssVar('--d-mlp', '#3F6B4A'), accent = cssVar('--accent', '#8C2F4A');
+    var rows = 4, colsN = 8, n = rows * colsN;
+    var pad = 30, avail = W - pad * 2;
+    var gw = Math.min(34, avail / colsN), gh = 17;
+    var gx = pad + (avail - gw * colsN) / 2;
+    var gy = 40;
+    var sw = avail / n, sh = 17;
+    var sy = H - CAP - 42;
+
+    /* one full cycle: grid to vector, then vector back to grid */
+    var half = t < 0.5;
+    var raw = half ? t * 2 : (t - 0.5) * 2;
+    var e = raw < 0.5 ? 2 * raw * raw : 1 - Math.pow(-2 * raw + 2, 2) / 2;   /* ease in out */
+    var p = half ? e : 1 - e;
+
+    for (var i = 0; i < n; i++) {
+      var r = Math.floor(i / colsN), c = i % colsN;
+      var ax = gx + c * gw, ay = gy + r * (gh + 2);
+      var bx = pad + i * sw, by = sy;
+      var x = ax + (bx - ax) * p;
+      var y = ay + (by - ay) * p;
+      var w = gw - 2 + ((sw - 1) - (gw - 2)) * p;
+      var lag = Math.max(0, Math.min(1, (p - (i / n) * 0.25) / 0.75));
+      cell(ctx, x, y, Math.max(1.5, w), gh, cM, 0.22 + 0.4 * (r / rows) + 0.1 * lag);
+    }
+
+    ctx.fillStyle = muted;
+    ctx.font = '9px ' + cssVar('--mono', 'monospace');
+    ctx.textAlign = 'center';
+    ctx.globalAlpha = 1 - p;
+    ctx.fillText('feature tensor, 4 channels x 8 positions   (the model uses 256 x 109)',
+                 W / 2, gy - 12);
+    ctx.globalAlpha = p;
+    ctx.fillText('one long vector, 32 values   (the model uses 27,904)', W / 2, sy - 12);
+    ctx.globalAlpha = 1;
+
+    ctx.fillStyle = accent;
+    ctx.font = '600 10px ' + cssVar('--font', 'sans-serif');
+    ctx.textAlign = 'center';
+    var gb = gy + (rows - 1) * (gh + 2) + gh;
+    var ly = Math.max((gy + sy) / 2 + 4, gb + 22);
+    ctx.fillText(half ? 'flatten' : 'reshape', W / 2, ly);
+    arrow(ctx, W / 2, half ? ly - 22 : ly + 22, W / 2, half ? ly + 14 : ly - 14, accent, 0.7);
+
+    caption(ctx, W, H,
+      half ? 'flattening lays the channels end to end so a fully connected layer can read them'
+           : 'reshaping folds the vector back into channels and positions for the convolutions',
+      'no value changes, only the arrangement, and the order is fixed so the operation is exactly reversible');
+  };
+
+  BLOCKS.rf = function (ctx, W, H, t) {
+    var muted = cssVar('--muted', '#6B5D63'), ink = cssVar('--ink', '#2B1F24');
+    var accent = cssVar('--accent', '#8C2F4A');
+    var cS = cssVar('--d-strided', '#61223B'), cD = cssVar('--d-dilated', '#8C6B2F');
+    var layers = [
+      { name: 'strided 1', rf: 7, type: 's' }, { name: 'strided 2', rf: 19, type: 's' },
+      { name: 'strided 3', rf: 43, type: 's' }, { name: 'dilated d=1', rf: 91, type: 'd' },
+      { name: 'dilated d=2', rf: 187, type: 'd' }, { name: 'dilated d=4', rf: 379, type: 'd' },
+      { name: 'dilated d=8', rf: 763, type: 'd' }
+    ];
+    var TOTAL = 6935;
+    var pad = 56, span = W - pad - 24;
+    var top = 34, rowH = (H - CAP - top - 16) / layers.length;
+    var step = Math.min(layers.length - 1, Math.floor(t * layers.length));
+    var frac = Math.min(1, t * layers.length - step);
+
+    title(ctx, 'span of the input record feeding one output position', pad - 34, 18);
+
+    for (var i = 0; i < layers.length; i++) {
+      var y = top + rowH * i;
+      var shown = i < step ? 1 : (i === step ? frac : 0);
+      /* the full record as a faint track */
+      ctx.fillStyle = muted;
+      ctx.globalAlpha = 0.10;
+      ctx.fillRect(pad, y + rowH * 0.25, span, rowH * 0.42);
+      ctx.globalAlpha = 1;
+      if (shown > 0) {
+        var wpx = span * (layers[i].rf / TOTAL) * shown;
+        ctx.fillStyle = layers[i].type === 's' ? cS : cD;
+        ctx.globalAlpha = i === step ? 0.85 : 0.5;
+        ctx.fillRect(pad, y + rowH * 0.25, Math.max(1.5, wpx), rowH * 0.42);
+        ctx.globalAlpha = 1;
+      }
+      ctx.fillStyle = i <= step ? ink : muted;
+      ctx.font = '8.5px ' + cssVar('--mono', 'monospace');
+      ctx.textAlign = 'right';
+      ctx.fillText(layers[i].name, pad - 6, y + rowH * 0.62);
+      if (shown > 0) {
+        ctx.textAlign = 'left';
+        ctx.fillStyle = i === step ? accent : muted;
+        ctx.font = (i === step ? '600 ' : '') + '8.5px ' + cssVar('--mono', 'monospace');
+        ctx.fillText(Math.round(layers[i].rf * shown) + ' days',
+                     pad + Math.max(1.5, span * (layers[i].rf / TOTAL) * shown) + 6,
+                     y + rowH * 0.62);
+      }
+    }
+
+    caption(ctx, W, H,
+      'after seven layers one feature position sees 763 days, about two annual cycles',
+      'the faint track is the full 6,935-day record, so even the deepest layer covers roughly a ninth of it before the bridge');
+  };
+
   /* ---------- mounting ---------- */
 
   function mount(canvas, kind, period) {
@@ -636,12 +1011,24 @@
       ctx.textBaseline = 'alphabetic';
       drawFn(ctx, W, H, t);
     }
+    var dwell = 0;
+    var DWELL = 1.1;      /* seconds to hold the finished frame before looping */
+
     function tick(now) {
       if (!playing) return;
       if (!last) last = now;
-      t += Math.min(0.05, (now - last) / 1000) / period;
+      var dt = Math.min(0.05, (now - last) / 1000);
       last = now;
-      if (t >= 1) t = 0;
+      if (t >= 0.9999) {
+        /* Hold just short of 1 rather than at 1, because several blocks drive
+           themselves with Math.floor(t * n) and would wrap to their first
+           frame exactly at t = 1, discarding the assembled diagram. */
+        dwell += dt;
+        t = 0.9999;
+        if (dwell >= DWELL) { dwell = 0; t = 0; }
+      } else {
+        t = Math.min(0.9999, t + dt / period);
+      }
       render();
       raf = requestAnimationFrame(tick);
     }
