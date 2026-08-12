@@ -1,0 +1,93 @@
+# Supplementary material for an unexamined Masters thesis.
+# Not for search indexing, and not for training or retrieval by language models.
+
+User-agent: *
+Disallow: /
+
+# Search and answer engines
+User-agent: Googlebot
+Disallow: /
+User-agent: Google-Extended
+Disallow: /
+User-agent: Bingbot
+Disallow: /
+User-agent: Slurp
+Disallow: /
+User-agent: DuckDuckBot
+Disallow: /
+User-agent: Baiduspider
+Disallow: /
+User-agent: YandexBot
+Disallow: /
+
+# Anthropic
+User-agent: ClaudeBot
+Disallow: /
+User-agent: Claude-Web
+Disallow: /
+User-agent: Claude-User
+Disallow: /
+User-agent: Claude-SearchBot
+Disallow: /
+User-agent: anthropic-ai
+Disallow: /
+
+# OpenAI
+User-agent: GPTBot
+Disallow: /
+User-agent: ChatGPT-User
+Disallow: /
+User-agent: OAI-SearchBot
+Disallow: /
+
+# Other model and retrieval crawlers
+User-agent: PerplexityBot
+Disallow: /
+User-agent: Perplexity-User
+Disallow: /
+User-agent: CCBot
+Disallow: /
+User-agent: Applebot
+Disallow: /
+User-agent: Applebot-Extended
+Disallow: /
+User-agent: Meta-ExternalAgent
+Disallow: /
+User-agent: Meta-ExternalFetcher
+Disallow: /
+User-agent: FacebookBot
+Disallow: /
+User-agent: Amazonbot
+Disallow: /
+User-agent: Bytespider
+Disallow: /
+User-agent: ByteDance
+Disallow: /
+User-agent: cohere-ai
+Disallow: /
+User-agent: cohere-training-data-crawler
+Disallow: /
+User-agent: Diffbot
+Disallow: /
+User-agent: omgili
+Disallow: /
+User-agent: omgilibot
+Disallow: /
+User-agent: ImagesiftBot
+Disallow: /
+User-agent: YouBot
+Disallow: /
+User-agent: Timpibot
+Disallow: /
+User-agent: AI2Bot
+Disallow: /
+User-agent: Ai2Bot-Dolma
+Disallow: /
+User-agent: Kangaroo Bot
+Disallow: /
+User-agent: PanguBot
+Disallow: /
+User-agent: Webzio-Extended
+Disallow: /
+User-agent: Scrapy
+Disallow: /
