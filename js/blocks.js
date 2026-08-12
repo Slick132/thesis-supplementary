@@ -143,6 +143,13 @@
 
   var BLOCKS = {};
 
+  /* Width encodes how many values a stage holds, on a log scale. Every block
+     that draws a shape chain uses this, so a wide box always means more
+     values and the reader never has to relearn the grammar. */
+  function widthFor(n, maxW) {
+    return 16 + (maxW - 16) * (Math.log(n) / Math.log(27904));
+  }
+
   /* 1. basic multichannel convolution, with GELU */
   BLOCKS.conv = function (ctx, W, H, t) {
     var ink = cssVar('--ink', '#2B1F24'), muted = cssVar('--muted', '#6B5D63');
@@ -239,13 +246,15 @@
     ctx.lineWidth = 1.3;
     ctx.strokeRect(pad + (centre - 3 + p) * cw - 1, yIn - 2, cw * k, chh + 4);
 
-    title(ctx, 'output, ' + nOut + ' positions, one per two inputs', pad, yOut - 9, W);
+    title(ctx, 'output, ' + nOut + ' positions, one per two inputs   (the model halves 1,734 to 867)',
+          pad, yOut - 9, W);
     var ow = cw;                       /* same pitch, so the row is visibly shorter */
+    var oPad = pad + p * cw;           /* start under the first real input */
     for (i = 0; i < nOut; i++) {
-      cell(ctx, pad + i * ow, yOut, ow - 1.5, chh, colour, i < step ? 0.62 : (i === step ? 0.8 : 0.1));
+      cell(ctx, oPad + i * ow, yOut, ow - 1.5, chh, colour, i < step ? 0.62 : (i === step ? 0.8 : 0.1));
     }
     arrow(ctx, pad + (centre + p) * cw + cw / 2, yIn + chh + 4,
-          pad + step * ow + ow / 2, yOut - 5, accent, 0.8);
+          oPad + step * ow + ow / 2, yOut - 5, accent, 0.8);
 
     caption(ctx, W, H,
             'the window steps two positions at a time, so consecutive windows overlap by five',
@@ -371,10 +380,17 @@
     /* the real shape chain of the selected model, across the top */
     var shapes = ['256 x 109', '27,904', '128', '5'];
     var names = ['feature tensor', 'flattened', 'hidden', 'embedding'];
-    var bw = Math.min(110, (W - 60) / 4 - 16), y0 = 18, bh = 24;
-    var gap = (W - 30 - bw * 4) / 3;
+    var counts = [27904, 27904, 128, 5];
+    var y0 = 18, bh = 24;
+    var maxW = Math.min(150, (W - 70) / 3.1);
+    var ws = counts.map(function (n) { return widthFor(n, maxW); });
+    var total = ws[0] + ws[1] + ws[2] + ws[3];
+    var gap = (W - 30 - total) / 3;
+    var xrun = 15;
     for (var i = 0; i < 4; i++) {
-      var x = 15 + i * (bw + gap);
+      var bw = ws[i];
+      var x = xrun;
+      xrun += bw + gap;
       cell(ctx, x, y0, bw, bh, i === 3 ? cL : cM, 0.34);
       ctx.fillStyle = ink;
       ctx.textAlign = 'center';
@@ -388,6 +404,7 @@
       ctx.font = '8px ' + cssVar('--font', 'sans-serif');
       ctx.fillText(names[i], x + bw / 2, y0 - 5);
       if (i < 3) arrow(ctx, x + bw + 3, y0 + bh / 2, x + bw + gap - 3, y0 + bh / 2, muted, 0.55);
+      ctx.textAlign = 'center';
     }
 
     /* toy network, computed one unit at a time so the sum is visible */
@@ -451,12 +468,15 @@
       }
       ctx.globalAlpha = 1;
     }
+    /* one reveal count drives both the edges and the written arithmetic */
+    var revealH = Math.min(4, Math.floor(frac * 4 / 0.7));
+    var revealO = Math.min(3, Math.floor(frac * 3 / 0.7));
     var hidDone = [hold || stage > 0, hold || stage > 1, hold || stage > 2];
     var outDone = [hold || stage > 3, hold];
     drawEdges(pIn, pHid, W1, inHidden ? target : -1,
-              inHidden ? Math.round(frac * 4) : 4, hidDone);
+              inHidden ? revealH : 4, hidDone);
     drawEdges(pHid, pOut, W2, (hold || inHidden) ? -1 : target,
-              inHidden ? 0 : Math.round(frac * 3), outDone);
+              inHidden ? 0 : revealO, outDone);
 
     function nodes(p, vals, colour, lit, label) {
       for (var j = 0; j < p.length; j++) {
@@ -497,18 +517,20 @@
               'the four inputs are now two numbers: ' + out[0].toFixed(2) + ' and ' + out[1].toFixed(2),
               'the real model carries 27,904 values down to five in exactly this way');
     } else if (inHidden) {
-      var kk = Math.min(4, Math.floor(frac * 4 / 0.7));   /* done by 70%, result readable after */
+      var kk = revealH;
       for (i = 0; i < kk; i++) {
         terms.push(W1[target][i].toFixed(2) + '(' + vIn[i].toFixed(2) + ')');
       }
       sum = b1[target];
       for (i = 0; i < kk; i++) sum += W1[target][i] * vIn[i];
-      var line = 'h' + (target + 1) + ' = GELU(' + (terms.length ? terms.join(' + ') + ' + ' : '') +
-                 b1[target].toFixed(2) + ')';
+      var line = W < 520
+        ? 'h' + (target + 1) + ' = GELU(sum of ' + kk + ' terms + ' + b1[target].toFixed(2) + ')'
+        : 'h' + (target + 1) + ' = GELU(' + (terms.length ? terms.join(' + ') + ' + ' : '') +
+          b1[target].toFixed(2) + ')';
       if (kk === 4) line += ' = GELU(' + pre[target].toFixed(2) + ') = ' + hid[target].toFixed(2);
       caption(ctx, W, H, line, 'each hidden unit sums every input, adds a bias, then passes through GELU');
     } else {
-      var mm = Math.min(3, Math.floor(frac * 3 / 0.7));
+      var mm = revealO;
       for (i = 0; i < mm; i++) {
         terms.push(W2[target][i].toFixed(2) + '(' + hid[i].toFixed(2) + ')');
       }
@@ -532,9 +554,7 @@
     var shapes = ['5', '128', '27,904', '256 x 109'];
     var names = ['embedding', 'hidden', 'flat vector', 'feature tensor'];
     var maxW = Math.min(150, (W - 70) / 3.1);
-    function bwFor(n) {
-      return 16 + (maxW - 16) * (Math.log(n) / Math.log(27904));
-    }
+    function bwFor(n) { return widthFor(n, maxW); }
 
     var stage = Math.min(3, Math.floor(t * 4));
     var frac = Math.min(1, t * 4 - stage);
@@ -554,14 +574,12 @@
       var lines = 9;
       ctx.strokeStyle = i === 2 ? accent : cM;
       for (var j = 0; j < lines; j++) {
-        var ay = cy - bh / 2 + (bh * (j + 0.5)) / lines;
         var by = cy - bh / 2 + (bh * (j + 0.5)) / lines;
-        var spread = (j / (lines - 1) - 0.5) * bh * 0.9;
         ctx.globalAlpha = 0.10 + 0.35 * on;
         ctx.lineWidth = 0.7;
         ctx.beginPath();
-        ctx.moveTo(ax, cy + spread * 0.25);
-        ctx.lineTo(ax + (bx - ax) * on, by + spread * on);
+        ctx.moveTo(ax, cy + ((j / (lines - 1)) - 0.5) * bh * 0.25);
+        ctx.lineTo(ax + (bx - ax) * on, by);
         ctx.stroke();
       }
       ctx.globalAlpha = 1;
@@ -570,9 +588,19 @@
     for (i = 0; i < 4; i++) {
       var w = bwFor(counts[i]);
       var lit = i <= stage;
-      var grow = i === stage ? 0.35 + 0.65 * e : 1;
-      var drawW = lit ? w * grow : w;
-      cell(ctx, xs[i], cy - bh / 2, drawW, bh, i === 0 ? cL : cM, lit ? 0.5 : 0.12);
+      /* The box keeps its width, which is what encodes the value count, and
+         fills by a wipe. Growing the width would make it collapse to a third
+         at every stage boundary and drag the label outside the rectangle. */
+      cell(ctx, xs[i], cy - bh / 2, w, bh, i === 0 ? cL : cM, lit ? 0.14 : 0.10);
+      if (lit) {
+        var fillW = i === stage ? w * e : w;
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(xs[i], cy - bh / 2, fillW, bh);
+        ctx.clip();
+        cell(ctx, xs[i], cy - bh / 2, w, bh, i === 0 ? cL : cM, 0.5);
+        ctx.restore();
+      }
       ctx.fillStyle = lit ? ink : muted;
       ctx.textAlign = 'center';
       var fs = 10;
@@ -741,8 +769,8 @@
     }
 
     caption(ctx, W, H,
-            'the weights are learned, not copied from the encoder',
-            'length grows when the stride exceeds one, but information lost by downsampling is not recovered');
+            'each input scatters across the kernel, and the overlaps are added, so the sequence lengthens',
+            'the weights are learned rather than copied from the encoder, and information lost by downsampling is not recovered');
   };
 
   /* 9. parallel-branch fusion, with the 1x1 convolution inset */
@@ -785,8 +813,8 @@
     var la = box(lx - 30, 56, 0, cS, lit(0.05), '128 x 109');
     var lb = box(lx + 30, 56, 0, cD, lit(0.05), '128 x 109');
     var lc = box(lx, 118, 1, muted, lit(0.28), '256 x 109');
-    var ld = box(lx, 92, 2, cM, lit(0.5), '1x1 conv');
-    var le = box(lx, 92, 3, cM, lit(0.72), '128 x 109');
+    var ld = box(lx, 74, 2, cM, lit(0.5), '1x1 conv');
+    var le = box(lx, 56, 3, cM, lit(0.72), '128 x 109');   /* back to 128 channels */
     link(la, lc, lit(0.28)); link(lb, lc, lit(0.28));
     link(lc, ld, lit(0.5)); link(ld, le, lit(0.72));
 
@@ -837,14 +865,15 @@
     ctx.fillStyle = muted;
     ctx.font = '8.5px ' + cssVar('--font', 'sans-serif');
     ctx.textAlign = 'center';
-    ctx.fillText('mean', W * 0.20, yTop - 12);
-    ctx.fillText('standard deviation', W * 0.42, yTop - 12);
-    ctx.fillText('sampled embedding', W * 0.76, yTop - 12);
+    ctx.fillText('mean', W * 0.11, yTop - 12);
+    ctx.fillText('std dev', W * 0.25, yTop - 12);
+    ctx.fillText('epsilon', W * 0.39, yTop - 12);
+    ctx.fillText('sampled embedding, 5 dimensions', W * 0.75, yTop - 12);
 
     for (var i = 0; i < 5; i++) {
       var y = yTop + rowH * (i + 0.5);
-      cell(ctx, W * 0.20 - 26, y - 8, 52, 16, cM, 0.45, mu[i].toFixed(2), '#fff');
-      cell(ctx, W * 0.42 - 26, y - 8, 52, 16, cM, 0.30, sd[i].toFixed(2), ink);
+      cell(ctx, W * 0.11 - 26, y - 8, 52, 16, cM, 0.45, mu[i].toFixed(2), '#fff');
+      cell(ctx, W * 0.25 - 26, y - 8, 52, 16, cM, 0.30, sd[i].toFixed(2), ink);
       /* a deterministic pseudo-noise per draw so the value visibly jitters */
       /* Sum of three uniforms on [-1,1) has unit variance, so draws leave the
          one-standard-deviation band at about the rate a normal would. */
@@ -854,8 +883,8 @@
         eps += (r - Math.floor(r)) * 2 - 1;
       }
       var z = mu[i] + sd[i] * eps;
-      var bx = W * 0.62;
-      var bw = W * 0.28;
+      var bx = W * 0.55;
+      var bw = W * 0.40;
       ctx.strokeStyle = cssVar('--border', '#E0D6C9');
       ctx.lineWidth = 1;
       ctx.beginPath();
@@ -870,10 +899,23 @@
       ctx.arc(bx + bw * (0.5 + mu[i] / 3), y, 3, 0, Math.PI * 2);
       ctx.fillStyle = muted;
       ctx.fill();
+      /* epsilon, the term the equation above the canvas turns on */
+      cell(ctx, W * 0.39 - 26, y - 8, 52, 16, accent, 0.30, eps.toFixed(2), ink);
+      /* the zero line, so the sampled value can be read against a scale */
+      ctx.strokeStyle = cssVar('--border', '#E0D6C9');
+      ctx.globalAlpha = 0.9;
+      ctx.beginPath();
+      ctx.moveTo(bx + bw * 0.5, y - 9); ctx.lineTo(bx + bw * 0.5, y + 9);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
       ctx.beginPath();
       ctx.arc(bx + bw * (0.5 + z / 3), y, 4.5, 0, Math.PI * 2);
       ctx.fillStyle = accent;
       ctx.fill();
+      ctx.fillStyle = accent;
+      ctx.font = '600 8.5px ' + cssVar('--mono', 'monospace');
+      ctx.textAlign = 'center';
+      ctx.fillText(z.toFixed(2), bx + bw * (0.5 + z / 3), y - 10);
     }
 
     caption(ctx, W, H,
@@ -931,8 +973,9 @@
     ctx.stroke();
 
     /* a value sweeping back and forth through the curve */
-    var tri = t < 0.5 ? t * 2 : 2 - t * 2;
-    var a = XMIN + (XMAX - XMIN) * tri;
+    /* a single left-to-right sweep, so the end-of-loop hold rests on the
+       positive tail where the curve meets the identity line */
+    var a = XMIN + (XMAX - XMIN) * t;
     var h = gelu(a);
     ctx.strokeStyle = accent;
     ctx.globalAlpha = 0.6;
