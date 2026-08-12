@@ -37,9 +37,11 @@
     roundRect(ctx, x, y, w, h, 2);
     ctx.fill();
     ctx.globalAlpha = 1;
-    if (label !== undefined && label !== null && w > 16) {
+    if (label !== undefined && label !== null && w > 10) {
       ctx.fillStyle = labelColour || cssVar('--ink', '#2B1F24');
-      ctx.font = '8px ' + cssVar('--mono', 'monospace');
+      /* shrink rather than vanish, so values survive a phone-width canvas */
+      var fs = Math.max(6, Math.min(8, w * 0.42));
+      ctx.font = fs + 'px ' + cssVar('--mono', 'monospace');
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(label, x + w / 2, y + h / 2);
@@ -100,10 +102,15 @@
     }
     ctx.fillText(text, 12, H - 9);
   }
-  function title(ctx, text, x, y) {
+  function title(ctx, text, x, y, W) {
     ctx.fillStyle = cssVar('--muted', '#6B5D63');
-    ctx.font = '9px ' + cssVar('--mono', 'monospace');
     ctx.textAlign = 'left';
+    var sizes = [9, 8.5, 8, 7.5, 7];
+    var avail = (W || 0) > 0 ? W - x - 8 : Infinity;
+    for (var i = 0; i < sizes.length; i++) {
+      ctx.font = sizes[i] + 'px ' + cssVar('--mono', 'monospace');
+      if (ctx.measureText(text).width <= avail) break;
+    }
     ctx.fillText(text, x, y);
   }
 
@@ -151,7 +158,7 @@
     var pos = Math.floor(t * n) % n;
     var sub = t * n - Math.floor(t * n);
 
-    title(ctx, 'input, 2 variables x 12 days', pad, yIn - 8);
+    title(ctx, 'input, 2 variables x 12 days', pad, yIn - 8, W);
     var neutral = cssVar('--ink', '#2B1F24');
     for (var c = 0; c < 2; c++) {
       /* the implicit zero padding the kernel reads at the two ends */
@@ -176,7 +183,7 @@
     ctx.strokeRect(wx, yIn - 2, cw * 3 - 2, (ch + 2) * 2);
 
     /* output feature maps */
-    title(ctx, 'feature maps, ' + Kq.length + ' learned filters x 12 positions', pad, yOut - 8);
+    title(ctx, 'feature maps, ' + Kq.length + ' learned filters x 12 positions', pad, yOut - 8, W);
     for (var q = 0; q < Kq.length; q++) {
       for (i = 0; i < n; i++) {
         /* Paint the active column immediately, because the caption already
@@ -220,7 +227,7 @@
     var step = Math.floor(t * nOut) % nOut;
     var centre = step * s;
 
-    title(ctx, 'input, 17 positions with 3 padding cells at each end', pad, yIn - 9);
+    title(ctx, 'input, 17 positions with 3 padding cells at each end', pad, yIn - 9, W);
     for (var i = -p; i < n + p; i++) {
       var isPad = i < 0 || i >= n;
       var inWin = i >= centre - (k - 1) / 2 + 0 && i <= centre + (k - 1) / 2;
@@ -232,7 +239,7 @@
     ctx.lineWidth = 1.3;
     ctx.strokeRect(pad + (centre - 3 + p) * cw - 1, yIn - 2, cw * k, chh + 4);
 
-    title(ctx, 'output, ' + nOut + ' positions, one per two inputs', pad, yOut - 9);
+    title(ctx, 'output, ' + nOut + ' positions, one per two inputs', pad, yOut - 9, W);
     var ow = cw;                       /* same pitch, so the row is visibly shorter */
     for (i = 0; i < nOut; i++) {
       cell(ctx, pad + i * ow, yOut, ow - 1.5, chh, colour, i < step ? 0.62 : (i === step ? 0.8 : 0.1));
@@ -264,9 +271,11 @@
     var pad = 20, cw = (W - pad * 2) / n, chh = 16;
     var yIn = 40, yOut = H - CAP - 22;
     var centre = Math.round(n / 2);
-    var span = d * (k - 1) + 1;
+    /* name the rate the taps have actually reached, not the one just left */
+    var dShown = eased > 0.5 ? nxt : d;
+    var span = dShown * (k - 1) + 1;
 
-    title(ctx, 'input, stride 1 so the length never changes', pad, yIn - 9);
+    title(ctx, 'input, stride 1 so the length never changes', pad, yIn - 9, W);
     var taps = [];        /* integer cells for the highlight */
     var tapsF = [];       /* continuous positions for the moving marks */
     for (var j = 0; j < k; j++) {
@@ -286,9 +295,14 @@
     ctx.moveTo(pad + tapsF[0] * cw, yIn - 5);
     ctx.lineTo(pad + (tapsF[k - 1] + 1) * cw, yIn - 5);
     ctx.stroke();
+    ctx.fillStyle = accent;
+    ctx.font = '600 8.5px ' + cssVar('--mono', 'monospace');
+    ctx.textAlign = 'center';
+    ctx.fillText(k + ' weights',
+                 pad + ((tapsF[0] + tapsF[k - 1] + 1) / 2) * cw, yIn - 10);
     ctx.globalAlpha = 1;
 
-    title(ctx, 'output, same length', pad, yOut - 9);
+    title(ctx, 'output, same length', pad, yOut - 9, W);
     for (i = 0; i < n; i++) {
       cell(ctx, pad + i * cw, yOut, Math.max(1.5, cw - 1.2), chh, colour,
            i === centre ? 0.85 : 0.14);
@@ -300,7 +314,7 @@
     }
 
     caption(ctx, W, H,
-            'dilation ' + d + ':  seven weights spread over ' + span + ' positions, output length unchanged',
+            'dilation ' + dShown + ':  seven weights spread over ' + span + ' positions, output length unchanged',
             'stacking rates 1, 2, 4 and 8 is what carries the selected model to a 763-day receptive field');
   };
 
@@ -316,7 +330,7 @@
     var yIn = 28, yOut = H - CAP - 4 * (13 + 2) - 6;
     var bin = Math.floor(t * nOut) % nOut;
 
-    title(ctx, 'feature tensor, 4 channels x 16 positions', pad, yIn - 9);
+    title(ctx, 'feature tensor, 4 channels x 16 positions', pad, yIn - 9, W);
     for (var c = 0; c < chan; c++) {
       for (var i = 0; i < nIn; i++) {
         var inBin = Math.floor(i / (nIn / nOut)) === bin;
@@ -327,7 +341,7 @@
       }
     }
     var ow = (W - pad * 2) / nOut;
-    title(ctx, 'pooled, 4 channels x 4 positions, channels unchanged', pad, yOut - 9);
+    title(ctx, 'pooled, 4 channels x 4 positions   (the model pools 867 to 109)', pad, yOut - 9, W);
     var perBin = nIn / nOut;
     for (c = 0; c < chan; c++) {
       for (i = 0; i < nOut; i++) {
@@ -363,8 +377,12 @@
       var x = 15 + i * (bw + gap);
       cell(ctx, x, y0, bw, bh, i === 3 ? cL : cM, 0.34);
       ctx.fillStyle = ink;
-      ctx.font = '600 10px ' + cssVar('--mono', 'monospace');
       ctx.textAlign = 'center';
+      var fs2 = 10;
+      do {
+        ctx.font = '600 ' + fs2 + 'px ' + cssVar('--mono', 'monospace');
+        fs2 -= 0.5;
+      } while (fs2 > 6 && ctx.measureText(shapes[i]).width > bw - 6);
       ctx.fillText(shapes[i], x + bw / 2, y0 + 16);
       ctx.fillStyle = muted;
       ctx.font = '8px ' + cssVar('--font', 'sans-serif');
@@ -476,10 +494,10 @@
     var terms = [], sum;
     if (hold) {
       caption(ctx, W, H,
-              'the five-day site record is now two numbers: ' + out[0].toFixed(2) + ' and ' + out[1].toFixed(2),
-              'the real model carries 6 x 6,935 values down to five numbers in exactly this way');
+              'the four inputs are now two numbers: ' + out[0].toFixed(2) + ' and ' + out[1].toFixed(2),
+              'the real model carries 27,904 values down to five in exactly this way');
     } else if (inHidden) {
-      var kk = Math.round(frac * 4);
+      var kk = Math.min(4, Math.floor(frac * 4 / 0.7));   /* done by 70%, result readable after */
       for (i = 0; i < kk; i++) {
         terms.push(W1[target][i].toFixed(2) + '(' + vIn[i].toFixed(2) + ')');
       }
@@ -490,7 +508,7 @@
       if (kk === 4) line += ' = GELU(' + pre[target].toFixed(2) + ') = ' + hid[target].toFixed(2);
       caption(ctx, W, H, line, 'each hidden unit sums every input, adds a bias, then passes through GELU');
     } else {
-      var mm = Math.round(frac * 3);
+      var mm = Math.min(3, Math.floor(frac * 3 / 0.7));
       for (i = 0; i < mm; i++) {
         terms.push(W2[target][i].toFixed(2) + '(' + hid[i].toFixed(2) + ')');
       }
@@ -505,24 +523,72 @@
   BLOCKS.decbridge = function (ctx, W, H, t) {
     var muted = cssVar('--muted', '#6B5D63'), ink = cssVar('--ink', '#2B1F24');
     var cM = cssVar('--d-mlp', '#3F6B4A'), cL = cssVar('--d-latent', '#C2761F');
+    var accent = cssVar('--accent', '#8C2F4A');
+
+    /* Box width encodes how many values the stage holds, on a log scale, so
+       the expansion from five numbers to a full feature tensor is the thing
+       the eye actually sees. */
+    var counts = [5, 128, 27904, 27904];
     var shapes = ['5', '128', '27,904', '256 x 109'];
-    var labels = ['embedding', 'hidden', 'flat vector', 'feature tensor'];
-    var bw = Math.min(104, (W - 60) / 4 - 18), y0 = H / 2 - 22, bh = 34;
-    var gap = (W - 30 - bw * 4) / 3;
+    var names = ['embedding', 'hidden', 'flat vector', 'feature tensor'];
+    var maxW = Math.min(150, (W - 70) / 3.1);
+    function bwFor(n) {
+      return 16 + (maxW - 16) * (Math.log(n) / Math.log(27904));
+    }
+
     var stage = Math.min(3, Math.floor(t * 4));
-    for (var i = 0; i < 4; i++) {
-      var x = 15 + i * (bw + gap);
-      cell(ctx, x, y0, bw, bh, i === 0 ? cL : cM, i <= stage ? 0.45 : 0.13);
-      ctx.fillStyle = i <= stage ? ink : muted;
-      ctx.font = '600 10px ' + cssVar('--mono', 'monospace');
+    var frac = Math.min(1, t * 4 - stage);
+    var e = frac * frac * (3 - 2 * frac);
+
+    var bh = 30;
+    var cy = (H - CAP) / 2 + 4;
+    var gap = (W - 24 - bwFor(counts[0]) - bwFor(counts[1]) - bwFor(counts[2]) - bwFor(counts[3])) / 3;
+    var xs = [], x = 12;
+    for (var i = 0; i < 4; i++) { xs.push(x); x += bwFor(counts[i]) + gap; }
+
+    /* fan of connections, drawn as the current stage opens out */
+    for (i = 0; i < 3; i++) {
+      var on = i < stage ? 1 : (i === stage ? e : 0);
+      if (on <= 0) continue;
+      var ax = xs[i] + bwFor(counts[i]), bx = xs[i + 1];
+      var lines = 9;
+      ctx.strokeStyle = i === 2 ? accent : cM;
+      for (var j = 0; j < lines; j++) {
+        var ay = cy - bh / 2 + (bh * (j + 0.5)) / lines;
+        var by = cy - bh / 2 + (bh * (j + 0.5)) / lines;
+        var spread = (j / (lines - 1) - 0.5) * bh * 0.9;
+        ctx.globalAlpha = 0.10 + 0.35 * on;
+        ctx.lineWidth = 0.7;
+        ctx.beginPath();
+        ctx.moveTo(ax, cy + spread * 0.25);
+        ctx.lineTo(ax + (bx - ax) * on, by + spread * on);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    for (i = 0; i < 4; i++) {
+      var w = bwFor(counts[i]);
+      var lit = i <= stage;
+      var grow = i === stage ? 0.35 + 0.65 * e : 1;
+      var drawW = lit ? w * grow : w;
+      cell(ctx, xs[i], cy - bh / 2, drawW, bh, i === 0 ? cL : cM, lit ? 0.5 : 0.12);
+      ctx.fillStyle = lit ? ink : muted;
       ctx.textAlign = 'center';
-      ctx.fillText(shapes[i], x + bw / 2, y0 + 21);
+      var fs = 10;
+      do {
+        ctx.font = '600 ' + fs + 'px ' + cssVar('--mono', 'monospace');
+        fs -= 0.5;
+      } while (fs > 6 && ctx.measureText(shapes[i]).width > w - 6);
+      ctx.fillText(shapes[i], xs[i] + w / 2, cy + 4);
       ctx.fillStyle = muted;
       ctx.font = '8px ' + cssVar('--font', 'sans-serif');
-      ctx.fillText(labels[i], x + bw / 2, y0 - 7);
-      if (i < 3) arrow(ctx, x + bw + 3, y0 + bh / 2, x + bw + gap - 3, y0 + bh / 2, muted, i < stage ? 0.85 : 0.3);
+      ctx.fillText(names[i], xs[i] + w / 2, cy - bh / 2 - 7);
     }
-    caption(ctx, W, H, 'the decoder bridge is a separately learned mapping, not the inverse of the encoder bridge');
+
+    caption(ctx, W, H,
+      'five numbers are expanded back into a full feature tensor before any convolution runs',
+      'the widths above are drawn on a log scale, and these weights are learned separately rather than reused from the encoder');
   };
 
   /* 7. linear interpolation */
@@ -613,7 +679,7 @@
     ctx.fill();
 
     title(ctx, known.length + ' known values become ' + nOut +
-          ' positions   (the model expands 109 back to 867)', pad, 20);
+          ' positions   (the model expands 109 back to 867)', pad, 20, W);
     var fq = Math.floor(f * per) / per;
     var mvq = known[g] * (1 - fq) + known[g + 1] * fq;
     caption(ctx, W, H,
@@ -634,7 +700,17 @@
     var yIn = 34, yOut = H - CAP - 26, chh = 16;
     var cur = Math.floor(t * nIn) % nIn;
 
-    title(ctx, 'input, ' + nIn + ' positions, each multiplies the whole kernel', pad, yIn - 9);
+    title(ctx, 'input, ' + nIn + ' positions, each multiplies the whole kernel', pad, yIn - 9, W);
+    /* the kernel itself, so the scatter has something visible to scatter */
+    var kx0 = pad, kyy = yIn + chh + 14, kcw = Math.min(26, (W - pad * 2) / 18);
+    ctx.fillStyle = muted;
+    ctx.font = '8px ' + cssVar('--mono', 'monospace');
+    ctx.textAlign = 'right';
+    ctx.fillText('kernel', kx0 - 6, kyy + 9);
+    for (var kk2 = 0; kk2 < k; kk2++) {
+      cell(ctx, kx0 + kk2 * kcw, kyy, kcw - 2, 13, accent,
+           0.25 + 0.5 * kern[kk2], kern[kk2].toFixed(1), '#fff');
+    }
     for (var i = 0; i < nIn; i++) {
       cell(ctx, pad + i * iw, yIn, iw - 4, chh, colour, i === cur ? 0.85 : (i < cur ? 0.35 : 0.13),
            inVals[i].toFixed(1), i === cur ? '#fff' : muted);
@@ -646,7 +722,7 @@
       for (var j = 0; j < k; j++) acc[i * s + j] += inVals[i] * kern[j];
     }
     var maxV = Math.max.apply(null, acc.concat([1]));
-    title(ctx, 'output, ' + nOut + ' positions, overlapping contributions are added', pad, yOut - 9);
+    title(ctx, 'output, ' + nOut + ' positions, overlapping contributions are added', pad, yOut - 9, W);
     for (i = 0; i < nOut; i++) {
       var touched = i >= cur * s && i < cur * s + k;
       cell(ctx, pad + i * ow, yOut, ow - 3, chh, colour,
@@ -933,7 +1009,9 @@
     ctx.textAlign = 'center';
     var gb = gy + (rows - 1) * (gh + 2) + gh;
     var ly = Math.max((gy + sy) / 2 + 4, gb + 22);
-    ctx.fillText(half ? 'flatten' : 'reshape', W / 2, ly);
+    ctx.textAlign = 'left';
+    ctx.fillText(half ? 'flatten' : 'reshape', W / 2 + 10, ly + 4);
+    ctx.textAlign = 'center';
     arrow(ctx, W / 2, half ? ly - 22 : ly + 22, W / 2, half ? ly + 14 : ly - 14, accent, 0.7);
 
     caption(ctx, W, H,
@@ -953,12 +1031,15 @@
       { name: 'dilated d=8', rf: 763, type: 'd' }
     ];
     var TOTAL = 6935;
-    var pad = 56, span = W - pad - 24;
-    var top = 34, rowH = (H - CAP - top - 16) / layers.length;
+    var pad = 74, span = W - pad - 24;   /* gutter fits 'dilated d=8' */
+    var top = 30, rowH = (H - CAP - top - 26) / (layers.length + 1);
     var step = Math.min(layers.length - 1, Math.floor(t * layers.length));
-    var frac = Math.min(1, t * layers.length - step);
+    /* the loop holds just short of t = 1, so scale the fraction to still
+       resolve on the true final value rather than a hair under it */
+    var frac = Math.min(1, (t * layers.length - step) / 0.98);
+    var DEEPEST = layers[layers.length - 1].rf;
 
-    title(ctx, 'span of the input record feeding one output position', pad - 34, 18);
+    title(ctx, 'span of the input record feeding one output position', pad - 34, 18, W);
 
     for (var i = 0; i < layers.length; i++) {
       var y = top + rowH * i;
@@ -969,7 +1050,8 @@
       ctx.fillRect(pad, y + rowH * 0.25, span, rowH * 0.42);
       ctx.globalAlpha = 1;
       if (shown > 0) {
-        var wpx = span * (layers[i].rf / TOTAL) * shown;
+        /* scaled to the deepest layer, so each bar is visibly twice the last */
+        var wpx = span * (layers[i].rf / DEEPEST) * shown;
         ctx.fillStyle = layers[i].type === 's' ? cS : cD;
         ctx.globalAlpha = i === step ? 0.85 : 0.5;
         ctx.fillRect(pad, y + rowH * 0.25, Math.max(1.5, wpx), rowH * 0.42);
@@ -979,19 +1061,36 @@
       ctx.font = '8.5px ' + cssVar('--mono', 'monospace');
       ctx.textAlign = 'right';
       ctx.fillText(layers[i].name, pad - 6, y + rowH * 0.62);
-      if (shown > 0) {
+      if (shown > 0.08) {
         ctx.textAlign = 'left';
         ctx.fillStyle = i === step ? accent : muted;
         ctx.font = (i === step ? '600 ' : '') + '8.5px ' + cssVar('--mono', 'monospace');
         ctx.fillText(Math.round(layers[i].rf * shown) + ' days',
-                     pad + Math.max(1.5, span * (layers[i].rf / TOTAL) * shown) + 6,
+                     pad + Math.max(1.5, span * (layers[i].rf / DEEPEST) * shown) + 6,
                      y + rowH * 0.62);
       }
     }
 
+    /* a separate strip keeps the comparison against the whole record, which
+       the bar scale above can no longer carry */
+    var ry2 = top + rowH * layers.length + 6;
+    ctx.fillStyle = muted;
+    ctx.globalAlpha = 0.14;
+    ctx.fillRect(pad, ry2, span, rowH * 0.40);
+    ctx.globalAlpha = 1;
+    var tick = span * (DEEPEST / TOTAL);
+    ctx.fillStyle = accent;
+    ctx.fillRect(pad, ry2, Math.max(2, tick), rowH * 0.40);
+    ctx.fillStyle = muted;
+    ctx.font = '8.5px ' + cssVar('--mono', 'monospace');
+    ctx.textAlign = 'right';
+    ctx.fillText('full record', pad - 6, ry2 + rowH * 0.32);
+    ctx.textAlign = 'left';
+    ctx.fillText('763 of 6,935 days', pad + Math.max(2, tick) + 6, ry2 + rowH * 0.32);
+
     caption(ctx, W, H,
-      'after seven layers one feature position sees 763 days, about two annual cycles',
-      'the faint track is the full 6,935-day record, so even the deepest layer covers roughly a ninth of it before the bridge');
+      'each layer roughly doubles the reach, ending at 763 days, about two annual cycles',
+      'the bars above are drawn against the deepest layer, and the strip below places 763 days inside the full record');
   };
 
   /* ---------- mounting ---------- */

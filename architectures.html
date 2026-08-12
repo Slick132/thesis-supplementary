@@ -258,6 +258,7 @@
         rather than an inverse of the encoder bridge, so the decoder is free to use different
         weights to rebuild what the encoder compressed.
       </p>
+      <div class="canvas-wrap"><canvas class="op" data-block="decbridge" data-period="7" role="img" aria-label="Animation of the decoder bridge expanding a five-value embedding through a hidden layer into a full feature tensor"></canvas></div>
       <div class="canvas-wrap"><canvas class="op tall" data-block="reshape" data-period="8" role="img" aria-label="Animation of a feature tensor flattening into one long vector and folding back into channels and positions"></canvas></div>
       <p class="fig-note">Flattening and reshaping only rearrange values. The order is fixed, so the two operations are exact inverses of one another.</p>
     </div>
