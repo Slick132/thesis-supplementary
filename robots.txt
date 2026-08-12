@@ -91,3 +91,79 @@ User-agent: Webzio-Extended
 Disallow: /
 User-agent: Scrapy
 Disallow: /
+
+# Google, including Gemini and Vertex AI
+User-agent: GoogleOther
+Disallow: /
+User-agent: GoogleOther-Image
+Disallow: /
+User-agent: GoogleOther-Video
+Disallow: /
+User-agent: Google-CloudVertexBot
+Disallow: /
+User-agent: Gemini
+Disallow: /
+User-agent: Google-Gemini
+Disallow: /
+User-agent: GoogleAgent-Mariner
+Disallow: /
+
+# Microsoft, including Copilot
+User-agent: msnbot
+Disallow: /
+User-agent: BingPreview
+Disallow: /
+User-agent: MicrosoftPreview
+Disallow: /
+User-agent: Copilot
+Disallow: /
+User-agent: CopilotBot
+Disallow: /
+User-agent: Microsoft-Copilot
+Disallow: /
+User-agent: BingChat
+Disallow: /
+
+# Other assistants and model providers
+User-agent: MistralAI-User
+Disallow: /
+User-agent: xAI-Crawler
+Disallow: /
+User-agent: GrokBot
+Disallow: /
+User-agent: DeepSeekBot
+Disallow: /
+User-agent: QwenBot
+Disallow: /
+User-agent: PetalBot
+Disallow: /
+User-agent: Sogou
+Disallow: /
+User-agent: Qwantbot
+Disallow: /
+User-agent: LinerBot
+Disallow: /
+User-agent: iaskspider
+Disallow: /
+User-agent: Firecrawl
+Disallow: /
+User-agent: FirecrawlAgent
+Disallow: /
+User-agent: Devin
+Disallow: /
+User-agent: img2dataset
+Disallow: /
+User-agent: TikTokSpider
+Disallow: /
+User-agent: Poseidon Research Crawler
+Disallow: /
+User-agent: ISSCyberRiskCrawler
+Disallow: /
+
+# Commercial scrapers
+User-agent: SemrushBot
+Disallow: /
+User-agent: AhrefsBot
+Disallow: /
+User-agent: DataForSeoBot
+Disallow: /
