@@ -176,10 +176,13 @@
     ctx.strokeRect(wx, yIn - 2, cw * 3 - 2, (ch + 2) * 2);
 
     /* output feature maps */
-    title(ctx, 'feature maps, ' + Kq.length + ' learned kernels x 12 positions', pad, yOut - 8);
+    title(ctx, 'feature maps, ' + Kq.length + ' learned filters x 12 positions', pad, yOut - 8);
     for (var q = 0; q < Kq.length; q++) {
       for (i = 0; i < n; i++) {
-        var done = i < pos || (i === pos && sub > 0.4);
+        /* Paint the active column immediately, because the caption already
+           states its value and an empty cell inside the highlight reads as
+           a mismatch between the arithmetic and the picture. */
+        var done = i <= pos;
         var a = convAt(q, i);
         var h = gelu(a);
         cell(ctx, pad + i * cw, yOut + q * (ch + 2), cw - 2, ch,
@@ -193,12 +196,17 @@
     }
     arrow(ctx, pad + pos * cw + cw / 2, yIn + (ch + 2) * 2 + 5,
           pad + pos * cw + cw / 2, yOut - 18, accent, 0.85);
+    /* the window centred on pos produces exactly this column of outputs */
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 1.4;
+    ctx.strokeRect(pad + pos * cw - 1, yOut - 2,
+                   cw, Kq.length * (ch + 2));
 
     var a0 = convAt(0, pos);
     caption(ctx, W, H,
       'position ' + (pos + 1) + ':  pre-activation ' + a0.toFixed(2) +
       ',  after GELU ' + gelu(a0).toFixed(2),
-      'two variables in, three feature maps out: the channel count is set by the number of kernels');
+      'two variables in, three feature maps out: the channel count is set by the number of filters');
   };
 
   /* 2. strided convolution with same-padding */

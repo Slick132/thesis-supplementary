@@ -84,11 +84,18 @@
     <div class="card">
       <h3>1. Convolution over a multichannel series</h3>
       <p>
-        A kernel slides along time and reads every input variable at each position, so one output
+        A filter slides along time and reads every input variable at each position, so one output
         value combines information across variables and across neighbouring days. A layer holds
-        several kernels, and each produces its own feature map. The feature maps are learned
+        several filters, and each produces its own feature map. The feature maps are learned
         descriptors rather than reconstructed environmental variables, which matters because a
         later diagram showing 256 channels is not showing 256 weather variables.
+      </p>
+      <p>
+        Each filter holds a separate kernel for every input variable, so the weights of this layer
+        form a block of shape 3 x 2 x 3, being the number of output feature maps, the number of
+        input variables and the kernel width. The animation uses a width-three kernel with stride
+        one and a single zero-padding cell at each end, which is why the 12 positions survive the
+        layer. Without that padding a width-three kernel would leave 12 - 3 + 1 = 10 positions.
       </p>
       <div class="eq"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
   <msub><mi>a</mi><mrow><mi>q</mi><mo>,</mo><mi>t</mi></mrow></msub>
@@ -99,11 +106,15 @@
   <munderover><mo>&sum;</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>k</mi></munderover>
   <msub><mi>w</mi><mrow><mi>q</mi><mo>,</mo><mi>c</mi><mo>,</mo><mi>j</mi></mrow></msub>
   <mspace width="0.18em"/>
-  <msub><mi>x</mi><mrow><mi>c</mi><mo>,</mo><mi>t</mi><mo>+</mo><mi>j</mi></mrow></msub>
+  <msub>
+    <mover accent="true"><mi>x</mi><mo>&#732;</mo></mover>
+    <mrow><mi>c</mi><mo>,</mo><mi>t</mi><mo>+</mo><mi>j</mi><mo>&minus;</mo>
+      <mfrac><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow><mn>2</mn></mfrac></mrow>
+  </msub>
 </math></div>
       <div class="canvas-wrap"><canvas class="op tall" data-block="conv" data-period="9" role="img" aria-label="Animation of a convolution kernel sliding over two variables across twelve days and producing two feature maps"></canvas></div>
       <p class="fig-note">
-        Two variables over twelve days, three kernels of width three. The highlighted window is the
+        Two variables over twelve days and three filters. The tilde marks the zero-padded input, and the highlighted window is the
         current kernel position and the value beneath is the output after the activation.
       </p>
     </div>
