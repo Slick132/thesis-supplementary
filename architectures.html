@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Architecture search, animated | Deep Representation Learning for Environmental Regionalisation</title>
+<meta name="description" content="Animated diagrams of every convolutional autoencoder architecture evaluated in the architecture search, with layer-by-layer tensor shapes and receptive fields.">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">Environmental regionalisation <span>supplementary material</span></a>
+    <nav class="nav">
+      <a href="index.html">Overview</a>
+      <a href="architectures.html" aria-current="page">Architectures</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Supplement to the architecture-tuning appendix</p>
+    <h1>Every architecture in the search, animated</h1>
+    <p class="lede">
+      The architecture search compared <span id="arch-count">37</span> configurations of a
+      convolutional autoencoder across three stages. Each diagram below animates one of them,
+      following a batch of six environmental variables over 6,935 days as the encoder compresses
+      the record to five numbers and the decoder rebuilds it. Tensor shapes and receptive fields
+      are computed from the convolution arithmetic rather than drawn by hand, so the picture
+      agrees with the thesis tables.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>How to read the diagrams</h2>
+    <p class="section-lede">
+      Every diagram is a hairpin. The encoder runs left to right along the top, the latent vector
+      sits at the right-hand turn, and the decoder runs right to left along the bottom, so the
+      reconstruction finishes directly underneath the input it is trying to reproduce.
+    </p>
+    <div class="card">
+      <div class="legend">
+        <span><i class="swatch" style="background:var(--d-strided)"></i> strided convolution, halves the time axis</span>
+        <span><i class="swatch" style="background:var(--d-dilated)"></i> dilated convolution, keeps the length, widens the view</span>
+        <span><i class="swatch" style="background:var(--d-pool)"></i> pooling or interpolation, no learned weights</span>
+        <span><i class="swatch" style="background:var(--d-mlp)"></i> fully connected bridge</span>
+        <span><i class="swatch" style="background:var(--d-latent)"></i> latent vector</span>
+      </div>
+      <p class="fig-note">
+        The bar sliding above an active layer is the kernel. Its seven tick marks are the seven
+        weights. When the dilation rate rises the marks fan apart while their number stays the
+        same, which is the entire mechanism behind the wider receptive field. Each diagram plays
+        when it scrolls into view and can be paused or scrubbed.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>The three operators</h2>
+    <p class="section-lede">
+      The full diagrams run at 6,935 timesteps, where individual kernel positions cannot be
+      resolved. These three explainers show the same operators at a readable scale.
+    </p>
+
+    <div class="card">
+      <h3>Strided convolution</h3>
+      <p>
+        A strided layer moves the kernel two positions at a time, so the output holds one position
+        for every two inputs and the sequence approximately halves. The window is seven wide and
+        the step is two, so consecutive windows overlap by five positions. Every input value is
+        still read, which is why halving the length does not discard half the record.
+      </p>
+      <div class="canvas-wrap"><canvas class="op" id="op-strided" role="img" aria-label="Animation of a strided convolution sliding a seven-wide kernel two positions at a time"></canvas></div>
+    </div>
+
+    <div class="card">
+      <h3>Dilated convolution</h3>
+      <p>
+        A dilated layer keeps the stride at one, so the sequence length is unchanged, and instead
+        spaces the seven weights apart by the dilation rate. At a rate of four the kernel spans 25
+        positions while still holding seven weights, and the 18 positions in between are simply not
+        consulted at that layer. Stacking rates of one, two, four and eight is what carries the
+        final model to a receptive field of 763 days without adding parameters.
+      </p>
+      <div class="canvas-wrap"><canvas class="op" id="op-dilated" role="img" aria-label="Animation of a dilated convolution with seven weights spread over twenty-five positions"></canvas></div>
+    </div>
+
+    <div class="card">
+      <h3>Adaptive pooling</h3>
+      <p>
+        Dilated stacks arrive at the bridge still holding their full length, so a separate reduction
+        is needed. Adaptive average pooling divides the axis into 109 bins and averages within each.
+        The ratio is not a whole number, so neighbouring bins overlap by one position. Global average
+        pooling is the same idea taken to one bin, which is why the Dilated A configuration lost the
+        temporal detail and failed to reconstruct.
+      </p>
+      <div class="canvas-wrap"><canvas class="op" id="op-pool" role="img" aria-label="Animation of adaptive average pooling into overlapping bins"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>The selected model</h2>
+    <p class="section-lede">
+      Three strided layers compress the record, then four dilated layers widen the view across
+      more than two annual cycles before the bridge. This is the model carried into the clustering
+      and regionalisation analyses.
+    </p>
+    <div id="final-model"></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Stage 1, encoder topology</h2>
+    <p class="section-lede">
+      Stage 1 asked whether the six variables should share one convolutional stack or receive one
+      each. Sharing won despite reconstructing less accurately, because the separate stacks
+      multiplied the bridge input sixfold and produced a latent space that failed the
+      effective-rank check.
+    </p>
+    <div id="stage1"></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Stage 2, convolutional operator</h2>
+    <p class="section-lede">
+      Stage 2 held the topology fixed and varied how the temporal axis is processed and reduced.
+      The eight configurations differ mainly in where the compression happens, which is visible in
+      the diagrams as the point at which the slabs start to shorten.
+    </p>
+    <div id="stage2"></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Stage 3, refinement sweeps</h2>
+    <p class="section-lede">
+      Stage 3 varied one design choice at a time over the retained skeleton. Because the variants
+      share a shape, they share a diagram: choose a sweep, then a configuration within it.
+    </p>
+    <div id="stage3"></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Notes on the diagrams</h2>
+
+    <div class="note">
+      <p><strong>Stride two does not skip inputs.</strong> With a seven-wide kernel and a step of
+      two, consecutive windows overlap by five positions, so every day in the record is read. What
+      halves is the number of output positions, not the amount of data consulted.</p>
+    </div>
+
+    <div class="note">
+      <p><strong>The receptive field is not the memory of the model.</strong> A figure such as 763
+      days is the span of input feeding one convolutional position before the flatten. After the
+      pooling and the fully connected bridge, every latent dimension depends on all 6,935 days.</p>
+    </div>
+
+    <div class="note">
+      <p><strong>The decoder does not invert the encoder.</strong> The transposed convolutions
+      learn their own weights rather than reusing the encoder weights, and the recovery from the
+      pooled length back to the convolutional length is linear interpolation carrying no
+      parameters at all.</p>
+    </div>
+
+    <div class="note warn">
+      <p><strong>Reconstructions here are illustrative.</strong> The traces in the input and output
+      panels are generated to show the shape of the task, a seasonal cycle with intermittent
+      rainfall, rather than plotted from the dataset. The measured reconstruction quality is the
+      fraction of variance unexplained reported on the overview page and in the thesis.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Supplementary material for a Master of Commerce thesis, Stellenbosch University.
+    <a href="index.html">Return to the overview</a>.</p>
+  </div>
+</footer>
+
+<script src="js/arch-data.js"></script>
+<script src="js/arch-engine.js"></script>
+<script src="js/operators.js"></script>
+<script src="js/arch-page.js"></script>
+</body>
+</html>

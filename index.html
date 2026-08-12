@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deep Representation Learning for Environmental Regionalisation | Supplementary material</title>
+<meta name="description" content="Supplementary material for a Master of Commerce thesis on deep representation learning for environmental regionalisation in KwaZulu-Natal, Mpumalanga and Limpopo.">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">Environmental regionalisation <span>supplementary material</span></a>
+    <nav class="nav">
+      <a href="index.html" aria-current="page">Overview</a>
+      <a href="architectures.html">Architectures</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Master of Commerce thesis, Operations Research</p>
+    <h1>Deep Representation Learning for Environmental Regionalisation</h1>
+    <p class="lede">
+      Environmental regions underpin land-use planning, conservation and forestry deployment
+      decisions, yet the regions in use are drawn either by hand or from fixed temperature and
+      rainfall thresholds. This study learns regions directly from 19 years of daily environmental
+      records instead, and tests whether the learned regions describe the landscape better than the
+      rule-based classification they would replace.
+    </p>
+    <p class="byline">
+      <strong>Chris Laubscher-Pretorius</strong><br>
+      Supervisor: Prof. Linke Potgieter. Co-supervisors: Prof Dave Drew, Dr. Luca Steyn.<br>
+      Stellenbosch University, Faculty of Economic and Management Sciences, December 2026.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>What this site contains</h2>
+    <p class="section-lede">
+      This site accompanies the written thesis as electronic supplementary material. It is not a
+      substitute for the document, and every number given here is reported and defended there.
+    </p>
+    <div class="grid grid-2">
+      <div class="card">
+        <h3 style="margin-top:0">Architecture search, animated</h3>
+        <p>
+          Every configuration evaluated during the architecture search, animated layer by layer,
+          with the tensor shapes and receptive fields computed from the convolution arithmetic. The
+          page accompanies the architecture-tuning appendix, where the same configurations are
+          reported as tables.
+        </p>
+        <p><a href="architectures.html">Open the architecture pages</a></p>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">Why the architecture matters</h3>
+        <p>
+          The regionalisation is only as good as the representation it clusters. The search
+          therefore judged candidates on four criteria at once, namely reconstruction accuracy,
+          latent geometry, cluster quality and computational cost, because a model that
+          reconstructs well can still produce an embedding that clusters badly.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>The problem</h2>
+    <p>
+      Environmental regionalisation groups locations that behave similarly, and the resulting
+      regions inform where a species is planted, what is conserved and how land is allocated. The
+      classifications in general use, such as the Koppen-Geiger system, are built from fixed
+      thresholds on a small number of summary variables. Fixed thresholds place sharp boundaries
+      through areas that vary gradually, and summary variables discard the daily behaviour that
+      distinguishes one site from another, so a region defined this way explains little about why
+      it formed or where its edge belongs.
+    </p>
+    <p>
+      The methodological question is how deep representation learning can transform multivariate
+      spatiotemporal environmental data into an interpretable representation from which spatially
+      coherent environmental regions can be constructed.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>The data</h2>
+    <p class="section-lede">
+      Three north-eastern provinces of South Africa, sampled on a hexagonal lattice at five
+      kilometre spacing, with a complete daily record for every site.
+    </p>
+    <div class="grid grid-4">
+      <div class="stat"><span class="n">14,191</span><span class="k">grid sites</span></div>
+      <div class="stat"><span class="n">6,935</span><span class="k">days per site, 2006 to 2024</span></div>
+      <div class="stat"><span class="n">6</span><span class="k">daily variables</span></div>
+      <div class="stat"><span class="n">98.4 M</span><span class="k">daily records</span></div>
+    </div>
+    <p style="margin-top:18px">
+      The six variables are maximum and minimum temperature, maximum and minimum relative
+      humidity, wind speed and precipitation. Temperature comes from CHIRTS-ERA5 and precipitation
+      from CHIRPS, both at roughly five kilometres, while humidity and wind come from the
+      University of the Witwatersrand Global Change Institute portal at roughly eight kilometres.
+      Elevation was deliberately withheld from training and kept aside as an independent check, so
+      any elevation structure in the learned regions had to be inferred from climate alone.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>The approach</h2>
+    <p class="section-lede">
+      A general four-stage framework, instantiated here on daily climate data.
+    </p>
+    <div class="grid grid-4">
+      <div class="card"><h3 style="margin-top:0">1. Prepare</h3><p style="font-size:0.92rem">
+        Split the sites, transform the skewed channels and scale the six variables, without ever
+        fitting a statistic on data outside the training partition.</p></div>
+      <div class="card"><h3 style="margin-top:0">2. Represent</h3><p style="font-size:0.92rem">
+        Train a convolutional autoencoder that compresses each site from 6 by 6,935 values to a
+        five-dimensional vector.</p></div>
+      <div class="card"><h3 style="margin-top:0">3. Evaluate</h3><p style="font-size:0.92rem">
+        Check what the embedding retained, refine the model where the check fails, and feed the
+        result back into stage two.</p></div>
+      <div class="card"><h3 style="margin-top:0">4. Apply</h3><p style="font-size:0.92rem">
+        Cluster the embedding into regions, compare against the rule-based classification, and test
+        the regions on a forestry question.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Headline results</h2>
+
+    <h3>The selected model generalised</h3>
+    <p>
+      The chosen autoencoder pairs three strided layers with four dilated layers, reaching a
+      receptive field of 763 days so a single convolutional feature spans more than two annual
+      cycles. On the held-out test sites the channel-mean fraction of variance unexplained was
+      0.0692, against 0.0685 on validation and 0.0672 on training. The closeness of those three
+      figures is the evidence that the representation transfers to sites the model never saw.
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Variable</th><th class="num">Training</th><th class="num">Validation</th><th class="num">Test</th></tr></thead>
+        <tbody>
+          <tr><td>Maximum temperature</td><td class="num">0.0119</td><td class="num">0.0120</td><td class="num">0.0120</td></tr>
+          <tr><td>Minimum temperature</td><td class="num">0.0166</td><td class="num">0.0169</td><td class="num">0.0167</td></tr>
+          <tr><td>Maximum relative humidity</td><td class="num">0.0159</td><td class="num">0.0161</td><td class="num">0.0160</td></tr>
+          <tr><td>Minimum relative humidity</td><td class="num">0.0277</td><td class="num">0.0277</td><td class="num">0.0287</td></tr>
+          <tr><td>Wind speed</td><td class="num">0.0991</td><td class="num">0.1031</td><td class="num">0.1054</td></tr>
+          <tr><td>Precipitation</td><td class="num">0.2320</td><td class="num">0.2353</td><td class="num">0.2364</td></tr>
+          <tr><td><strong>Channel mean</strong></td><td class="num"><strong>0.0672</strong></td><td class="num"><strong>0.0685</strong></td><td class="num"><strong>0.0692</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fig-note">
+      Fraction of variance unexplained, where zero is perfect reconstruction. Precipitation is the
+      hardest channel because rain falls on roughly 16 per cent of days, so the series is mostly
+      zero with occasional large values.
+    </p>
+
+    <h3>The learned regions disagree with the rule-based ones, and describe elevation better</h3>
+    <div class="grid grid-3">
+      <div class="stat"><span class="n">0.208</span><span class="k">adjusted Rand index against Koppen-Geiger, so agreement site by site is limited</span></div>
+      <div class="stat"><span class="n">0.675 vs 0.565</span><span class="k">share of elevation variation explained, learned regions against Koppen-Geiger at eight regions each</span></div>
+      <div class="stat"><span class="n">26 of 33</span><span class="k">climate summary features better separated by the learned regions</span></div>
+    </div>
+    <p style="margin-top:18px">
+      Elevation was never given to the model, so recovering elevation structure more sharply than a
+      classification built on temperature and rainfall thresholds indicates that the embedding
+      captured terrain-driven climate behaviour from the daily series alone.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Using the material</h2>
+    <p>
+      The architecture pages are the part of this site that adds something the document cannot
+      show, because a static table of layer widths does not convey how the time axis collapses or
+      how a dilated kernel reaches across two years. Everything else here is a summary, and the
+      thesis remains the authoritative account.
+    </p>
+    <p><a href="architectures.html">Open the architecture pages</a></p>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Supplementary material for a Master of Commerce thesis, Stellenbosch University, Faculty of
+    Economic and Management Sciences.</p>
+  </div>
+</footer>
+
+</body>
+</html>
