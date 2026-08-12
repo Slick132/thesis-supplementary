@@ -363,42 +363,60 @@
 
   BLOCKS.pool = function (ctx, W, H, t) {
     var muted = cssVar('--muted', '#6B5D63'), accent = cssVar('--accent', '#8C2F4A');
-    var colour = cssVar('--d-pool', '#4A6670');
-    var nIn = 16, nOut = 4, chan = 4;
-    var pad = 42, cw = (W - pad * 2) / nIn, chh = 13;
-    var yIn = 28, yOut = H - CAP - 4 * (13 + 2) - 6;
+    var colour = cssVar('--d-pool', '#4A6670'), ink = cssVar('--ink', '#2B1F24');
+    var nIn = 16, nOut = 4, perBin = nIn / nOut;
+    var pad = 42, cw = (W - pad * 2) / nIn, ow = (W - pad * 2) / nOut;
+    var chh = 24;
+    var yIn = 40;
+    var yOut = H - CAP - chh - 30;
     var bin = Math.floor(t * nOut) % nOut;
 
-    title(ctx, 'feature tensor, 4 channels x 16 positions', pad, yIn - 9, W);
-    for (var c = 0; c < chan; c++) {
-      for (var i = 0; i < nIn; i++) {
-        var inBin = Math.floor(i / (nIn / nOut)) === bin;
-        var val = POOLV[(i + c * 3) % nIn];
-        cell(ctx, pad + i * cw, yIn + c * (chh + 2), cw - 2, chh, colour,
-             inBin ? 0.72 : 0.15, c === 0 ? val.toFixed(2) : '',
-             inBin ? '#fff' : muted);
-      }
+    title(ctx, 'one channel of 4, over 16 positions', pad, yIn - 10, W);
+    for (var i = 0; i < nIn; i++) {
+      var inBin = Math.floor(i / perBin) === bin;
+      cell(ctx, pad + i * cw, yIn, cw - 2, chh, colour, inBin ? 0.72 : 0.15,
+           POOLV[i].toFixed(2), inBin ? '#fff' : muted);
     }
-    var ow = (W - pad * 2) / nOut;
-    title(ctx, 'pooled, 4 channels x 4 positions   (the model pools 867 to 109)', pad, yOut - 9, W);
-    var perBin = nIn / nOut;
-    for (c = 0; c < chan; c++) {
-      for (i = 0; i < nOut; i++) {
-        var mean = 0;
-        for (var q = 0; q < perBin; q++) mean += POOLV[(i * perBin + q + c * 3) % nIn];
-        mean /= perBin;
-        cell(ctx, pad + i * ow, yOut + c * (chh + 2), ow - 3, chh, colour,
-             i < bin ? 0.55 : (i === bin ? 0.75 : 0.12),
-             (c === 0 && i <= bin) ? mean.toFixed(2) : '',
-             i === bin ? '#fff' : muted);
-      }
-    }
-    arrow(ctx, pad + (bin + 0.5) * (nIn / nOut) * cw, yIn + chan * (chh + 2) + 2,
-          pad + bin * ow + ow / 2, yOut - 5, accent, 0.8);
 
+    /* brackets showing which inputs feed which output position */
+    var by = yIn + chh + 7;
+    for (var b = 0; b < nOut; b++) {
+      var x0 = pad + b * perBin * cw, x1 = pad + (b + 1) * perBin * cw - 2;
+      ctx.strokeStyle = b === bin ? accent : muted;
+      ctx.globalAlpha = b === bin ? 0.9 : 0.35;
+      ctx.lineWidth = b === bin ? 1.4 : 1;
+      ctx.beginPath();
+      ctx.moveTo(x0, by); ctx.lineTo(x1, by);
+      ctx.moveTo(x0, by - 3); ctx.lineTo(x0, by + 3);
+      ctx.moveTo(x1, by - 3); ctx.lineTo(x1, by + 3);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+
+    title(ctx, 'the same channel pooled to 4 positions   (the model pools 867 to 109)',
+          pad, yOut - 10, W);
+    for (i = 0; i < nOut; i++) {
+      var mean = 0;
+      for (var q = 0; q < perBin; q++) mean += POOLV[i * perBin + q];
+      mean /= perBin;
+      cell(ctx, pad + i * ow, yOut, ow - 3, chh, colour,
+           i < bin ? 0.55 : (i === bin ? 0.78 : 0.12),
+           i <= bin ? mean.toFixed(2) : '', i === bin ? '#fff' : ink);
+    }
+
+    /* the four values being averaged, converging on the cell they produce */
+    for (q = 0; q < perBin; q++) {
+      arrow(ctx, pad + (bin * perBin + q + 0.5) * cw, by + 5,
+            pad + bin * ow + ow / 2, yOut - 5, accent, 0.30);
+    }
+
+    var terms = [];
+    for (q = 0; q < perBin; q++) terms.push(POOLV[bin * perBin + q].toFixed(2));
+    var m = 0;
+    for (q = 0; q < perBin; q++) m += POOLV[bin * perBin + q];
     caption(ctx, W, H,
-            'each output position averages the input positions in its bin, and the channel count does not change',
-            'global average pooling is the same idea with one bin, so feature position is no longer represented explicitly');
+            '(' + terms.join(' + ') + ') / 4 = ' + (m / perBin).toFixed(2),
+            'all four channels are pooled the same way and independently, so the channel count never changes');
   };
 
   /* 5. flatten and the fully connected bridge, with a toy network */
