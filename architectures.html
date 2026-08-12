@@ -350,6 +350,36 @@
 
 <section>
   <div class="wrap">
+    <h2>Reconstruction of a real site</h2>
+    <p class="section-lede">
+      Everything above shows how the operators work. This shows what the selected model actually
+      produced. The series below are the observed record and the model reconstruction for one held-out
+      test site, over the full 6,935 days, converted back to physical units. Choose a site, choose a
+      window, and scroll through the record.
+    </p>
+
+    <div class="card">
+      <div id="recon-viewer"></div>
+      <p class="fig-note">
+        Sites are ordered by how well the model reconstructed them, so the best and the worst cases
+        are both available rather than only a flattering example. None of these sites was used for
+        training, and the fraction of variance unexplained shown against each variable is the
+        test-set figure for that channel.
+      </p>
+    </div>
+
+    <div class="note">
+      <p><strong>What to look for.</strong> Temperature and humidity track closely enough that the
+      two lines are hard to separate at a one-year window. Wind is noticeably rougher. Precipitation
+      is where the model visibly departs from the record, because rain falls on roughly 16 per cent
+      of days, so the series is mostly zero with occasional large values, and the reconstruction
+      smooths the peaks downward while spreading small amounts onto dry days.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
     <h2>Stage 1, encoder topology</h2>
     <p class="section-lede">
       Stage 1 asked whether the six variables should share one convolutional stack or receive one
@@ -397,5 +427,6 @@
 <script src="js/arch-engine.js"></script>
 <script src="js/blocks.js"></script>
 <script src="js/arch-page.js"></script>
+<script src="js/recon.js"></script>
 </body>
 </html>
