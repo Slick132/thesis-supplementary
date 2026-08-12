@@ -78,6 +78,15 @@
     return false;
   }
 
+  function fitMono(ctx, text, avail) {
+    var sizes = [9, 8.5, 8, 7.5, 7];
+    for (var i = 0; i < sizes.length; i++) {
+      ctx.font = sizes[i] + 'px ' + cssVar('--mono', 'monospace');
+      if (ctx.measureText(text).width <= avail) return true;
+    }
+    return false;
+  }
+
   function caption(ctx, W, H, text, sub) {
     var avail = W - 24;
     ctx.textAlign = 'left';
@@ -273,7 +282,11 @@
        instead of teleporting, while the labels stay on the exact rate. */
     var local = phase - Math.floor(phase);
     var nxt = rates[(idx + 1) % rates.length];
-    var ease = local < 0.72 ? 0 : (local - 0.72) / 0.28;
+    /* The loop dwells near t = 1, so the last slot must not morph back to
+       d = 1 or the frame held longest is the one that looks like an ordinary
+       convolution. Earlier slots start their fan-out sooner as well. */
+    var lastSlot = idx === rates.length - 1;
+    var ease = lastSlot ? 0 : (local < 0.45 ? 0 : (local - 0.45) / 0.55);
     var eased = ease * ease * (3 - 2 * ease);
     var dEff = d + (nxt - d) * eased;
     var k = 7, n = 57;
@@ -309,6 +322,23 @@
     ctx.textAlign = 'center';
     ctx.fillText(k + ' weights',
                  pad + ((tapsF[0] + tapsF[k - 1] + 1) / 2) * cw, yIn - 10);
+    /* the unspread span, kept on screen so the widening is always comparative */
+    var refLo = centre - (k - 1) / 2, refHi = centre + (k - 1) / 2;
+    ctx.strokeStyle = muted;
+    ctx.globalAlpha = 0.55;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(pad + refLo * cw, yIn + chh + 16);
+    ctx.lineTo(pad + (refHi + 1) * cw, yIn + chh + 16);
+    ctx.moveTo(pad + refLo * cw, yIn + chh + 13);
+    ctx.lineTo(pad + refLo * cw, yIn + chh + 19);
+    ctx.moveTo(pad + (refHi + 1) * cw, yIn + chh + 13);
+    ctx.lineTo(pad + (refHi + 1) * cw, yIn + chh + 19);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = muted;
+    ctx.font = '8px ' + cssVar('--mono', 'monospace');
+    ctx.fillText('d=1 span 7', pad + (centre + 0.5) * cw, yIn + chh + 29);
     ctx.globalAlpha = 1;
 
     title(ctx, 'output, same length', pad, yOut - 9, W);
@@ -872,8 +902,10 @@
 
     for (var i = 0; i < 5; i++) {
       var y = yTop + rowH * (i + 0.5);
-      cell(ctx, W * 0.11 - 26, y - 8, 52, 16, cM, 0.45, mu[i].toFixed(2), '#fff');
-      cell(ctx, W * 0.25 - 26, y - 8, 52, 16, cM, 0.30, sd[i].toFixed(2), ink);
+      /* column pitch is 0.14W, so a fixed 52px box collides below W = 371 */
+      var colW = Math.min(52, W * 0.14 - 5);
+      cell(ctx, W * 0.11 - colW / 2, y - 8, colW, 16, cM, 0.45, mu[i].toFixed(2), '#fff');
+      cell(ctx, W * 0.25 - colW / 2, y - 8, colW, 16, cM, 0.30, sd[i].toFixed(2), ink);
       /* a deterministic pseudo-noise per draw so the value visibly jitters */
       /* Sum of three uniforms on [-1,1) has unit variance, so draws leave the
          one-standard-deviation band at about the rate a normal would. */
@@ -900,7 +932,7 @@
       ctx.fillStyle = muted;
       ctx.fill();
       /* epsilon, the term the equation above the canvas turns on */
-      cell(ctx, W * 0.39 - 26, y - 8, 52, 16, accent, 0.30, eps.toFixed(2), ink);
+      cell(ctx, W * 0.39 - colW / 2, y - 8, colW, 16, accent, 0.30, eps.toFixed(2), ink);
       /* the zero line, so the sampled value can be read against a scale */
       ctx.strokeStyle = cssVar('--border', '#E0D6C9');
       ctx.globalAlpha = 0.9;
@@ -949,6 +981,19 @@
       if (v === 0) continue;
       ctx.fillText(String(v), px(v), py(0) + 12);
     }
+    /* the vertical scale, in the gutter, so the dashed guide lands on a number */
+    ctx.textAlign = 'right';
+    for (var u = -1; u <= 4; u++) {
+      if (u === 0) continue;
+      ctx.strokeStyle = border;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x0 - 3, py(u)); ctx.lineTo(x0, py(u));
+      ctx.stroke();
+      ctx.fillStyle = muted;
+      ctx.fillText(String(u), x0 - 6, py(u) + 3);
+    }
+    ctx.textAlign = 'center';
 
     /* identity, for reference */
     ctx.strokeStyle = muted;
@@ -1037,14 +1082,22 @@
       cell(ctx, x, y, Math.max(1.5, w), gh, cM, 0.22 + 0.4 * (r / rows) + 0.1 * lag);
     }
 
+    /* Two short lines rather than one long one, so the shapes stay readable
+       at phone width, and the strip labels sit below the strip clear of the
+       arrow. */
     ctx.fillStyle = muted;
-    ctx.font = '9px ' + cssVar('--mono', 'monospace');
     ctx.textAlign = 'center';
+    var avail = W - 16;
     ctx.globalAlpha = 1 - p;
-    ctx.fillText('feature tensor, 4 channels x 8 positions   (the model uses 256 x 109)',
-                 W / 2, gy - 12);
+    fitMono(ctx, 'feature tensor, 4 channels x 8 positions', avail);
+    ctx.fillText('feature tensor, 4 channels x 8 positions', W / 2, gy - 22);
+    fitMono(ctx, 'the model uses 256 x 109', avail);
+    ctx.fillText('the model uses 256 x 109', W / 2, gy - 12);
     ctx.globalAlpha = p;
-    ctx.fillText('one long vector, 32 values   (the model uses 27,904)', W / 2, sy - 12);
+    fitMono(ctx, 'one long vector, 32 values', avail);
+    ctx.fillText('one long vector, 32 values', W / 2, sy + gh + 12);
+    fitMono(ctx, 'the model uses 27,904', avail);
+    ctx.fillText('the model uses 27,904', W / 2, sy + gh + 22);
     ctx.globalAlpha = 1;
 
     ctx.fillStyle = accent;
