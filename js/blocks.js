@@ -63,10 +63,17 @@
     ctx.fill();
     ctx.globalAlpha = 1;
   }
-  function caption(ctx, W, H, text) {
+  var CAP = 40;            /* reserved band at the foot of every canvas */
+
+  function caption(ctx, W, H, text, sub) {
+    ctx.textAlign = 'left';
+    if (sub) {
+      ctx.fillStyle = cssVar('--muted', '#6B5D63');
+      ctx.font = '9px ' + cssVar('--font', 'sans-serif');
+      ctx.fillText(sub, 12, H - 24);
+    }
     ctx.fillStyle = cssVar('--ink', '#2B1F24');
     ctx.font = '600 10px ' + cssVar('--font', 'sans-serif');
-    ctx.textAlign = 'left';
     ctx.fillText(text, 12, H - 9);
   }
   function title(ctx, text, x, y) {
@@ -114,7 +121,7 @@
     var cw = Math.min(42, avail / n), ch = 20;
     var pad = labelW + Math.max(0, (avail - cw * n) / 2);
     var contentH = 2 * (ch + 2) + 52 + 2 * (ch + 2);
-    var yIn = Math.max(30, 22 + (H - 46 - contentH) / 2);
+    var yIn = Math.max(28, 20 + (H - CAP - 20 - contentH) / 2);
     var yOut = yIn + 2 * (ch + 2) + 52;
     var pos = Math.floor(t * n) % n;
     var sub = t * n - Math.floor(t * n);
@@ -160,13 +167,9 @@
 
     var a0 = convAt(0, pos);
     caption(ctx, W, H,
-      'position ' + (pos + 1) + ':  a = b + sum over both variables and 3 taps = ' +
-      a0.toFixed(2) + ',   GELU(a) = ' + gelu(a0).toFixed(2));
-    ctx.fillStyle = muted;
-    ctx.font = '9px ' + cssVar('--font', 'sans-serif');
-    ctx.textAlign = 'left';
-    ctx.fillText('one kernel reads every variable at once, so a feature map is not a reconstructed variable',
-                 12, H - 24);
+      'position ' + (pos + 1) + ':  pre-activation ' + a0.toFixed(2) +
+      ',  after GELU ' + gelu(a0).toFixed(2),
+      'one kernel reads every variable at once, so a feature map is not a reconstructed variable');
   };
 
   /* 2. strided convolution with same-padding */
@@ -176,7 +179,7 @@
     var n = 17, k = 7, s = 2, p = 3;
     var nOut = Math.floor((n + 2 * p - (k - 1) - 1) / s) + 1;
     var pad = 26, cw = (W - pad * 2) / (n + 2 * p), chh = 16;
-    var yIn = 34, yOut = H - 62;
+    var yIn = 34, yOut = H - CAP - 22;
     var step = Math.floor(t * nOut) % nOut;
     var centre = step * s;
 
@@ -200,7 +203,9 @@
     arrow(ctx, pad + (centre + p) * cw + cw / 2, yIn + chh + 4,
           pad + step * ow + ow / 2, yOut - 5, accent, 0.8);
 
-    caption(ctx, W, H, 'L_out = floor((L_in + 2p - d(k-1) - 1) / s) + 1,  with k=7, s=2, d=1, p=3 this is ceil(L_in / 2)');
+    caption(ctx, W, H,
+            'the window steps two positions at a time, so consecutive windows overlap by five',
+            'the pale cells at each end are the padding that lets the kernel centre reach the first and last day');
   };
 
   /* 3. dilated convolution, cycling the rate */
@@ -212,7 +217,7 @@
     var d = rates[Math.floor(phase) % rates.length];
     var k = 7, n = 57;
     var pad = 20, cw = (W - pad * 2) / n, chh = 16;
-    var yIn = 40, yOut = H - 62;
+    var yIn = 40, yOut = H - CAP - 22;
     var centre = Math.round(n / 2);
     var span = d * (k - 1) + 1;
 
@@ -245,15 +250,9 @@
             pad + centre * cw + cw / 2, yOut - 4, accent, 0.28);
     }
 
-    ctx.fillStyle = cssVar('--ink', '#2B1F24');
-    ctx.font = '600 10px ' + cssVar('--font', 'sans-serif');
-    ctx.textAlign = 'left';
-    ctx.fillText('dilation d = ' + d + ':  weights still 7,   kernel span d(k-1)+1 = ' + span +
-                 ',   output length unchanged', 12, H - 9);
-    ctx.fillStyle = muted;
-    ctx.font = '9px ' + cssVar('--font', 'sans-serif');
-    ctx.fillText('stacking rates 1, 2, 4, 8 is what carries the selected model to a 763-day receptive field',
-                 12, H - 24);
+    caption(ctx, W, H,
+            'dilation ' + d + ':  seven weights spread over ' + span + ' positions, output length unchanged',
+            'stacking rates 1, 2, 4 and 8 is what carries the selected model to a 763-day receptive field');
   };
 
   /* 4. adaptive average pooling */
@@ -262,7 +261,7 @@
     var colour = cssVar('--d-pool', '#4A6670');
     var nIn = 16, nOut = 4, chan = 4;
     var pad = 42, cw = (W - pad * 2) / nIn, chh = 13;
-    var yIn = 30, yOut = H - 76;
+    var yIn = 28, yOut = H - CAP - 4 * (13 + 2) - 6;
     var bin = Math.floor(t * nOut) % nOut;
 
     title(ctx, 'feature tensor, 4 channels x 16 positions', pad, yIn - 9);
@@ -283,12 +282,9 @@
     arrow(ctx, pad + (bin + 0.5) * (nIn / nOut) * cw, yIn + chan * (chh + 2) + 2,
           pad + bin * ow + ow / 2, yOut - 5, accent, 0.8);
 
-    caption(ctx, W, H, 'each output position averages the input positions in its bin, and the number of channels does not change');
-    ctx.fillStyle = muted;
-    ctx.font = '9px ' + cssVar('--font', 'sans-serif');
-    ctx.textAlign = 'left';
-    ctx.fillText('global average pooling is the same idea with one bin, so the position of a feature is no longer represented explicitly',
-                 12, H - 24);
+    caption(ctx, W, H,
+            'each output position averages the input positions in its bin, and the channel count does not change',
+            'global average pooling is the same idea with one bin, so feature position is no longer represented explicitly');
   };
 
   /* 5. flatten and the fully connected bridge, with a toy network */
@@ -329,7 +325,7 @@
       return row.reduce(function (s, w, i2) { return s + w * hid[i2]; }, b2[j]);
     });
 
-    var yTop = y0 + bh + 34, yBot = H - 34;
+    var yTop = y0 + bh + 34, yBot = H - CAP - 14;
     var colX = [W * 0.16, W * 0.46, W * 0.76];
     var phase = t * 3;
 
@@ -384,7 +380,9 @@
     ctx.fillText('hidden, GELU', colX[1], yTop - 8);
     ctx.fillText('embedding', colX[2], yTop - 8);
 
-    caption(ctx, W, H, 'h = GELU(W1 v + b1),   z = W2 h + b2:  the bridge turns features at many positions into one vector per site');
+    caption(ctx, W, H,
+            'the bridge turns features at many temporal positions into one vector for the site',
+            'every latent dimension therefore depends on the whole record, not on one part of it');
   };
 
   /* 6. decoder bridge and reshape */
@@ -417,7 +415,7 @@
     var colour = cssVar('--d-pool', '#4A6670');
     var known = [0.25, 0.72, 0.45, 0.83, 0.35];
     var pad = 46, span = W - pad * 2;
-    var yBase = H - 66, hgt = H - 130;
+    var yBase = H - CAP - 22, hgt = H - CAP - 74;
     var reveal = Math.min(1, t * 1.4);
 
     title(ctx, 'known feature values', pad, 22);
@@ -460,7 +458,9 @@
       ctx.fill();
     }
 
-    caption(ctx, W, H, 'linear interpolation carries no weights, changes only the temporal resolution, and does not recover discarded values');
+    caption(ctx, W, H,
+            'linear interpolation carries no weights and changes only the temporal resolution',
+            'the filled points are known feature values, the small markers are interpolated between them');
   };
 
   /* 8. transposed convolution */
@@ -472,7 +472,7 @@
     var inVals = [0.7, 0.4, 0.9, 0.3, 0.6];
     var nOut = (nIn - 1) * s + k;
     var pad = 40, iw = (W - pad * 2) / nIn, ow = (W - pad * 2) / nOut;
-    var yIn = 34, yOut = H - 78, chh = 16;
+    var yIn = 34, yOut = H - CAP - 26, chh = 16;
     var cur = Math.floor(t * nIn) % nIn;
 
     title(ctx, 'input positions, each one multiplies the whole kernel', pad, yIn - 9);
@@ -504,12 +504,9 @@
             pad + (cur * s + j) * ow + ow / 2, yOut - 4, accent, 0.4);
     }
 
-    caption(ctx, W, H, 'L_out = (L_in - 1)s - 2p + d(k-1) + p_out + 1,  and the weights are learned, not copied from the encoder');
-    ctx.fillStyle = muted;
-    ctx.font = '9px ' + cssVar('--font', 'sans-serif');
-    ctx.textAlign = 'left';
-    ctx.fillText('a transposed convolution increases length when the stride exceeds one, but cannot recover information lost by downsampling',
-                 12, H - 24);
+    caption(ctx, W, H,
+            'the weights are learned, not copied from the encoder',
+            'length grows when the stride exceeds one, but information lost by downsampling is not recovered');
   };
 
   /* 9. parallel-branch fusion, with the 1x1 convolution inset */
@@ -522,7 +519,7 @@
 
     ctx.strokeStyle = cssVar('--border', '#E0D6C9');
     ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(half, 20); ctx.lineTo(half, H - 34); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(half, 20); ctx.lineTo(half, H - CAP); ctx.stroke();
 
     function branchPair(cx, y, lit) {
       cell(ctx, cx - 54, y, 48, 16, cS, lit ? 0.6 : 0.18, '128 x 109', '#fff');
@@ -558,7 +555,8 @@
     ctx.fillText('each branch gets its own bridge,', half + half / 2, 160);
     ctx.fillText('and the two latents are added', half + half / 2, 172);
 
-    caption(ctx, W, H, 'the fusion choice is why the two parallel architectures differ in bridge size and parameter count');
+    caption(ctx, W, H,
+            'the fusion choice is why the two parallel architectures differ in bridge size and parameter count');
   };
 
   /* 10. variational sampling */
@@ -569,7 +567,7 @@
     var mu = [0.35, -0.20, 0.62, 0.05, -0.44];
     var sd = [0.22, 0.31, 0.18, 0.27, 0.24];
     var draw = Math.floor(t * 4);
-    var yTop = 46, rowH = (H - yTop - 52) / 5;
+    var yTop = 46, rowH = (H - yTop - CAP - 12) / 5;
 
     ctx.fillStyle = muted;
     ctx.font = '8.5px ' + cssVar('--font', 'sans-serif');
@@ -608,7 +606,9 @@
       ctx.fill();
     }
 
-    caption(ctx, W, H, 'z = mu + sigma * epsilon,  epsilon drawn from a standard normal, which is the only structural difference from the deterministic models');
+    caption(ctx, W, H,
+            'the embedding is drawn from a distribution rather than read off directly',
+            'this sampling block is the only structural difference from the deterministic models');
   };
 
   /* ---------- mounting ---------- */

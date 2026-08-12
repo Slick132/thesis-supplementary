@@ -274,16 +274,17 @@ code { font-family: var(--mono); font-size: 0.88em; background: var(--accent-sof
   html { scroll-behavior: auto; }
 }
 
+
 .eq {
-  font-family: var(--mono);
-  font-size: 0.85rem;
   background: var(--page);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 9px 13px;
-  margin: 12px 0;
-  color: var(--heading);
+  padding: 14px 16px;
+  margin: 16px 0;
   overflow-x: auto;
-  max-width: none;
+  text-align: center;
 }
-.eq sub { font-size: 0.78em; }
+.eq math { font-size: 1.12rem; color: var(--heading); }
+.eq math + math { margin-top: 10px; }
+math { font-family: 'Latin Modern Math', 'Cambria Math', 'STIX Two Math', serif; }
+@media (max-width: 620px) { .eq math { font-size: 1rem; } }
