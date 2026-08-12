@@ -123,6 +123,9 @@
 
     var wrap = el('div', 'canvas-wrap');
     var canvas = el('canvas', 'arch');
+    /* Six per-variable heads need more vertical room than a shared encoder. */
+    if (spec.heads === 6) canvas.classList.add('tall');
+    else if (spec.parallel) canvas.classList.add('mid');
     canvas.setAttribute('role', 'img');
     canvas.setAttribute('aria-label',
       'Animated diagram of the ' + spec.name + '. ' + (spec.tagline || ''));
@@ -167,7 +170,9 @@
     }
 
     var ctrl = null;
-    requestAnimationFrame(function () {
+    /* Mounted by the caller once the card is in the document. Animation frames
+       do not fire in a hidden tab, so mounting must not depend on them. */
+    card.__init = function () {
       ctrl = window.ArchEngine.mount(canvas, spec, {
         speed: opts.speed || 0.9,
         onProgress: function (frac, node) {
@@ -184,7 +189,7 @@
         btn.textContent = 'Play';
         ctrl.seek(Number(range.value) / 1000);
       });
-    });
+    };
 
     card.__setSpec = function (next) { if (ctrl) ctrl.setSpec(next); };
     return card;
@@ -198,7 +203,9 @@
     ids.forEach(function (id) {
       var spec = byId[id];
       if (!spec) return;
-      host.appendChild(makeCard(spec, opts));
+      var card = makeCard(spec, opts);
+      host.appendChild(card);
+      card.__init();
     });
   }
 
@@ -247,6 +254,7 @@
       shared.innerHTML = '';
       currentCard = makeCard(spec, { withTable: true, speed: 0.9 });
       shared.appendChild(currentCard);
+      currentCard.__init();
       variantPicker.querySelectorAll('button').forEach(function (b) {
         b.setAttribute('aria-pressed', String(b.dataset.id === id));
       });
@@ -276,12 +284,6 @@
       sweepPicker.appendChild(b);
     });
     showSweep(sweeps[0]);
-
-    /* operator explainers */
-    ['op-strided', 'op-dilated', 'op-pool'].forEach(function (id) {
-      var c = document.getElementById(id);
-      if (c) window.OperatorAnim.mount(c, id.replace('op-', ''));
-    });
 
     /* count readout */
     var counter = document.getElementById('arch-count');
