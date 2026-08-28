@@ -25,7 +25,7 @@
     start: 0,
     playing: !reducedMotion,
     lastTime: 0,
-    duration: 26000,
+    duration: 120000,
     windowDays: 365,
     width: 0,
     height: 0
