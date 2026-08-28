@@ -10,6 +10,7 @@ Laubscher-Pretorius, Stellenbosch University).
 |---|---|
 | `index.html` | Overview of the research problem, the dataset, the four-stage framework and the headline results. |
 | `architectures.html` | Animated diagrams of every architecture evaluated in the architecture search, plus explainers for the three convolutional operators. |
+| `geometry.html` | Extended technical background on the manifold hypothesis, decoder-induced distance, the pullback metric and sampled geodesic paths. |
 
 ## How the architecture diagrams work
 
@@ -43,5 +44,6 @@ Then open <http://localhost:8123>.
   showing the shape of the task rather than plotted observations. Measured
   reconstruction quality is the fraction of variance unexplained reported on
   the overview page and in the thesis.
-- The thesis remains the authoritative account. Every figure quoted here is
-  reported and defended there.
+- The thesis contains the principal methods, results and conclusions. The
+  website adds interactive diagrams and extended technical material referenced
+  by the thesis.

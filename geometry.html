@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autoencoder manifold geometry | Deep Representation Learning for Environmental Regionalisation</title>
+<meta name="description" content="Supplementary technical background on the manifold hypothesis, decoder-induced distances, the Riemannian pullback metric and geodesic paths used in the thesis.">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate">
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="bingbot" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="robots" content="noai, noimageai">
+<meta name="CCBot" content="nofollow">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">Environmental regionalisation <span>supplementary material</span></a>
+    <nav class="nav" aria-label="Main navigation">
+      <a href="index.html">Overview</a>
+      <a href="architectures.html">Architectures</a>
+      <a href="geometry.html" aria-current="page">Geometry</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Extended technical background</p>
+    <h1>Autoencoder manifold geometry</h1>
+    <p class="lede">
+      This page supports the decoder-distance analysis reported in the thesis. It explains the
+      manifold hypothesis, the geometric roles of the encoder and decoder, the Riemannian
+      pullback metric and the sampled geodesic calculation. The thesis retains the method,
+      empirical results and conclusions; this page contains the extended derivation and
+      pseudocode.
+    </p>
+  </div>
+</section>
+
+<div class="wrap layout">
+  <aside class="toc" aria-label="Page contents">
+    <strong>On this page</strong>
+    <a href="#distance-question">Why distance needs checking</a>
+    <a href="#manifold-hypothesis">Manifold hypothesis</a>
+    <a href="#autoencoder-geometry">Autoencoder geometry</a>
+    <a href="#pullback-metric">Pullback metric</a>
+    <a href="#curvature">Curvature and coordinates</a>
+    <a href="#paths">Decoded paths and geodesics</a>
+    <a href="#thesis-analysis">Use in the thesis</a>
+    <a href="#sources">Sources</a>
+  </aside>
+
+  <div class="longform">
+    <section id="distance-question">
+      <h2>Why latent distance needs checking</h2>
+      <p>
+        An autoencoder contains an encoder <var>f</var> that maps an input to a
+        lower-dimensional code and a decoder <var>g</var> that reconstructs the input from the
+        code. A common downstream workflow treats the codes as ordinary feature vectors and
+        applies clustering with Euclidean distance. This workflow assumes that distances between
+        codes reflect differences between the corresponding reconstructed inputs.
+      </p>
+      <p>
+        Reconstruction loss does not directly impose that constraint. Similar inputs are not
+        guaranteed to receive nearby codes, and nearby codes are not guaranteed to decode to
+        similar outputs. The decoder can stretch one part of the code space and compress another,
+        so equal Euclidean steps can represent different amounts of input-space change.
+      </p>
+      <figure class="figure-panel">
+        <img src="images/geometry/latent-distance-example.png"
+             alt="Illustrative two-class embedding with three labelled latent codes and Euclidean distance lines">
+        <figcaption>
+          Supervised illustration of the general distance problem. Euclidean proximity in a
+          learned coordinate space does not by itself establish similarity after decoding.
+        </figcaption>
+      </figure>
+    </section>
+
+    <section id="manifold-hypothesis">
+      <h2>Manifold hypothesis</h2>
+      <p>
+        The manifold hypothesis states that high-dimensional observations concentrate near a
+        lower-dimensional surface embedded within the input space. The intrinsic dimension is the
+        number of coordinates required to describe a point on that surface. The ambient dimension
+        is the dimension of the surrounding space.
+      </p>
+      <p>
+        A torus provides a simple example. Two coordinates describe every point on its surface,
+        giving an intrinsic dimension of two, although the surface is embedded in an ambient
+        three-dimensional space.
+      </p>
+      <figure class="figure-panel">
+        <img src="images/geometry/torus-manifold.png"
+             alt="Two intrinsic coordinates mapped nonlinearly onto a torus in three-dimensional space">
+        <figcaption>
+          Two intrinsic coordinates mapped to a nonlinear surface in a three-dimensional ambient
+          space.
+        </figcaption>
+      </figure>
+      <p>
+        For observations <var>X</var> in a <var>d</var>-dimensional input space, the hypothesis can
+        be written as follows:
+      </p>
+      <div class="eq">
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <mi>X</mi><mo>&#x2282;</mo><mi mathvariant="script">M</mi><mo>&#x2282;</mo>
+          <msup><mi mathvariant="double-struck">R</mi><mi>d</mi></msup>
+        </math>
+      </div>
+      <p>
+        The data manifold <var>M</var> has intrinsic dimension <var>p</var>, while the surrounding
+        input space has ambient dimension <var>d</var>, with <var>p</var> smaller than <var>d</var>.
+      </p>
+      <figure class="figure-panel">
+        <img src="images/geometry/manifold-subset.png"
+             alt="A lower-dimensional manifold patch embedded inside a higher-dimensional ambient space">
+        <figcaption>
+          The data manifold as a lower-dimensional surface contained in the ambient input space.
+        </figcaption>
+      </figure>
+    </section>
+
+    <section id="autoencoder-geometry">
+      <h2>Geometric role of the autoencoder</h2>
+      <p>
+        From the geometric perspective, the decoder is the central object. As the code
+        <var>z</var> ranges across the code space <var>Z</var>, the decoder outputs trace a
+        reconstructed surface in the input space. This surface is denoted
+        <var>M</var><sub>rec</sub>. The encoder assigns coordinates to observations on or near that
+        surface.
+      </p>
+      <div class="eq">
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <mi>f</mi><mo>:</mo><msup><mi mathvariant="double-struck">R</mi><mi>d</mi></msup>
+          <mo>&#x2192;</mo><mi mathvariant="script">Z</mi>
+          <mspace width="2em"/>
+          <mi>g</mi><mo>:</mo><mi mathvariant="script">Z</mi><mo>&#x2192;</mo>
+          <msub><mi mathvariant="script">M</mi><mtext>rec</mtext></msub>
+          <mo>&#x2282;</mo><msup><mi mathvariant="double-struck">R</mi><mi>d</mi></msup>
+        </math>
+      </div>
+      <p>
+        The code space is therefore a coordinate system for the reconstructed manifold rather than
+        a subset of the manifold. Each code is an address that the decoder maps to a reconstructed
+        input. Training seeks a reconstructed surface that approximates the structure occupied by
+        the observations, but reconstruction accuracy does not guarantee distance preservation in
+        the chosen coordinates.
+      </p>
+      <figure class="figure-panel">
+        <img src="images/geometry/decoder-manifold.png"
+             alt="Decoder mapping a low-dimensional code space to a curved reconstructed manifold in input space">
+        <figcaption>
+          Decoder mapping from the code space to the reconstructed manifold in the ambient input
+          space, redrawn from Arvanitidis, Hansen and Hauberg (2018).
+        </figcaption>
+      </figure>
+    </section>
+
+    <section id="pullback-metric">
+      <h2>Decoder Jacobian and pullback metric</h2>
+      <p>
+        The decoder Jacobian describes the local response of the reconstructed output to a small
+        change in each latent coordinate. For a decoder from a <var>p</var>-dimensional code space
+        to a <var>d</var>-dimensional input space, the Jacobian at code <var>z</var> is
+      </p>
+      <div class="eq">
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <msub><mi mathvariant="bold">J</mi><mi>z</mi></msub><mo>=</mo>
+          <mfrac><mrow><mo>&#x2202;</mo><mi>g</mi><mo>(</mo><mi mathvariant="bold">z</mi><mo>)</mo></mrow>
+                 <mrow><mo>&#x2202;</mo><mi mathvariant="bold">z</mi></mrow></mfrac>
+          <mo>&#x2208;</mo><msup><mi mathvariant="double-struck">R</mi>
+            <mrow><mi>d</mi><mo>&#x00D7;</mo><mi>p</mi></mrow></msup>
+        </math>
+      </div>
+      <p>
+        Each column gives the input-space direction produced by a small displacement along one
+        latent axis. The pullback metric combines these directions into a local measure of decoder
+        distortion:
+      </p>
+      <div class="eq">
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <msub><mi mathvariant="bold">M</mi><mi>z</mi></msub><mo>=</mo>
+          <msubsup><mi mathvariant="bold">J</mi><mi>z</mi><mi mathvariant="normal">T</mi></msubsup>
+          <msub><mi mathvariant="bold">J</mi><mi>z</mi></msub>
+          <mo>&#x2208;</mo><msup><mi mathvariant="double-struck">R</mi>
+            <mrow><mi>p</mi><mo>&#x00D7;</mo><mi>p</mi></mrow></msup>
+        </math>
+      </div>
+      <p>
+        For a small latent displacement, the quadratic form below approximates the corresponding
+        squared change in the decoded input:
+      </p>
+      <div class="eq">
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <mi>&#x394;</mi><msup><mi mathvariant="bold">z</mi><mi mathvariant="normal">T</mi></msup>
+          <msub><mi mathvariant="bold">M</mi><mi>z</mi></msub>
+          <mi>&#x394;</mi><mi mathvariant="bold">z</mi>
+        </math>
+      </div>
+      <p>
+        A large value means that the decoder turns a small latent step into a large reconstructed
+        change. A small value means that the same latent step produces little reconstructed change.
+        Variation in the metric across the code space therefore describes local stretching and
+        compression by the decoder.
+      </p>
+    </section>
+
+    <section id="curvature">
+      <h2>Curvature and coordinate distortion</h2>
+      <p>
+        Intrinsic curvature and coordinate distortion are related but not equivalent. A sheet
+        rolled into a Swiss roll looks curved in its ambient space but remains intrinsically flat
+        because it can be unrolled without stretching. A sphere is intrinsically curved because
+        it cannot be flattened without changing distances.
+      </p>
+      <p>
+        Low intrinsic curvature alone does not guarantee that Euclidean code distances preserve
+        distances on the reconstructed manifold. Even a flat surface can be described by
+        coordinates that stretch one region and compress another. Euclidean distance is a useful
+        proxy only when decoder distortion is sufficiently limited and approximately uniform over
+        the part of the embedding being analysed. The agreement must therefore be tested for the
+        fitted model.
+      </p>
+    </section>
+
+    <section id="paths">
+      <h2>Decoded paths and geodesics</h2>
+      <p>
+        A simple decoder-induced path places equally spaced points on the straight line between two
+        latent codes, decodes every point and sums the Euclidean distances between consecutive
+        decoded outputs. This procedure measures the length of the decoded straight path, not
+        necessarily the shortest path on the reconstructed manifold.
+      </p>
+      <p>
+        For a continuous latent curve <var>&gamma;</var>, the Riemannian length equals the arc
+        length of the decoded curve:
+      </p>
+      <div class="eq">
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <mi>L</mi><mo>[</mo><mi>&#x3B3;</mi><mo>]</mo><mo>=</mo>
+          <msubsup><mo>&#x222B;</mo><mn>0</mn><mn>1</mn></msubsup>
+          <msqrt>
+            <msubsup><mover><mi>&#x3B3;</mi><mo>&#x02D9;</mo></mover><mi>t</mi><mi mathvariant="normal">T</mi></msubsup>
+            <msub><mi mathvariant="bold">M</mi><msub><mi>&#x3B3;</mi><mi>t</mi></msub></msub>
+            <msub><mover><mi>&#x3B3;</mi><mo>&#x02D9;</mo></mover><mi>t</mi></msub>
+          </msqrt><mi>d</mi><mi>t</mi>
+        </math>
+      </div>
+      <p>
+        The geodesic is the path with the smallest length under this metric. In distorted latent
+        coordinates the geodesic is not necessarily a straight line. The deterministic metric
+        measures decoder sensitivity rather than predictive uncertainty.
+      </p>
+
+      <h3>Discrete geodesic procedure</h3>
+      <div class="card procedure">
+        <ol>
+          <li>Place <var>T</var> path points on a linear interpolation between the two fixed latent endpoints.</li>
+          <li>Treat the interior path points as optimisation variables while keeping the endpoints fixed.</li>
+          <li>Decode every path point using the trained decoder.</li>
+          <li>Calculate the sum of squared distances between consecutive decoded outputs.</li>
+          <li>Backpropagate through the decoder and update the interior path points.</li>
+          <li>Repeat until the relative change in path energy is below the convergence tolerance or the iteration limit is reached.</li>
+        </ol>
+      </div>
+      <p>The discrete decoded-path energy is</p>
+      <div class="eq">
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <mi>E</mi><mo>[</mo><mi>&#x3B3;</mi><mo>]</mo><mo>=</mo>
+          <munderover><mo>&#x2211;</mo><mrow><mi>i</mi><mo>=</mo><mn>0</mn></mrow>
+            <mrow><mi>T</mi><mo>&#x2212;</mo><mn>2</mn></mrow></munderover>
+          <msup>
+            <mrow><mo>&#x2016;</mo><mi>g</mi><mo>(</mo><msub><mi mathvariant="bold">z</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>)</mo>
+            <mo>&#x2212;</mo><mi>g</mi><mo>(</mo><msub><mi mathvariant="bold">z</mi><mi>i</mi></msub><mo>)</mo><mo>&#x2016;</mo></mrow>
+            <mn>2</mn>
+          </msup>
+        </math>
+      </div>
+    </section>
+
+    <section id="thesis-analysis">
+      <h2>Use in the thesis</h2>
+      <p>
+        The thesis did not construct a complete Riemannian distance matrix or recluster the full
+        dataset under that metric. The 9,364 distinct training embeddings produced more than 43
+        million unique pairs, making iterative geodesic optimisation for every pair infeasible.
+      </p>
+      <p>
+        The main diagnostic therefore used edges from a nearest-neighbour graph. For every edge,
+        the straight interpolation between the two original codes was divided into ten segments.
+        All 11 latent points were decoded, each reconstructed output was flattened across the six
+        channels and all time steps, and the ten consecutive decoded distances were summed. The
+        resulting path length was correlated with Euclidean distance in the standardised embedding.
+      </p>
+      <p>
+        Optimised geodesics were also evaluated for 1,200 sampled pairs spanning the Euclidean
+        distance range. Each path began as a linear interpolation and its interior points were
+        updated to minimise the decoded path energy. The sampled calculation checked whether the
+        conclusion from the less expensive straight-path approximation remained valid when the
+        path itself was optimised.
+      </p>
+      <div class="note">
+        <p>
+          Pairwise Riemannian distances can be used directly by methods that accept arbitrary
+          dissimilarities, including hierarchical clustering and graph-based analyses. Standard
+          <var>K</var>-means requires coordinates and cannot accept an arbitrary distance matrix
+          without a separate Riemannian formulation.
+        </p>
+      </div>
+    </section>
+
+    <section id="sources">
+      <h2>Sources</h2>
+      <ul class="source-list">
+        <li>
+          Arvanitidis, G., Hansen, L. K. and Hauberg, S. (2018).
+          <a href="https://openreview.net/forum?id=SJzRZ-WCZ" rel="external">
+            Latent space oddity: On the curvature of deep generative models
+          </a>. Proceedings of the 6th International Conference on Learning Representations.
+        </li>
+        <li>
+          Bengio, Y., Courville, A. and Vincent, P. (2013).
+          <a href="https://doi.org/10.1109/TPAMI.2013.50" rel="external">
+            Representation learning: A review and new perspectives
+          </a>. IEEE Transactions on Pattern Analysis and Machine Intelligence, 35(8), 1798–1828.
+        </li>
+        <li>
+          Shao, H., Kumar, A. and Fletcher, P. T. (2018).
+          <a href="https://openaccess.thecvf.com/content_cvpr_2018_workshops/w10/html/Shao_The_Riemannian_Geometry_CVPR_2018_paper.html" rel="external">
+            The Riemannian geometry of deep generative models
+          </a>. Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition Workshops, 315–323.
+        </li>
+      </ul>
+    </section>
+  </div>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Electronic supplementary material for a Master of Commerce thesis, Stellenbosch University,
+      Faculty of Economic and Management Sciences.</p>
+  </div>
+</footer>
+
+</body>
+</html>
