@@ -25,7 +25,7 @@
     start: 0,
     playing: !reducedMotion,
     lastTime: 0,
-    duration: 120000,
+    duration: 600000,
     windowDays: 365,
     width: 0,
     height: 0
@@ -117,7 +117,7 @@
     var heading = cssVar('--heading', '#461A2B');
     var font = cssVar('--font', 'sans-serif');
 
-    dateNode.textContent = dateLabel(state.start, data) + ' to ' + dateLabel(end, data);
+    dateNode.textContent = dateLabel(state.start, data);
     progress.style.width = (100 * state.start / Math.max(1, data.n - state.windowDays)).toFixed(2) + '%';
 
     channels.forEach(function (channel, channelIndex) {
