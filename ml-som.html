@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Self-organising maps | Environmental regionalisation supplementary material</title>
+<meta name="description" content="Illustrated self-organising map tutorial using the Iris dataset.">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate">
+<link rel="stylesheet" href="css/styles.css"><script defer src="js/site-nav.js"></script>
+</head>
+<body data-page="som">
+<header class="site-header"><div class="wrap"><a class="brand" href="index.html">Environmental regionalisation <span>supplementary material</span></a></div></header>
+<main>
+  <section class="hero"><div class="wrap"><p class="eyebrow">Machine-learning guide</p><h1>Self-organising maps</h1><p class="lede">The thesis appendix retains the competitive-learning equations, map topology, quality metrics and complete training procedure. This page illustrates the additional analytical uses of a trained map with the Iris dataset.</p></div></section>
+  <div class="wrap layout">
+    <aside class="toc" aria-label="Page contents"><strong>On this page</strong><a href="#example">Iris example</a><a href="#umatrix">Unified distance matrix</a><a href="#planes">Component planes</a><a href="#codebooks">Codebook clustering</a><a href="#prediction">Prediction</a></aside>
+    <div class="longform">
+      <section id="example"><h2>Iris example</h2><p>The Iris dataset contains 150 flowers from three species. Each flower is represented by sepal length, sepal width, petal length and petal width. The example is tutorial material and was not part of the environmental analysis.</p><div class="grid grid-3"><figure class="figure-panel"><img src="images/som/Iris_setosa.jpg" alt="Iris setosa flower"><figcaption><i>Iris setosa</i></figcaption></figure><figure class="figure-panel"><img src="images/som/Iris_versicolor.jpg" alt="Iris versicolor flower"><figcaption><i>Iris versicolor</i></figcaption></figure><figure class="figure-panel"><img src="images/som/Iris_virginica.jpg" alt="Iris virginica flower"><figcaption><i>Iris virginica</i></figcaption></figure></div></section>
+      <section id="umatrix"><h2>Unified distance matrix</h2><p>The unified distance matrix records the average distance between the codebook vector of each neuron and the codebook vectors of its immediate neighbours. Small values indicate similar neighbouring codebooks. Large values mark changes between nearby parts of the map and can indicate cluster boundaries.</p><figure class="figure-panel"><img src="images/som/som_umatrix_flipped.png" alt="Unified distance matrix for an Iris self-organising map"><figcaption>Unified distance matrix for the trained Iris map.</figcaption></figure></section>
+      <section id="planes"><h2>Component planes</h2><p>A component plane colours every neuron according to one feature of its codebook vector. Comparing the planes shows whether features vary together or in opposing directions across the map.</p><div class="grid grid-2"><figure class="figure-panel"><img src="images/som/sepal_length.png" alt="Sepal length component plane"><figcaption>Sepal length</figcaption></figure><figure class="figure-panel"><img src="images/som/sepal_width.png" alt="Sepal width component plane"><figcaption>Sepal width</figcaption></figure><figure class="figure-panel"><img src="images/som/petal_length.png" alt="Petal length component plane"><figcaption>Petal length</figcaption></figure><figure class="figure-panel"><img src="images/som/petal_width.png" alt="Petal width component plane"><figcaption>Petal width</figcaption></figure></div></section>
+      <section id="codebooks"><h2>Clustering the codebook vectors</h2><p>The map itself provides an ordered representation rather than discrete labels. A clustering algorithm can be applied to the trained codebook vectors when a partition is required. The example below uses Ward hierarchical clustering.</p><figure class="figure-panel"><img src="images/som/som_codebooks_ward.png" alt="Ward clusters assigned to the Iris self-organising-map codebooks"><figcaption>Ward clustering of the trained codebook vectors.</figcaption></figure></section>
+      <section id="prediction"><h2>Classification and regression</h2><p>Observed class labels or continuous targets can be attached after unsupervised training. A new observation is mapped to its best-matching unit. Classification uses the label associated with the unit or its neighbourhood, while regression averages the target values of nearby mapped observations. These downstream uses rely on the neighbourhood organisation learned by the map.</p></section>
+    </div>
+  </div>
+</main>
+<footer class="site-footer"><div class="wrap"><p>Electronic supplementary material for a Master of Commerce thesis, Stellenbosch University.</p></div></footer>
+</body>
+</html>

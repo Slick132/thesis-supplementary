@@ -88,6 +88,63 @@ body {
 }
 .nav a:hover, .nav a[aria-current='page'] { opacity: 1; border-bottom-color: var(--header-sub); }
 
+/* ---------- supplementary-page navigation ---------- */
+
+.has-site-sidebar { padding-left: 276px; }
+.has-site-sidebar .site-header .nav { display: none; }
+.site-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 80;
+  width: 276px;
+  overflow-y: auto;
+  padding: 24px 18px 32px;
+  background: var(--heading);
+  color: var(--header-text);
+  border-right: 1px solid rgba(255,255,255,0.12);
+}
+.site-sidebar-brand {
+  display: block;
+  padding: 0 8px 20px;
+  color: var(--header-text);
+  text-decoration: none;
+  font-weight: 680;
+  line-height: 1.28;
+}
+.site-sidebar-brand span {
+  display: block;
+  margin-top: 5px;
+  color: var(--header-sub);
+  font-size: 0.77rem;
+  font-weight: 450;
+}
+.site-nav-group + .site-nav-group { margin-top: 22px; }
+.site-nav-label {
+  margin: 0 8px 6px;
+  color: var(--header-sub);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+.site-sidebar nav a,
+.mobile-site-nav nav a {
+  display: block;
+  padding: 7px 9px;
+  border-radius: 6px;
+  color: rgba(251,248,244,0.80);
+  font-size: 0.87rem;
+  line-height: 1.3;
+  text-decoration: none;
+}
+.site-sidebar nav a:hover,
+.site-sidebar nav a[aria-current='page'] {
+  background: rgba(255,255,255,0.10);
+  color: var(--header-text);
+}
+.site-sidebar nav a[aria-current='page'] { box-shadow: inset 3px 0 0 var(--header-sub); }
+.mobile-site-nav { display: none; }
+
 
 /* ---------- hero ---------- */
 
@@ -257,6 +314,26 @@ code { font-family: var(--mono); font-size: 0.88em; background: var(--accent-sof
 .layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 34px; }
 
 @media (max-width: 900px) {
+  .has-site-sidebar { padding-left: 0; }
+  .site-sidebar { display: none; }
+  .mobile-site-nav {
+    display: block;
+    margin: 14px 18px 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--paper);
+  }
+  .mobile-site-nav summary {
+    cursor: pointer;
+    padding: 11px 14px;
+    color: var(--heading);
+    font-weight: 650;
+  }
+  .mobile-site-nav nav { padding: 0 8px 10px; }
+  .mobile-site-nav .site-nav-group + .site-nav-group { margin-top: 10px; }
+  .mobile-site-nav .site-nav-label { color: var(--eyebrow); margin-top: 10px; }
+  .mobile-site-nav nav a { color: var(--muted); }
+  .mobile-site-nav nav a[aria-current='page'] { background: var(--accent-soft); color: var(--accent); }
   .layout { grid-template-columns: 1fr; }
   .toc { position: static; display: none; }
   .grid-3, .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neural networks and autoencoders | Environmental regionalisation supplementary material</title>
+<meta name="description" content="Extended explanations of neural networks, convolutional operators and autoencoders.">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate">
+<link rel="stylesheet" href="css/styles.css">
+<script defer src="js/site-nav.js"></script>
+</head>
+<body data-page="neural-networks">
+<header class="site-header"><div class="wrap"><a class="brand" href="index.html">Environmental regionalisation <span>supplementary material</span></a></div></header>
+<main>
+  <section class="hero"><div class="wrap"><p class="eyebrow">Machine-learning guide</p><h1>Neural networks and autoencoders</h1><p class="lede">This page provides the extended background removed from the technical appendix. The written thesis retains the layer equation, training objective and convolution arithmetic required by the final model.</p></div></section>
+  <div class="wrap layout">
+    <aside class="toc" aria-label="Page contents"><strong>On this page</strong><a href="#neuron">Artificial neurons</a><a href="#training">Training</a><a href="#convolution">Convolutional operators</a><a href="#autoencoder">Autoencoders</a></aside>
+    <div class="longform">
+      <section id="neuron"><h2>Artificial neurons and layered networks</h2><p>A neuron calculates a weighted sum of its inputs, adds a bias and applies an activation function. Arranging these units in layers creates a nonlinear mapping from an input vector to an output vector.</p><div class="eq"><math display="block"><msup><mi mathvariant="bold">h</mi><mrow><mo>(</mo><mi>&ell;</mi><mo>)</mo></mrow></msup><mo>=</mo><msup><mi>&phi;</mi><mrow><mo>(</mo><mi>&ell;</mi><mo>)</mo></mrow></msup><mo>(</mo><msup><mi mathvariant="bold">W</mi><mrow><mo>(</mo><mi>&ell;</mi><mo>)</mo></mrow></msup><msup><mi mathvariant="bold">h</mi><mrow><mo>(</mo><mi>&ell;</mi><mo>&minus;</mo><mn>1</mn><mo>)</mo></mrow></msup><mo>+</mo><msup><mi mathvariant="bold">b</mi><mrow><mo>(</mo><mi>&ell;</mi><mo>)</mo></mrow></msup><mo>)</mo></math></div><p>The same operation is repeated through the hidden layers. Early layers transform the original variables, while later layers combine the transformed values into task-specific features.</p></section>
+      <section id="training"><h2>Training through loss minimisation</h2><p>A loss function measures disagreement between the model output and its target. Backpropagation calculates the gradient of the loss with respect to each parameter. A gradient-based optimiser then updates the weights and biases over successive mini-batches.</p><div class="eq"><math display="block"><mover><mi>&theta;</mi><mo>^</mo></mover><mo>=</mo><munder><mo>arg min</mo><mi>&theta;</mi></munder><mfrac><mn>1</mn><mi>n</mi></mfrac><munderover><mo>&sum;</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mi mathvariant="script">L</mi><mo>(</mo><mi>f</mi><mo>(</mo><msub><mi mathvariant="bold">x</mi><mi>i</mi></msub><mo>,</mo><mi>&theta;</mi><mo>)</mo><mo>,</mo><msub><mi mathvariant="bold">y</mi><mi>i</mi></msub><mo>)</mo></math></div></section>
+      <section id="convolution"><h2>Convolutional operators</h2><p>A convolution applies one learned kernel to successive local windows. Reusing the kernel allows the same temporal pattern to be detected at different positions. A strided convolution reduces the sequence length, while a dilated convolution spreads the kernel taps apart and widens the receptive field without adding kernel parameters.</p><div class="grid grid-3"><div class="stat"><span class="n">Stride</span><span class="k">Moves the kernel by more than one position and downsamples the sequence.</span></div><div class="stat"><span class="n">Dilation</span><span class="k">Adds gaps between kernel taps and expands the temporal view.</span></div><div class="stat"><span class="n">Transpose</span><span class="k">Increases sequence length in the decoder but is not an inverse convolution.</span></div></div><p>The receptive field of deeper layers grows because each output combines the receptive fields of the preceding layer. The <a href="architectures.html">animated architecture search</a> shows these operations layer by layer for the models evaluated in the thesis.</p></section>
+      <section id="autoencoder"><h2>Autoencoders</h2><p>An autoencoder contains an encoder that maps an observation to a lower-dimensional embedding and a decoder that reconstructs the observation from the embedding. Training minimises reconstruction error, so the bottleneck must retain information required to reproduce the inputs.</p><div class="eq"><math display="block"><mi mathvariant="bold">z</mi><mo>=</mo><msub><mi>g</mi><mtext>enc</mtext></msub><mo>(</mo><mi mathvariant="bold">x</mi><mo>)</mo><mo>,</mo><mspace width="1em"/><mover><mi mathvariant="bold">x</mi><mo>^</mo></mover><mo>=</mo><msub><mi>g</mi><mtext>dec</mtext></msub><mo>(</mo><mi mathvariant="bold">z</mi><mo>)</mo></math></div><p>The final environmental model used a convolutional encoder and decoder because every observation contained six aligned daily time series. The bottleneck reduced each complete record to five embedding values used for subsequent interpretation and clustering.</p></section>
+    </div>
+  </div>
+</main>
+<footer class="site-footer"><div class="wrap"><p>Electronic supplementary material for a Master of Commerce thesis, Stellenbosch University.</p></div></footer>
+</body>
+</html>

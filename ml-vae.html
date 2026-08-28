@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Variational autoencoders | Environmental regionalisation supplementary material</title>
+<meta name="description" content="Extended variational-autoencoder examples and latent-space visualisations.">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate">
+<link rel="stylesheet" href="css/styles.css"><script defer src="js/site-nav.js"></script>
+</head>
+<body data-page="vae">
+<header class="site-header"><div class="wrap"><a class="brand" href="index.html">Environmental regionalisation <span>supplementary material</span></a></div></header>
+<main>
+  <section class="hero"><div class="wrap"><p class="eyebrow">Machine-learning guide</p><h1>Variational autoencoders</h1><p class="lede">The thesis appendix retains the evidence lower bound, Gaussian latent distribution and reparameterisation equations. This page contains the extended generation and latent-space demonstrations.</p></div></section>
+  <div class="wrap layout">
+    <aside class="toc" aria-label="Page contents"><strong>On this page</strong><a href="#distribution">Latent distributions</a><a href="#generation">Generation</a><a href="#two-d">Two dimensions</a><a href="#three-d">Three dimensions</a><a href="#interpolation">Interpolation</a></aside>
+    <div class="longform">
+      <section id="distribution"><h2>From a point to a distribution</h2><p>A deterministic autoencoder maps an observation to one embedding. A variational autoencoder maps the observation to the parameters of a probability distribution. A latent sample is drawn through the reparameterisation step and supplied to the decoder.</p><div class="eq"><math display="block"><mi mathvariant="bold">z</mi><mo>=</mo><msub><mi mathvariant="bold">&mu;</mi><mi>&phi;</mi></msub><mo>(</mo><mi mathvariant="bold">x</mi><mo>)</mo><mo>+</mo><msub><mi mathvariant="bold">&sigma;</mi><mi>&phi;</mi></msub><mo>(</mo><mi mathvariant="bold">x</mi><mo>)</mo><mo>&odot;</mo><mi mathvariant="bold">&epsilon;</mi><mo>,</mo><mspace width="1em"/><mi mathvariant="bold">&epsilon;</mi><mo>&sim;</mo><mi mathvariant="normal">N</mi><mo>(</mo><mn>0</mn><mo>,</mo><mi mathvariant="bold">I</mi><mo>)</mo></math></div></section>
+      <section id="generation"><h2>Data generation</h2><p>After training, a latent vector can be sampled from the prior and passed through the decoder. The generated output follows the structure learned from the training observations. The MNIST digits below provide a simple visual example; generation was not used in the environmental regionalisation.</p><figure class="figure-panel"><img src="images/vae/MNISTExamples.png" alt="Examples of handwritten digits from the MNIST dataset"><figcaption>Example observations from the MNIST dataset.</figcaption></figure></section>
+      <section id="two-d"><h2>Two-dimensional latent representation</h2><p>A two-dimensional bottleneck allows every embedding to be drawn directly. Digit classes occupy overlapping but distinguishable parts of the latent space, while gradual changes between nearby embeddings illustrate the continuous organisation encouraged by the variational objective.</p><figure class="figure-panel"><img src="images/vae/VAE2DMNIST.png" alt="Two-dimensional variational-autoencoder representation of MNIST digits"><figcaption>Two-dimensional latent representation of MNIST digits.</figcaption></figure></section>
+      <section id="three-d"><h2>Three-dimensional latent representation</h2><p>Adding a third latent dimension gives the decoder more capacity to organise the observations. The resulting representation cannot be inspected in one flat view without projection, but the class structure remains visible in the three-dimensional plot.</p><figure class="figure-panel"><img src="images/vae/VAE3DMNIST.png" alt="Three-dimensional variational-autoencoder representation of MNIST digits"><figcaption>Three-dimensional latent representation of MNIST digits.</figcaption></figure></section>
+      <section id="interpolation"><h2>Interpolation between latent regions</h2><p>Linear interpolation places equally spaced points between two latent positions and decodes each point. The sequence below moves between consecutive digit-class centres. Intermediate outputs show how the decoder changes gradually along the selected latent path.</p><figure class="figure-panel"><img src="images/vae/DigitsGeneratedFrom3DVAE.png" alt="Digit images decoded along interpolations between latent class centres"><figcaption>Decoded interpolations between class centres in the three-dimensional latent representation.</figcaption></figure></section>
+    </div>
+  </div>
+</main>
+<footer class="site-footer"><div class="wrap"><p>Electronic supplementary material for a Master of Commerce thesis, Stellenbosch University.</p></div></footer>
+</body>
+</html>
