@@ -13,6 +13,7 @@
 <meta name="CCBot" content="nofollow">
 <link rel="stylesheet" href="css/styles.css">
 <script defer src="js/site-nav.js"></script>
+<script defer src="js/data-timeline.js"></script>
 </head>
 <body data-page="overview">
 
@@ -138,6 +139,20 @@
       <div class="stat"><span class="n">6</span><span class="k">daily variables</span></div>
       <div class="stat"><span class="n">98.4 M</span><span class="k">daily records</span></div>
     </div>
+    <figure class="data-timeline">
+      <div class="data-timeline-heading">
+        <strong>Example daily climate record</strong>
+        <span id="data-timeline-date">Loading the record...</span>
+      </div>
+      <div class="data-timeline-canvas-wrap">
+        <canvas id="data-timeline-canvas" role="img" aria-label="Six animated daily environmental time series from one held-out grid site"></canvas>
+      </div>
+      <div class="data-timeline-controls">
+        <button id="data-timeline-toggle" type="button">Pause</button>
+        <div class="data-timeline-progress" aria-hidden="true"><span id="data-timeline-progress"></span></div>
+      </div>
+      <figcaption id="data-timeline-caption">A moving one-year window through one complete site record.</figcaption>
+    </figure>
     <p style="margin-top:18px">
       The six variables are maximum and minimum temperature, maximum and minimum relative
       humidity, wind speed and precipitation. Temperature comes from CHIRTS-ERA5 and precipitation

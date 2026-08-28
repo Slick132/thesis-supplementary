@@ -299,7 +299,30 @@
     </div>
 
     <div class="card">
-      <h3>11. Parallel-branch fusion and the 1 x 1 convolution</h3>
+      <h3>11. The 1 x 1 convolution</h3>
+      <p>
+        A 1 x 1 convolution looks at all feature channels at one temporal position and learns a
+        new weighted combination of those channels. The operator changes the number of feature
+        maps without combining neighbouring days, so the temporal length and receptive field stay
+        unchanged. The parallel-concatenation architecture used the operator to reduce 256 feature
+        channels to 128 before the fully connected bridge.
+      </p>
+      <div class="eq"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+  <msub><mi>y</mi><mrow><mi>q</mi><mo>,</mo><mi>t</mi></mrow></msub>
+  <mo>=</mo><msub><mi>b</mi><mi>q</mi></msub><mo>+</mo>
+  <munderover><mo>&sum;</mo><mrow><mi>c</mi><mo>=</mo><mn>1</mn></mrow><msub><mi>C</mi><mtext>in</mtext></msub></munderover>
+  <msub><mi>w</mi><mrow><mi>q</mi><mo>,</mo><mi>c</mi></mrow></msub>
+  <msub><mi>x</mi><mrow><mi>c</mi><mo>,</mo><mi>t</mi></mrow></msub>
+</math></div>
+      <div class="canvas-wrap"><canvas class="op tall" data-block="pointwise" data-period="8" role="img" aria-label="Animation of a one by one convolution mixing feature channels independently at each temporal position"></canvas></div>
+      <p class="fig-note">
+        The animation uses four input and three output channels so the calculation remains visible.
+        The evaluated architecture applied the same operation to 256 input and 128 output channels.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>12. Parallel-branch fusion</h3>
       <p>
         Two of the Stage 2 architectures run a short-range strided branch alongside a long-range
         dilated branch and then have to join them. Concatenation stacks the two feature tensors and
@@ -312,7 +335,7 @@
     </div>
 
     <div class="card">
-      <h3>12. Variational sampling</h3>
+      <h3>13. Variational sampling</h3>
       <p>
         The variational models replace the single projection to the embedding with two, one
         producing a mean and one a log variance, and then draw the embedding from that distribution.

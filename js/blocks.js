@@ -821,7 +821,103 @@
             'the weights are learned rather than copied from the encoder, and information lost by downsampling is not recovered');
   };
 
-  /* 9. parallel-branch fusion, with the 1x1 convolution inset */
+  /* 9. pointwise 1 x 1 convolution */
+  BLOCKS.pointwise = function (ctx, W, H, t) {
+    var muted = cssVar('--muted', '#6B5D63'), ink = cssVar('--ink', '#2B1F24');
+    var accent = cssVar('--accent', '#8C2F4A'), colour = cssVar('--d-mlp', '#3F6B4A');
+    var inputColour = cssVar('--d-dilated', '#8C6B2F');
+    var inputChannels = 4, outputChannels = 3, positions = 10;
+    var inputs = [
+      [0.2, 0.4, 0.7, 0.8, 0.5, 0.1, -0.2, 0.0, 0.3, 0.6],
+      [0.8, 0.6, 0.3, 0.1, 0.0, 0.2, 0.5, 0.7, 0.6, 0.4],
+      [-0.3, 0.0, 0.2, 0.5, 0.7, 0.6, 0.2, -0.1, -0.2, 0.1],
+      [0.1, 0.3, 0.2, -0.1, -0.3, 0.0, 0.4, 0.8, 0.7, 0.3]
+    ];
+    var weights = [
+      [0.5, -0.2, 0.4, 0.3],
+      [-0.1, 0.6, 0.2, -0.4],
+      [0.3, 0.2, -0.5, 0.6]
+    ];
+    var bias = [0.05, -0.03, 0.08];
+    var active = Math.min(positions - 1, Math.floor(t * positions));
+    var labelW = W < 560 ? 34 : 52;
+    var pad = labelW + 10;
+    var cellW = Math.min(42, (W - pad - 18) / positions);
+    var gridW = cellW * positions;
+    var cellH = 15;
+    var inputTop = 30;
+    var outputTop = H - CAP - outputChannels * (cellH + 3) - 22;
+
+    function outputAt(q, position) {
+      var value = bias[q];
+      for (var c = 0; c < inputChannels; c++) value += weights[q][c] * inputs[c][position];
+      return value;
+    }
+
+    title(ctx, 'input feature maps, 4 channels x 10 positions', pad, 18, W);
+    for (var c = 0; c < inputChannels; c++) {
+      for (var i = 0; i < positions; i++) {
+        cell(ctx, pad + i * cellW, inputTop + c * (cellH + 3), cellW - 2, cellH,
+             inputColour, i === active ? 0.72 : 0.13, inputs[c][i].toFixed(1),
+             i === active ? '#fff' : muted);
+      }
+      ctx.fillStyle = muted;
+      ctx.font = '8px ' + cssVar('--mono', 'monospace');
+      ctx.textAlign = 'right';
+      ctx.fillText('c' + (c + 1), pad - 6, inputTop + c * (cellH + 3) + 11);
+    }
+
+    var highlightX = pad + active * cellW - 1;
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 1.4;
+    ctx.strokeRect(highlightX, inputTop - 2, cellW, inputChannels * (cellH + 3));
+
+    var matrixTop = inputTop + inputChannels * (cellH + 3) + 18;
+    var matrixW = Math.min(190, gridW * 0.48);
+    var matrixX = pad + (gridW - matrixW) / 2;
+    ctx.fillStyle = ink;
+    ctx.font = '600 9px ' + cssVar('--font', 'sans-serif');
+    ctx.textAlign = 'center';
+    ctx.fillText('one learned 3 x 4 channel-mixing matrix', matrixX + matrixW / 2, matrixTop - 5);
+    for (var q = 0; q < outputChannels; q++) {
+      for (c = 0; c < inputChannels; c++) {
+        cell(ctx, matrixX + c * matrixW / inputChannels,
+             matrixTop + q * 17, matrixW / inputChannels - 2, 14,
+             colour, 0.18 + Math.abs(weights[q][c]) * 0.75,
+             weights[q][c].toFixed(1), ink);
+      }
+    }
+
+    title(ctx, 'output feature maps, 3 channels x 10 positions', pad, outputTop - 9, W);
+    for (q = 0; q < outputChannels; q++) {
+      for (i = 0; i < positions; i++) {
+        var calculated = outputAt(q, i);
+        var revealed = i <= active;
+        cell(ctx, pad + i * cellW, outputTop + q * (cellH + 3), cellW - 2, cellH,
+             colour, revealed ? 0.25 + Math.min(0.5, Math.abs(calculated) * 0.5) : 0.08,
+             revealed ? calculated.toFixed(2) : '', ink);
+      }
+      ctx.fillStyle = muted;
+      ctx.font = '8px ' + cssVar('--mono', 'monospace');
+      ctx.textAlign = 'right';
+      ctx.fillText('q' + (q + 1), pad - 6, outputTop + q * (cellH + 3) + 11);
+    }
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 1.4;
+    ctx.strokeRect(highlightX, outputTop - 2, cellW, outputChannels * (cellH + 3));
+
+    arrow(ctx, pad + active * cellW + cellW / 2,
+          inputTop + inputChannels * (cellH + 3) + 2,
+          matrixX + matrixW / 2, matrixTop - 9, accent, 0.75);
+    arrow(ctx, matrixX + matrixW / 2, matrixTop + outputChannels * 17 + 2,
+          pad + active * cellW + cellW / 2, outputTop - 5, accent, 0.75);
+
+    caption(ctx, W, H,
+      'position ' + (active + 1) + ': all input channels are mixed, while adjacent positions are untouched',
+      'a 1 x 1 convolution changes the channel count without changing temporal length or receptive field');
+  };
+
+  /* 10. parallel-branch fusion, with the 1x1 convolution inset */
   BLOCKS.fusion = function (ctx, W, H, t) {
     var muted = cssVar('--muted', '#6B5D63'), ink = cssVar('--ink', '#2B1F24');
     var cS = cssVar('--d-strided', '#61223B'), cD = cssVar('--d-dilated', '#8C6B2F');
