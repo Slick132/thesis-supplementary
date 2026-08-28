@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feature distributions by region | Deep Representation Learning for Environmental Regionalisation</title>
+<meta name="description" content="Complete violin-plot distributions of 33 climate features under the Köppen-Geiger and feature-learning regionalisations.">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate">
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="bingbot" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="robots" content="noai, noimageai">
+<meta name="CCBot" content="nofollow">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">Environmental regionalisation <span>supplementary material</span></a>
+    <nav class="nav" aria-label="Main navigation">
+      <a href="index.html">Overview</a>
+      <a href="architectures.html">Architectures</a>
+      <a href="geometry.html">Geometry</a>
+      <a href="feature-distributions.html" aria-current="page">Distributions</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Complete feature-level comparison</p>
+    <h1>Feature distributions by region</h1>
+    <p class="lede">
+      These plots show the complete distributions of the 33 climate features under the eight
+      Köppen-Geiger classes and the eight feature-learning regions. The thesis reports the
+      feature-level variance comparison and principal findings; this page preserves the complete
+      distributional evidence.
+    </p>
+  </div>
+</section>
+
+<div class="wrap layout">
+  <aside class="toc" aria-label="Page contents">
+    <strong>On this page</strong>
+    <a href="#reading">Reading the plots</a>
+    <a href="#counts">Sites per region</a>
+    <a href="#temperature">Temperature</a>
+    <a href="#precipitation">Precipitation</a>
+    <a href="#humidity">Humidity</a>
+    <a href="#wind">Wind</a>
+  </aside>
+
+  <div class="longform">
+    <section id="reading">
+      <h2>Reading the plots</h2>
+      <p>
+        Each figure compares one feature across the two regionalisations. The Köppen-Geiger
+        classes appear on the left and the feature-learning regions on the right. The panels share
+        a vertical axis, allowing distributions at the same height to be compared directly.
+        Wider parts of a violin contain more sites, and the horizontal line marks the median.
+      </p>
+      <div class="note">
+        <p>
+          Select any plot to open the original image. The BSk class contains only five sites, so
+          its distribution should be interpreted cautiously.
+        </p>
+      </div>
+    </section>
+
+    <section id="counts">
+      <h2>Sites per region</h2>
+      <p>The same regional sample sizes apply to every feature shown below.</p>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Köppen-Geiger class</th>
+              <th class="num">Sites</th>
+              <th>Feature-learning region</th>
+              <th class="num">Sites</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Aw</td><td class="num">722</td><td>0</td><td class="num">1,329</td></tr>
+            <tr><td>BSh</td><td class="num">5,661</td><td>1</td><td class="num">2,088</td></tr>
+            <tr><td>BSk</td><td class="num">5</td><td>2</td><td class="num">1,947</td></tr>
+            <tr><td>BWh</td><td class="num">935</td><td>3</td><td class="num">1,787</td></tr>
+            <tr><td>Cfa</td><td class="num">623</td><td>4</td><td class="num">2,676</td></tr>
+            <tr><td>Cfb</td><td class="num">117</td><td>5</td><td class="num">1,990</td></tr>
+            <tr><td>Cwa</td><td class="num">2,972</td><td>6</td><td class="num">1,481</td></tr>
+            <tr><td>Cwb</td><td class="num">3,156</td><td>7</td><td class="num">893</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="temperature">
+      <h2>Temperature features</h2>
+      <p>Eleven bioclimatic temperature features describe annual conditions, seasonal variation and temperatures during wet, dry, warm and cold periods.</p>
+      <div class="plot-grid">
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_BIO1.png" aria-label="Open Annual mean temperature (BIO1) at full resolution">
+            <img src="images/feature-distributions/dist_BIO1.png" loading="lazy"
+                 alt="Violin plots comparing Annual mean temperature (BIO1) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Annual mean temperature (BIO1)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_BIO2.png" aria-label="Open Mean diurnal temperature range (BIO2) at full resolution">
+            <img src="images/feature-distributions/dist_BIO2.png" loading="lazy"
+                 alt="Violin plots comparing Mean diurnal temperature range (BIO2) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Mean diurnal temperature range (BIO2)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_BIO3.png" aria-label="Open Isothermality (BIO3) at full resolution">
+            <img src="images/feature-distributions/dist_BIO3.png" loading="lazy"
+                 alt="Violin plots comparing Isothermality (BIO3) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Isothermality (BIO3)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_BIO4.png" aria-label="Open Temperature seasonality (BIO4) at full resolution">
+            <img src="images/feature-distributions/dist_BIO4.png" loading="lazy"
+                 alt="Violin plots comparing Temperature seasonality (BIO4) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Temperature seasonality (BIO4)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_BIO5.png" aria-label="Open Maximum temperature of the warmest month (BIO5) at full resolution">
+            <img src="images/feature-distributions/dist_BIO5.png" loading="lazy"
+                 alt="Violin plots comparing Maximum temperature of the warmest month (BIO5) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Maximum temperature of the warmest month (BIO5)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_BIO6.png" aria-label="Open Minimum temperature of the coldest month (BIO6) at full resolution">
+            <img src="images/feature-distributions/dist_BIO6.png" loading="lazy"
+                 alt="Violin plots comparing Minimum temperature of the coldest month (BIO6) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Minimum temperature of the coldest month (BIO6)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_BIO7.png" aria-label="Open Annual temperature range (BIO7) at full resolution">
+            <img src="images/feature-distributions/dist_BIO7.png" loading="lazy"
+                 alt="Violin plots comparing Annual temperature range (BIO7) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Annual temperature range (BIO7)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_BIO8.png" aria-label="Open Mean temperature of the wettest quarter (BIO8) at full resolution">
+            <img src="images/feature-distributions/dist_BIO8.png" loading="lazy"
+                 alt="Violin plots comparing Mean temperature of the wettest quarter (BIO8) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Mean temperature of the wettest quarter (BIO8)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_BIO9.png" aria-label="Open Mean temperature of the driest quarter (BIO9) at full resolution">
+            <img src="images/feature-distributions/dist_BIO9.png" loading="lazy"
+                 alt="Violin plots comparing Mean temperature of the driest quarter (BIO9) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Mean temperature of the driest quarter (BIO9)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_BIO10.png" aria-label="Open Mean temperature of the warmest quarter (BIO10) at full resolution">
+            <img src="images/feature-distributions/dist_BIO10.png" loading="lazy"
+                 alt="Violin plots comparing Mean temperature of the warmest quarter (BIO10) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Mean temperature of the warmest quarter (BIO10)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_BIO11.png" aria-label="Open Mean temperature of the coldest quarter (BIO11) at full resolution">
+            <img src="images/feature-distributions/dist_BIO11.png" loading="lazy"
+                 alt="Violin plots comparing Mean temperature of the coldest quarter (BIO11) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Mean temperature of the coldest quarter (BIO11)</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="precipitation">
+      <h2>Precipitation features</h2>
+      <p>Eight bioclimatic precipitation features describe annual amount, seasonality and precipitation during wet, dry, warm and cold periods.</p>
+      <div class="plot-grid">
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_BIO12.png" aria-label="Open Annual precipitation (BIO12) at full resolution">
+            <img src="images/feature-distributions/dist_BIO12.png" loading="lazy"
+                 alt="Violin plots comparing Annual precipitation (BIO12) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Annual precipitation (BIO12)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_BIO13.png" aria-label="Open Precipitation of the wettest month (BIO13) at full resolution">
+            <img src="images/feature-distributions/dist_BIO13.png" loading="lazy"
+                 alt="Violin plots comparing Precipitation of the wettest month (BIO13) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Precipitation of the wettest month (BIO13)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_BIO14.png" aria-label="Open Precipitation of the driest month (BIO14) at full resolution">
+            <img src="images/feature-distributions/dist_BIO14.png" loading="lazy"
+                 alt="Violin plots comparing Precipitation of the driest month (BIO14) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Precipitation of the driest month (BIO14)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_BIO15.png" aria-label="Open Precipitation seasonality (BIO15) at full resolution">
+            <img src="images/feature-distributions/dist_BIO15.png" loading="lazy"
+                 alt="Violin plots comparing Precipitation seasonality (BIO15) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Precipitation seasonality (BIO15)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_BIO16.png" aria-label="Open Precipitation of the wettest quarter (BIO16) at full resolution">
+            <img src="images/feature-distributions/dist_BIO16.png" loading="lazy"
+                 alt="Violin plots comparing Precipitation of the wettest quarter (BIO16) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Precipitation of the wettest quarter (BIO16)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_BIO17.png" aria-label="Open Precipitation of the driest quarter (BIO17) at full resolution">
+            <img src="images/feature-distributions/dist_BIO17.png" loading="lazy"
+                 alt="Violin plots comparing Precipitation of the driest quarter (BIO17) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Precipitation of the driest quarter (BIO17)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_BIO18.png" aria-label="Open Precipitation of the warmest quarter (BIO18) at full resolution">
+            <img src="images/feature-distributions/dist_BIO18.png" loading="lazy"
+                 alt="Violin plots comparing Precipitation of the warmest quarter (BIO18) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Precipitation of the warmest quarter (BIO18)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_BIO19.png" aria-label="Open Precipitation of the coldest quarter (BIO19) at full resolution">
+            <img src="images/feature-distributions/dist_BIO19.png" loading="lazy"
+                 alt="Violin plots comparing Precipitation of the coldest quarter (BIO19) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Precipitation of the coldest quarter (BIO19)</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="humidity">
+      <h2>Humidity features</h2>
+      <p>Eight humidity features describe mean conditions, humidity range, vapour-pressure deficit, seasonality and humidity during selected quarters.</p>
+      <div class="plot-grid">
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_RH_mean.png" aria-label="Open Mean relative humidity (RH_mean) at full resolution">
+            <img src="images/feature-distributions/dist_RH_mean.png" loading="lazy"
+                 alt="Violin plots comparing Mean relative humidity (RH_mean) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Mean relative humidity (RH_mean)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_RH_range.png" aria-label="Open Relative humidity range (RH_range) at full resolution">
+            <img src="images/feature-distributions/dist_RH_range.png" loading="lazy"
+                 alt="Violin plots comparing Relative humidity range (RH_range) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Relative humidity range (RH_range)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_VPD_18.png" aria-label="Open Vapour-pressure deficit of the warmest quarter (VPD_18) at full resolution">
+            <img src="images/feature-distributions/dist_VPD_18.png" loading="lazy"
+                 alt="Violin plots comparing Vapour-pressure deficit of the warmest quarter (VPD_18) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Vapour-pressure deficit of the warmest quarter (VPD_18)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_RH8.png" aria-label="Open Relative humidity of the wettest quarter (RH8) at full resolution">
+            <img src="images/feature-distributions/dist_RH8.png" loading="lazy"
+                 alt="Violin plots comparing Relative humidity of the wettest quarter (RH8) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Relative humidity of the wettest quarter (RH8)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_RH9.png" aria-label="Open Relative humidity of the driest quarter (RH9) at full resolution">
+            <img src="images/feature-distributions/dist_RH9.png" loading="lazy"
+                 alt="Violin plots comparing Relative humidity of the driest quarter (RH9) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Relative humidity of the driest quarter (RH9)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_RH15.png" aria-label="Open Relative humidity seasonality (RH15) at full resolution">
+            <img src="images/feature-distributions/dist_RH15.png" loading="lazy"
+                 alt="Violin plots comparing Relative humidity seasonality (RH15) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Relative humidity seasonality (RH15)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_RH18.png" aria-label="Open Relative humidity of the warmest quarter (RH18) at full resolution">
+            <img src="images/feature-distributions/dist_RH18.png" loading="lazy"
+                 alt="Violin plots comparing Relative humidity of the warmest quarter (RH18) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Relative humidity of the warmest quarter (RH18)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_RH19.png" aria-label="Open Relative humidity of the coldest quarter (RH19) at full resolution">
+            <img src="images/feature-distributions/dist_RH19.png" loading="lazy"
+                 alt="Violin plots comparing Relative humidity of the coldest quarter (RH19) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Relative humidity of the coldest quarter (RH19)</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="wind">
+      <h2>Wind features</h2>
+      <p>Six wind features describe mean wind speed, the windiest quarter, seasonality and wind speed during wet, dry and warm periods.</p>
+      <div class="plot-grid">
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_WS_mean.png" aria-label="Open Mean wind speed (WS_mean) at full resolution">
+            <img src="images/feature-distributions/dist_WS_mean.png" loading="lazy"
+                 alt="Violin plots comparing Mean wind speed (WS_mean) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Mean wind speed (WS_mean)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_WS_windiest_quarter.png" aria-label="Open Wind speed of the windiest quarter (WS_windiest_quarter) at full resolution">
+            <img src="images/feature-distributions/dist_WS_windiest_quarter.png" loading="lazy"
+                 alt="Violin plots comparing Wind speed of the windiest quarter (WS_windiest_quarter) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Wind speed of the windiest quarter (WS_windiest_quarter)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_WS_15.png" aria-label="Open Wind-speed seasonality (WS_15) at full resolution">
+            <img src="images/feature-distributions/dist_WS_15.png" loading="lazy"
+                 alt="Violin plots comparing Wind-speed seasonality (WS_15) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Wind-speed seasonality (WS_15)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_WS8.png" aria-label="Open Wind speed of the wettest quarter (WS8) at full resolution">
+            <img src="images/feature-distributions/dist_WS8.png" loading="lazy"
+                 alt="Violin plots comparing Wind speed of the wettest quarter (WS8) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Wind speed of the wettest quarter (WS8)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_WS9.png" aria-label="Open Wind speed of the driest quarter (WS9) at full resolution">
+            <img src="images/feature-distributions/dist_WS9.png" loading="lazy"
+                 alt="Violin plots comparing Wind speed of the driest quarter (WS9) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Wind speed of the driest quarter (WS9)</figcaption>
+        </figure>
+        <figure class="plot-card">
+          <a href="images/feature-distributions/dist_WS18.png" aria-label="Open Wind speed of the warmest quarter (WS18) at full resolution">
+            <img src="images/feature-distributions/dist_WS18.png" loading="lazy"
+                 alt="Violin plots comparing Wind speed of the warmest quarter (WS18) across Köppen-Geiger classes and feature-learning regions">
+          </a>
+          <figcaption>Wind speed of the warmest quarter (WS18)</figcaption>
+        </figure>
+      </div>
+    </section>
+  </div>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Supplementary material for a Master of Commerce thesis, Stellenbosch University, Faculty of
+    Economic and Management Sciences.</p>
+  </div>
+</footer>
+
+</body>
+</html>

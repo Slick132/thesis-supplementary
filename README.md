@@ -11,6 +11,7 @@ Laubscher-Pretorius, Stellenbosch University).
 | `index.html` | Overview of the research problem, the dataset, the four-stage framework and the headline results. |
 | `architectures.html` | Animated diagrams of every architecture evaluated in the architecture search, plus explainers for the three convolutional operators. |
 | `geometry.html` | Extended technical background on the manifold hypothesis, decoder-induced distance, the pullback metric and sampled geodesic paths. |
+| `feature-distributions.html` | Complete distributions of the 33 climate features under the K&ouml;ppen-Geiger and feature-learning regionalisations. |
 
 ## How the architecture diagrams work
 

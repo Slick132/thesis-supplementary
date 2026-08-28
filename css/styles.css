@@ -322,3 +322,32 @@ math { font-family: 'Latin Modern Math', 'Cambria Math', 'STIX Two Math', serif;
 .procedure li + li { margin-top: 8px; }
 .source-list { max-width: 78ch; padding-left: 1.25rem; }
 .source-list li + li { margin-top: 12px; }
+
+/* ---------- feature-distribution gallery ---------- */
+
+.plot-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  margin-top: 18px;
+}
+.plot-card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--card-shadow);
+  padding: 14px;
+  margin: 0;
+}
+.plot-card a { display: block; }
+.plot-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+.plot-card figcaption {
+  margin: 10px 4px 2px;
+  color: var(--heading);
+  font-weight: 600;
+}
