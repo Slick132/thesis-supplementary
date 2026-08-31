@@ -3,7 +3,8 @@
     {
       label: 'Supplementary material',
       links: [
-        ['overview', 'Overview', 'index.html']
+        ['overview', 'Overview', 'index.html'],
+        ['about', 'About Chris', 'index.html#about']
       ]
     },
     {
@@ -28,12 +29,13 @@
     }
   ];
 
-  const active = document.body.dataset.page || '';
+  const pageActive = document.body.dataset.page || '';
+  const activeKey = () => window.location.hash === '#about' ? 'about' : pageActive;
   const linkMarkup = (compact = false) => groups.map(group => `
     <div class="site-nav-group">
       <div class="site-nav-label">${group.label}</div>
       ${group.links.map(([key, label, href]) => `
-        <a href="${href}"${key === active ? ' aria-current="page"' : ''}>${label}</a>
+        <a href="${href}" data-page-key="${key}"${key === activeKey() ? ' aria-current="page"' : ''}>${label}</a>
       `).join('')}
     </div>
   `).join('');
@@ -57,4 +59,12 @@
   document.body.prepend(sidebar);
   const header = document.querySelector('.site-header');
   if (header) header.insertAdjacentElement('afterend', mobile);
+
+  const updateActiveLink = () => {
+    document.querySelectorAll('.site-sidebar nav a, .mobile-site-nav nav a').forEach(link => {
+      if (link.dataset.pageKey === activeKey()) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
+    });
+  };
+  window.addEventListener('hashchange', updateActiveLink);
 })();

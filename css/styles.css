@@ -169,6 +169,42 @@ body {
 .byline { font-size: 0.92rem; color: var(--muted); margin: 0; }
 .byline strong { color: var(--ink); font-weight: 600; }
 
+/* ---------- researcher profile ---------- */
+
+.about-section { scroll-margin-top: 58px; }
+.about-gallery {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.72fr) minmax(0, 1.45fr);
+  gap: 20px;
+  align-items: stretch;
+  margin-top: 24px;
+}
+.about-photo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--card-shadow);
+}
+.about-photo img {
+  display: block;
+  width: 100%;
+  height: 430px;
+  object-fit: cover;
+}
+.about-photo-portrait img { object-position: center 68%; }
+.about-photo-award img { object-position: center; }
+.about-photo figcaption {
+  flex: 1;
+  max-width: none;
+  margin: 0;
+  padding: 13px 16px 15px;
+}
+
 /* ---------- sections ---------- */
 
 section { padding: 42px 0; }
@@ -405,6 +441,9 @@ code { font-family: var(--mono); font-size: 0.88em; background: var(--accent-sof
 }
 @media (max-width: 620px) {
   .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .about-gallery { grid-template-columns: 1fr; }
+  .about-photo img { height: auto; max-height: 520px; }
+  .about-photo-portrait img { object-fit: contain; }
   canvas.arch { height: 280px; }
   canvas.recon { height: 430px; }
   canvas.op.tall { height: 260px; }
