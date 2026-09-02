@@ -49,14 +49,15 @@
         <p>
           Generative AI assisted with sentence-level editing of thesis prose, development and
           refinement of figures, debugging of software, construction of the supplementary website,
-          and post-development reviews of code correctness and simulation setups. The author wrote
-          the research code and used AI review after implementation to identify possible logical,
-          numerical or presentation problems.
+          and post-development reviews of code correctness and simulation setups. The author,
+          assisted by AI tools such as Codex and Claude Code, wrote the research code and used AI
+          review after implementation to identify possible logical, numerical or presentation
+          problems.
         </p>
         <p>
-          Generative-AI output was treated as assistance rather than authoritative evidence. The
-          author selected the final wording, code changes, analyses and visualisations and remains
-          responsible for the submitted work.
+          Generative-AI output was mainly treated as assistance. The author selected the final
+          wording, code changes, analyses and visualisations and remains responsible for the
+          submitted work.
         </p>
         <p class="transparency-note">
           The examples below document the main types of interaction. They are representative
@@ -69,10 +70,12 @@
         <h2>Reusable instruction sets</h2>
         <p>
           A skill is a reusable instruction package that guides an AI system during a recurring
-          type of task. The main custom skill used for thesis writing was the Thesis Flow Editor.
-          The skill constrained edits to small, meaning-preserving changes in British English and
-          required the preservation of LaTeX commands, citations, mathematical notation, numerical
-          values and levels of certainty.
+          type of task. The main custom skill used for thesis writing was a skill named Thesis Flow
+          Editor. The skill was used only to produce proposed edits for review; no changes were
+          accepted or applied without approval from the author. The skill constrained edits to
+          small, meaning-preserving changes in British English and required the preservation of
+          LaTeX commands, citations, mathematical notation, numerical values and levels of
+          certainty.
         </p>
         <p>
           Skills are primarily written instructions, although a skill can also include supporting
@@ -110,10 +113,6 @@
           <pre>Diagnose the reported behaviour without changing the intended analysis. Reproduce the problem, identify the cause, propose the smallest correction and test the corrected implementation against the expected dimensions and numerical outputs. Explain any remaining limitation.</pre>
         </details>
 
-        <details class="prompt-card">
-          <summary>Supplementary website development</summary>
-          <pre>Implement the approved supplementary website content using the existing visual style. Preserve the scientific values and terminology from the thesis. Make the interactive explanation understandable at a glance, support reduced-motion and mobile layouts, and validate the final page before publishing it.</pre>
-        </details>
       </section>
     </article>
   </div>
