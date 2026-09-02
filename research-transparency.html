@@ -88,10 +88,10 @@ Make suggestions to the supplied text. Suggestions should improve how sentences 
 
 ## Preserve the source
 
-- Preserve the meaning, scope, certainty, numbers, variable names and technical terminology.
+- Preserve the meaning, scope, numbers, variable names and technical terminology.
 - Preserve LaTeX commands, environments, labels, references, citations, acronyms and mathematical notation.
 - Do not add claims, evidence, interpretations or citations.
-- Work only on the paragraph or subsection supplied by the user.
+- Work only on the text supplied by the user.
 
 ## Match the preferred flow
 
@@ -99,32 +99,22 @@ Make suggestions to the supplied text. Suggestions should improve how sentences 
 - Use past tense for empirical procedures, observations and conclusions. Use present tense for definitions and general properties.
 - Prefer moderate-length sentences that connect closely related actions or ideas.
 - Do not split a continuous procedure merely to shorten the sentences. Sentence length is secondary to natural flow.
-- Combine adjacent short sentences when the second sentence completes, explains or qualifies the first.
-- Combine sentences when the same subject continues into the next action, explanation or consequence.
 - Keep separate sentences when the subject changes or a new methodological step begins.
-- Avoid a sequence of short, abrupt sentences, but do not create sentences with several independent claims.
 - Use transitions such as `before`, `while`, `because`, `therefore` and participial phrases only when the logical relationship is exact.
 - Use `before` for a direct sequence, `with` for controlled conditions, `while` for a genuine comparison and a participial phrase such as `making` for a direct consequence.
 - Avoid repeating `then`, the same noun phrase or the same conclusion in consecutive sentences.
 - Prefer explicit nouns over vague references such as `this`, `it`, `they` or `these`.
-- State the mechanism directly instead of using evaluative labels or empty academic phrasing.
-- Preserve the procedural order and section signposting of the source.
-- Keep descriptions of numbered stages grammatically parallel.
+- State the mechanism directly instead of using evaluative labels or empty phrasing.
+- Preserve the procedural order of the source text.
 - Prefer plain verbs such as `used`, `compared`, `produced`, `showed` and `consisted of` over more formal alternatives such as `employed`, `demonstrated` and `comprised`.
-- Retain the original sentence order unless changing the order materially improves the logical progression.
-- Retain the user's plain, direct tone. Do not make the prose ornate or unnecessarily formal.
-
-Read [references/style-profile.md](references/style-profile.md) when calibrating sentence combinations or editing more than one paragraph.
+- Retain the original sentence order unless changing the order materially improves the logical progression and flow of the provided text..
 
 ## Response and editing behaviour
 
-- When the user requests wording or a rewrite, return a clearly marked proposed LaTeX-safe version without editing files.
-- When revising a paragraph, return the complete revised paragraph rather than only the individual sentences that changed.
-- Keep commentary minimal. Include a short change log only when rewriting a complete subsection.
-- Apply file changes only after the user explicitly approves or says `apply`.
-- When applying an approved edit, change only the approved wording and verify the resulting diff.
+- When the user requests suggestions, return a clearly marked proposed LaTeX-safe version without editing any files.
+- When revising a piece of text, return the complete revised text rather.
 
-# Supervisor Writing Rules
+# Writing Rules
 
 The writing rules are provided below in no particular order:
 
@@ -138,136 +128,54 @@ The writing rules are provided below in no particular order:
 
 3. Avoid the use of pronouns, such as “it, its, this, them, they, which”. These pronouns introduce ambiguities. Rather be very specific in what you refer to.
 
-4. Do not use uncertain terms such as “some”, “certain”. These terms indicate that you are not sure yourself. Be very specific.
+4. Avoid uncertain terms such as “some” and “certain” unless the available evidence requires qualified language. 
 
-5. Avoid “may be”, “can be”. These terms give the impression that you are not sure.
+5. Do not use “etc”. Be complete and specific.
 
-6. Do not use “etc”. Be complete and specific.
+6. Avoid footnotes and clarifications in parentheses. These break reading flow.
 
-7. Avoid footnotes and clarifications in parentheses. These break reading flow.
+7. Make sure that each concept is defined before it is used.
 
-8. When you do provide text in parentheses, the reader must know why that text is given. As an example, do not just give a figure number or table number in parentheses, such as “The algorithm has the highest rank (Table 2).” Rather, “The algorithm has the highest rank (refer to Table 2).” Even better is to not use parentheses here, and write as “The algorithm has the highest rank as indicated in Table 2.”
+8. Note the meaning of “it’s” as “it is”. Note the difference between the pronoun “its” and “it is”.
 
-9. Make sure that each concept is defined before it is used.
+9. Do not use contractions such as “don’t”, “we’re”.
 
-10. Note the meaning of “it’s” as “it is”. Note the difference between the pronoun “its” and “it is”.
+10. Avoid using apostrophes to indicate position, such as “the algorithm’s performance...”. Here, rather write as “the performance of the algorithm...”.
 
-11. Do not use contractions such as “don’t”, “we’re”.
+11. Note the difference between “to” and “too”.
 
-12. Avoid using apostrophes to indicate position, such as “the algorithm’s performance...”. Here, rather write as “the performance of the algorithm...”.
+12. Also, note the difference between “amount” and “number of”. The latter refers to countable objects, the former to non-countable objects.
 
-13. Note the difference between “to” and “too”.
+13. Convention is that single-digit numbers are given in words, and multi-digit numbers in numeric form.
 
-14. Also, note the difference between “amount” and “number of”. The latter refers to countable objects, the former to non-countable objects.
-
-15. Be careful in the use of conjunctions such as “since”, “because”, “as”. Refer to https://www.vedantu.com/english/use-of-conjunctions.
-
-16. Convention is that single-digit numbers are given in words, and multi-digit numbers in numeric form.
-
-17. About sentences:
-   a) Write in short, flowing sentences. Long sentences become difficult to follow. A sentence becomes too long if there are more than one comma or conjunctive in the sentence. One sentence should convey one fact.
+14. About sentences:
+   a) Write in short, flowing sentences. Long sentences become difficult to follow.
    b) Write in full sentences.
    c) Do not start a sentence with a symbol, or a number.
-   d) Each sentence should flow from the previous sentence.
-   e) Do not start a sentence with a citation label.
-   f) Avoid starting sentences with “In this section, optimisation is discussed”. Rather, “This section discusses optimisation”, or “Optimisation is discussed in this section.”
-   g) Do not start a sentence with “And” or “But”.
+   d) Do not start a sentence with a citation label.
+   e) Do not start a sentence with “And” or “But”.
 
-18. About paragraphs:
+15. About paragraphs:
    a) Each paragraph should flow from the previous paragraph.
    b) Do not write in long paragraphs. A paragraph is like a function in programming: The function should have one goal, one focus. However, avoid too short paragraphs. Both make reading difficult.
 
-19. With reference to equations, the following:
-   a) Equations should flow as part of a sentence. It must flow as part of the narrative.
-   b) All symbols used in an equation have to be defined. However, if a symbol has already been defined, do not define it again.
-   c) Do not make forward references to equations.
-
-20. With reference to acronyms, please note the following:
-   a) Each acronym has to be defined.
-   b) List acronyms and their definitions in an appendix in alphabetical order.
-   c) Do not use acronyms in any heading or caption.
-   d) Once an acronym has been defined, use the acronym. I advise that you use the LaTeX glossaries package.
-   e) In the conclusions, define each acronym again when first used.
-
-21. While I do not prescribe a specific bibliography and citation format, please note the following:
-   a) References to be sorted alphabetically based on the surname of the first author.
-   b) Each reference in the bibliography should be referred to in the text.
-   c) Do not use names of authors, because names are not always available. Use only initials and surnames.
-   d) Do not refer to any pre-prints, e.g. documents available at arXiv, ResearchSquare, or any other medium. Find where it was published. If not published in a book, proceedings, or journal, then you cannot include it in your bibliography.
-   e) Do not refer to blogs.
-   f) References to websites for code libraries and data archives are best done as a footnote and not as part of the bibliography.
-   g) Make sure that references are complete.
-   h) Make sure that formatting of references are consistent.
-   i) For an article published in the proceedings of a conference, give the source (i.e. booktitle) as “Proceedings of the XXX”, where XXX is the name of the conference.
-   j) Do not give the acronym of the conference or journal article.
-   k) Write conference names out in full.
-   l) Write journal names out in full.
-
-22. Citations to references in the bibliography:
-   a) “Engelbrecht showed that...” (for one author)
-   b) “Erwin and Engelbrecht showed that...” (for two authors)
-   c) “Harrison et al. showed that...” (for more than two authors)
-   d) Note the use of past tense above.
-   e) When using numerical citations to references, make sure that citations are sorted.
-
-23. With reference to figures:
-   a) Figure captions are given below the figure.
-   b) Font and size of text used in a figure should be the same as for the main text.
-   c) Figure captions serve only as a label, and should not contain detailed explanations.
-   d) Symbols used in a figure may be defined in the caption.
-   e) Each figure should be referred to in the main text, introduced, and discussed.
-   f) If you have multiple sub-figures in one figure environment, do not add a heading for each figure. Use the LaTeX subfigure environment and for each sub-figure, provide a caption.
-   g) Place a figure after the first reference to the figure.
-   h) Avoid copying and pasting images and illustrations from literature. Provide your own diagrams, reproduction of these images.
-   i) If you do use figures from another source, then you have to cite these sources.
-
-24. With reference to tables, the following:
-   a) Table captions are given below the table.
-   b) Table captions serve only as a label, and should not contain detailed explanations.
-   c) Symbols used in a table may be defined in the caption.
-   d) Place a table after the first reference to the figure.
-
-25. With reference to algorithms, the following:
-   a) Use the LaTeX algorithms package.
-   b) Algorithm captions at the top of the algorithm.
-   c) Algorithm captions serve only as a label, and should not contain detailed explanations.
-   d) Symbols used in an algorithm may be defined in the caption.
-   e) Place an algorithm after the first reference to the algorithm.
-   f) Do not use any programming-based statements, but rather give pseudocode statements in English text.
-
-26. About chapters/sections, the following:
-   a) Chapter/section headings serve only as a label, and should not contain a verb, and not be a question.
-   b) Do not have chapters and main sections with detailed text followed by subsections. Each chapter and main section to start with the purpose of the main section, some context, and an outline of the remainder of the section. The main text is then organised in appropriate, flowing subsections.
-   c) A chapter/main section should not have only one subsection.
-   d) Do not use forward references to sections/chapters. The only place where forward references to sections/chapters are allowed is in the outline of the section/chapter.
-   e) Do not start a chapter with a figure, table or algorithm. Start with text.
-   f) End each chapter with a chapter summary.
-   g) Start each chapter with a short paragraph stating the context and purpose of the chapter, followed by an outline of the chapter.
-
-27. With reference to symbols:
+16. With reference to symbols:
    a) Make sure that all mathematical symbols are given in math mode.
-   b) Do not overload the meaning of symbols. Each symbol must have one unique meaning, and each meaning must have only one symbol associated with it.
-   c) Provide all symbols and their definitions in an appendix in alphabetical order.
-   d) Give vectors in bold, lower case. While the arrow notation is correct, it may become cluttered.
+   d) Give vectors in bold, lower case.
    e) Give matrices in bold, upper case.
    f) Sets and sequences are in upper case, not bold.
    g) Functions are in lower case, not bold.
    h) Scalars are in lower case, not bold.
    i) Superscripts and subscripts of vectors and matrices are not in bold.
-   j) Avoid multi-character symbols for math and indices.
-   k) Note that f(x) is the value of the function, f, at point x; f(x) is not the function, the function is f.
 
-28. Provide all Latin words, such as “et al”, in italics.
+17. Provide all Latin words, such as “et al”, in italics.
 
-29. You need to use British English.
-
-30. Singular versus plural forms:
+18. Singular versus plural forms:
    a) criterion is singular; criteria is plural.
    b) optima, minima, maxima are plural; optimum, minimum, maximum are singular.
 
-31. In normal text, do not capitalise the first character of each word when you define acronyms. Capitalisation is used only when a word refers to a name.
 
-32. Do not make any statements or claims without providing supporting evidence, which can be in the form of a citation to one of your references or empirical evidence that you provide in your document.</pre>
+</pre>
         </details>
       </section>
 
