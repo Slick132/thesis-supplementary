@@ -14,8 +14,6 @@ Laubscher-Pretorius, Stellenbosch University).
 | `feature-distributions.html` | Complete distributions of the 33 climate features under the K&ouml;ppen-Geiger and feature-learning regionalisations. |
 | `research-transparency.html` | Description of generative-AI assistance, representative prompts and the reusable thesis-editing skill. |
 
-The downloadable prompt package is stored in `prompts/thesis-flow-editor.md`.
-
 ## How the architecture diagrams work
 
 `js/arch-data.js` is **generated, not hand-written**. Each entry lists the

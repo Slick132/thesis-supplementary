@@ -540,18 +540,6 @@ math { font-family: 'Latin Modern Math', 'Cambria Math', 'STIX Two Math', serif;
   font-size: 0.82rem;
   line-height: 1.55;
 }
-.download-link {
-  display: inline-block;
-  margin-top: 8px;
-  padding: 8px 13px;
-  border: 1px solid var(--accent);
-  border-radius: 999px;
-  color: var(--accent);
-  text-decoration: none;
-  font-weight: 650;
-}
-.download-link:hover { color: var(--paper); background: var(--accent); }
-
 /* ---------- feature-distribution gallery ---------- */
 
 .plot-grid {
