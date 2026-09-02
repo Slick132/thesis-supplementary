@@ -4,7 +4,8 @@
       label: 'Supplementary material',
       links: [
         ['overview', 'Overview', 'index.html'],
-        ['about', 'About Chris', 'index.html#about']
+        ['about', 'About Chris', 'index.html#about'],
+        ['transparency', 'AI use and transparency', 'research-transparency.html']
       ]
     },
     {

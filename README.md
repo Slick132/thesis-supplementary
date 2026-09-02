@@ -12,6 +12,9 @@ Laubscher-Pretorius, Stellenbosch University).
 | `architectures.html` | Animated diagrams of every architecture evaluated in the architecture search, plus explainers for the three convolutional operators. |
 | `geometry.html` | Extended technical background on the manifold hypothesis, decoder-induced distance, the pullback metric and sampled geodesic paths. |
 | `feature-distributions.html` | Complete distributions of the 33 climate features under the K&ouml;ppen-Geiger and feature-learning regionalisations. |
+| `research-transparency.html` | Description of generative-AI assistance, representative prompts and the reusable thesis-editing skill. |
+
+The downloadable prompt package is stored in `prompts/thesis-flow-editor.md`.
 
 ## How the architecture diagrams work
 

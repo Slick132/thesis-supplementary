@@ -505,6 +505,53 @@ math { font-family: 'Latin Modern Math', 'Cambria Math', 'STIX Two Math', serif;
 .source-list { max-width: 78ch; padding-left: 1.25rem; }
 .source-list li + li { margin-top: 12px; }
 
+/* ---------- research transparency ---------- */
+
+.transparency-note {
+  max-width: 78ch;
+  padding: 16px 18px;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background: var(--accent-soft);
+}
+.prompt-card {
+  max-width: 82ch;
+  margin: 14px 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--paper);
+  box-shadow: var(--card-shadow);
+}
+.prompt-card summary {
+  cursor: pointer;
+  padding: 14px 16px;
+  color: var(--heading);
+  font-weight: 650;
+}
+.prompt-card[open] summary { border-bottom: 1px solid var(--border); }
+.prompt-card pre {
+  margin: 0;
+  padding: 16px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+.download-link {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 8px 13px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 650;
+}
+.download-link:hover { color: var(--paper); background: var(--accent); }
+
 /* ---------- feature-distribution gallery ---------- */
 
 .plot-grid {

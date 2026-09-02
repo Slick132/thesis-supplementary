@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI use and research transparency | Environmental regionalisation supplementary material</title>
+<meta name="description" content="A transparent account of how generative AI supported writing, code review, simulation review, figures, debugging and website development for this thesis.">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate">
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="bingbot" content="noindex, nofollow, noarchive, nosnippet">
+<!-- Opt out of model training and retrieval. -->
+<meta name="robots" content="noai, noimageai">
+<meta name="CCBot" content="nofollow">
+<link rel="stylesheet" href="css/styles.css?v=20260902-1">
+<script defer src="js/site-nav.js?v=20260902-1"></script>
+</head>
+<body data-page="transparency">
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">Environmental regionalisation <span>supplementary material</span></a>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Research transparency</p>
+      <h1>Use of generative AI</h1>
+      <p class="lede">
+        Generative-AI tools supported selected writing and software-development tasks during the
+        preparation of the thesis and this electronic supplement. This page records the main forms
+        of assistance and provides the reusable instructions and representative prompts.
+      </p>
+    </div>
+  </section>
+
+  <div class="wrap layout">
+    <aside class="toc" aria-label="Page contents">
+      <strong>On this page</strong>
+      <a href="#role">Role of generative AI</a>
+      <a href="#skills">Reusable instructions</a>
+      <a href="#prompts">Representative prompts</a>
+    </aside>
+
+    <article class="longform">
+      <section id="role">
+        <h2>Role of generative AI</h2>
+        <p>
+          Generative AI assisted with sentence-level editing of thesis prose, development and
+          refinement of figures, debugging of software, construction of the supplementary website,
+          and post-development reviews of code correctness and simulation setups. The author wrote
+          the research code and used AI review after implementation to identify possible logical,
+          numerical or presentation problems.
+        </p>
+        <p>
+          Generative-AI output was treated as assistance rather than authoritative evidence. The
+          author selected the final wording, code changes, analyses and visualisations and remains
+          responsible for the submitted work.
+        </p>
+        <p class="transparency-note">
+          The examples below document the main types of interaction. They are representative
+          prompts rather than complete conversation transcripts and omit private file paths and
+          personal information.
+        </p>
+      </section>
+
+      <section id="skills">
+        <h2>Reusable instruction sets</h2>
+        <p>
+          A skill is a reusable instruction package that guides an AI system during a recurring
+          type of task. The main custom skill used for thesis writing was the Thesis Flow Editor.
+          The skill constrained edits to small, meaning-preserving changes in British English and
+          required the preservation of LaTeX commands, citations, mathematical notation, numerical
+          values and levels of certainty.
+        </p>
+        <p>
+          Skills are primarily written instructions, although a skill can also include supporting
+          references, scripts, templates or assets. The complete custom writing skill is available
+          below so that the editing constraints can be inspected directly.
+        </p>
+        <p><a class="download-link" href="prompts/thesis-flow-editor.md" download>Download the Thesis Flow Editor instructions</a></p>
+      </section>
+
+      <section id="prompts">
+        <h2>Representative prompts</h2>
+
+        <details class="prompt-card" open>
+          <summary>Thesis prose and sentence flow</summary>
+          <pre>Improve the flow and wording of the supplied LaTeX paragraph. Preserve the meaning, level of certainty, technical terminology, numerical values, citations, references and LaTeX commands. Use British English and make only small, auditable changes. Present the proposed wording for review before applying it.</pre>
+        </details>
+
+        <details class="prompt-card">
+          <summary>Code-correctness review</summary>
+          <pre>Review the code after implementation for logical and numerical correctness. Check array dimensions, tensor shapes, indexing, transformations, data leakage, random-state handling and consistency between the implementation and the stated analysis. Report each confirmed problem with the evidence used to identify it. Do not change the code until the proposed correction has been reviewed.</pre>
+        </details>
+
+        <details class="prompt-card">
+          <summary>Simulation-setup review</summary>
+          <pre>Review the completed simulation setup. Check that the assumptions, generated data, parameter values, random seeds, comparison baselines, repetitions and evaluation measures answer the intended question. Identify confounding choices or cases in which the simulated evidence would not support the stated interpretation. Propose changes for review before modifying the simulation.</pre>
+        </details>
+
+        <details class="prompt-card">
+          <summary>Figure development</summary>
+          <pre>Create or revise the figure using the supplied analysis outputs. Preserve every numerical value and label, use the established thesis colour palette and produce a transparent, publication-quality result. Keep the caption concise and verify that the visual encoding agrees with the underlying values before replacing the thesis figure.</pre>
+        </details>
+
+        <details class="prompt-card">
+          <summary>Software debugging</summary>
+          <pre>Diagnose the reported behaviour without changing the intended analysis. Reproduce the problem, identify the cause, propose the smallest correction and test the corrected implementation against the expected dimensions and numerical outputs. Explain any remaining limitation.</pre>
+        </details>
+
+        <details class="prompt-card">
+          <summary>Supplementary website development</summary>
+          <pre>Implement the approved supplementary website content using the existing visual style. Preserve the scientific values and terminology from the thesis. Make the interactive explanation understandable at a glance, support reduced-motion and mobile layouts, and validate the final page before publishing it.</pre>
+        </details>
+      </section>
+    </article>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Electronic supplementary material for a Master of Commerce thesis, Stellenbosch University.</p>
+  </div>
+</footer>
+
+</body>
+</html>
