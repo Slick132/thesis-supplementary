@@ -38,10 +38,11 @@
     return function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
   }
 
-  function series(channel, n, smooth) {
+  function series(channel, n, smooth, variant) {
     var rnd = seeded(97 + channel * 7919);
     var out = [];
-    var phase = channel * 0.7;
+    variant = variant || 0;
+    var phase = channel * 0.7 + variant * 0.04;
     var spiky = channel === 5;
     var drift = 0;
     for (var i = 0; i < n; i++) {
@@ -50,11 +51,12 @@
       var v;
       if (spiky) {
         var r = rnd();
-        v = r > (smooth ? 0.86 : 0.78) ? r * (0.5 + 0.5 * (seasonal + 1) / 2) : 0.02;
-        if (smooth) v = v * 0.62 + 0.06;
+        var threshold = smooth ? (variant ? 0.84 : 0.86) : 0.78;
+        v = r > threshold ? r * (0.5 + 0.5 * (seasonal + 1) / 2) : 0.02;
+        if (smooth) v = v * (variant ? 0.56 : 0.62) + (variant ? 0.075 : 0.06);
       } else {
-        drift = drift * 0.86 + (rnd() - 0.5) * (smooth ? 0.06 : 0.16);
-        v = 0.5 + seasonal * 0.34 + drift;
+        drift = drift * 0.86 + (rnd() - 0.5) * (smooth ? (variant ? 0.08 : 0.06) : 0.16);
+        v = 0.5 + seasonal * (variant ? 0.31 : 0.34) + drift;
       }
       out.push(Math.max(0, Math.min(1, v)));
     }
@@ -183,8 +185,10 @@
         cells: dcells, k: dlive[0].k, d: dlive[0].d
       });
     }
-    bot.push({ kind: 'output', type: 'io', label: 'reconstruction',
-               sub: INPUT_CH + ' x ' + fmt(INPUT_LEN) });
+    bot.push({ kind: 'output', type: 'io',
+               label: spec.parallel ? 'reconstructions' : 'reconstruction',
+               sub: spec.parallel ? 'each ' + INPUT_CH + ' x ' + fmt(INPUT_LEN) : INPUT_CH + ' x ' + fmt(INPUT_LEN),
+               branchOutputs: !!spec.parallel });
 
     return { top: top, bot: bot, lanes: lanes, multi: multi };
   }
@@ -201,10 +205,11 @@
     var speed = opts.speed || 0.85;
     var W = 0, H = 0, dpr = 1;
 
-    var inSeries = [], outSeries = [];
+    var inSeries = [], outSeries = [], outSeriesB = [];
     for (var c = 0; c < INPUT_CH; c++) {
       inSeries.push(series(c, 130, false));
       outSeries.push(series(c, 130, true));
+      outSeriesB.push(series(c, 130, true, 1));
     }
 
     function resize() {
@@ -464,9 +469,19 @@
             }
             ctx.textAlign = 'center';
           } else if (col.kind === 'output') {
-            var bo = laneBox(g, 0, 64);
-            if (G.nLanes > 1) bo = { x: g.x, y: g.rowTop + g.rowH * 0.2, w: g.w, h: g.rowH * 0.6 };
-            drawSeriesBox(bo, outSeries, cssVar('--accent', '#8C2F4A'), progress);
+            if (col.branchOutputs && G.nLanes === 2) {
+              for (var lo = 0; lo < 2; lo++) {
+                var branchBox = laneBox(g, lo, 6);
+                drawSeriesBox(branchBox,
+                              lo === 0 ? outSeries : outSeriesB,
+                              colourFor(lo === 0 ? 'strided' : 'dilated'),
+                              progress);
+              }
+            } else {
+              var bo = laneBox(g, 0, 64);
+              if (G.nLanes > 1) bo = { x: g.x, y: g.rowTop + g.rowH * 0.2, w: g.w, h: g.rowH * 0.6 };
+              drawSeriesBox(bo, outSeries, cssVar('--accent', '#8C2F4A'), progress);
+            }
           } else if (col.kind === 'layer') {
             col.cells.forEach(function (cell, li) {
               if (!cell) return;
