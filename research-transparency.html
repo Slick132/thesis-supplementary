@@ -90,27 +90,42 @@
 
         <details class="prompt-card" open>
           <summary>Thesis prose and sentence flow</summary>
-          <pre>Improve the flow and wording of the supplied LaTeX paragraph. Preserve the meaning, level of certainty, technical terminology, numerical values, citations, references and LaTeX commands. Use British English and make only small, auditable changes. Present the proposed wording for review before applying it.</pre>
+          <pre>Suggest improvements to the flow and wording of the supplied LaTeX paragraph. Preserve the meaning, level of certainty, technical terminology, numerical values, citations,
+            references and LaTeX commands. Use British English and make only small, auditable suggestions. Then present the proposed wording.</pre>
         </details>
 
         <details class="prompt-card">
           <summary>Code-correctness review</summary>
-          <pre>Review the code after implementation for logical and numerical correctness. Check array dimensions, tensor shapes, indexing, transformations, data leakage, random-state handling and consistency between the implementation and the stated analysis. Report each confirmed problem with the evidence used to identify it. Do not change the code until the proposed correction has been reviewed.</pre>
+          <pre>Review the code after implementation for logical and numerical correctness. Check array dimensions, tensor shapes, indexing, transformations,
+            data leakage, random-state handling and consistency between the implementation and the stated analysis.
+            Report each confirmed problem with the evidence used to identify it. If any errors are found list them with possible corrections.</pre>
         </details>
 
         <details class="prompt-card">
           <summary>Simulation-setup review</summary>
-          <pre>Review the completed simulation setup. Check that the assumptions, generated data, parameter values, random seeds, comparison baselines, repetitions and evaluation measures answer the intended question. Identify confounding choices or cases in which the simulated evidence would not support the stated interpretation. Propose changes for review before modifying the simulation.</pre>
+          <pre>Review the completed simulation setup. Check that the assumptions, parameter values, random seeds, comparison baselines,
+            repetitions and evaluation measures answer the intended question. Identify confounding choices or cases in which the simulated evidence would
+            not support the stated interpretation. If any errors are found list them with possible corrections.</pre>
         </details>
 
         <details class="prompt-card">
           <summary>Figure development</summary>
-          <pre>Create or revise the figure using the supplied analysis outputs. Preserve every numerical value and label, use the established thesis colour palette and produce a transparent, publication-quality result. Keep the caption concise and verify that the visual encoding agrees with the underlying values before replacing the thesis figure.</pre>
+          <pre>Create or revise the figure using the following information and specifications:
+
+[User-supplied figure requirements, design choices and source data]
+
+Preserve every numerical value and label, use the established thesis colour palette and produce a transparent, publication-quality result. Save the figure-generation code and outputs in the relevant project directory:
+
+[Path to the relevant project directory]</pre>
         </details>
 
         <details class="prompt-card">
           <summary>Software debugging</summary>
-          <pre>Diagnose the reported behaviour without changing the intended analysis. Reproduce the problem, identify the cause, propose the smallest correction and test the corrected implementation against the expected dimensions and numerical outputs. Explain any remaining limitation.</pre>
+          <pre>The code produces the following error or unexpected behaviour:
+
+[User description of the error, observed behaviour and suspected causes]
+
+Diagnose the reported behaviour and identify potential causes. List the potential errors and recommend appropriate code changes.</pre>
         </details>
 
       </section>
