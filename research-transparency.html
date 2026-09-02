@@ -47,7 +47,7 @@
       <section id="role">
         <h2>Role of generative AI</h2>
         <p>
-          Generative AI assisted with sentence-level editing of thesis prose, development and
+          Generative AI assisted with sentence-level suggestions of thesis prose, development and
           refinement of figures, debugging of software, construction of the supplementary website,
           and post-development reviews of code correctness and simulation setups. The author,
           assisted by AI tools such as Codex and Claude Code, wrote the research code and used AI
@@ -60,8 +60,7 @@
           submitted work.
         </p>
         <p class="transparency-note">
-          The examples below document the main types of interaction. They are example
-          prompts that were reused and not complete conversation transcripts.
+          The examples below document the main types of interaction. These are template prompts that were reused throughout the research.
         </p>
       </section>
 
@@ -76,15 +75,13 @@
         </p>
         <p>
           Skills are primarily written instructions, although a skill can also include supporting
-          references, scripts, templates or assets. The complete custom writing skill and the
-          accompanying supervisor writing rules are reproduced below so that the editing constraints
-          can be inspected directly.
+          references, scripts, templates or assets. The complete custom skill is given below.
         </p>
         <details class="prompt-card">
-          <summary>Thesis Flow Editor and supervisor writing rules</summary>
+          <summary>The Thesis Flow Editor Skill</summary>
           <pre># Thesis Flow Editor
 
-Make suggestions to the supplied text. Suggestions should improve how sentences connect without rewriting or adjusting the argument.
+Make suggestions for the supplied text. Suggestions should improve how sentences connect without rewriting or adjusting the argument.
 
 ## Preserve the source
 
@@ -99,20 +96,18 @@ Make suggestions to the supplied text. Suggestions should improve how sentences 
 - Use past tense for empirical procedures, observations and conclusions. Use present tense for definitions and general properties.
 - Prefer moderate-length sentences that connect closely related actions or ideas.
 - Do not split a continuous procedure merely to shorten the sentences. Sentence length is secondary to natural flow.
-- Keep separate sentences when the subject changes or a new methodological step begins.
+- Keep separate sentences when the subject changes.
 - Use transitions such as `before`, `while`, `because`, `therefore` and participial phrases only when the logical relationship is exact.
 - Use `before` for a direct sequence, `with` for controlled conditions, `while` for a genuine comparison and a participial phrase such as `making` for a direct consequence.
 - Avoid repeating `then`, the same noun phrase or the same conclusion in consecutive sentences.
 - Prefer explicit nouns over vague references such as `this`, `it`, `they` or `these`.
 - State the mechanism directly instead of using evaluative labels or empty phrasing.
 - Preserve the procedural order of the source text.
-- Prefer plain verbs such as `used`, `compared`, `produced`, `showed` and `consisted of` over more formal alternatives such as `employed`, `demonstrated` and `comprised`.
-- Retain the original sentence order unless changing the order materially improves the logical progression and flow of the provided text..
+- Retain the original sentence order unless changing the order materially improves the logical progression and flow of the provided text.
 
 ## Response and editing behaviour
 
 - When the user requests suggestions, return a clearly marked proposed LaTeX-safe version without editing any files.
-- When revising a piece of text, return the complete revised text rather.
 
 # Writing Rules
 
@@ -126,7 +121,7 @@ The writing rules are provided below in no particular order:
    c) Conclusions are written in past tense.
    d) Do not use present continuous tense, e.g. “Optimising of the control parameters...”; rather, “Optimisation of the control parameters...”.
 
-3. Avoid the use of pronouns, such as “it, its, this, them, they, which”. These pronouns introduce ambiguities. Rather be very specific in what you refer to.
+3. Avoid the use of pronouns, such as “it, its, this, them, they, which”. These pronouns introduce ambiguities. 
 
 4. Avoid uncertain terms such as “some” and “certain” unless the available evidence requires qualified language. 
 
@@ -182,24 +177,18 @@ The writing rules are provided below in no particular order:
       <section id="prompts">
         <h2>Representative prompts</h2>
 
-        <details class="prompt-card" open>
-          <summary>Thesis prose and sentence flow</summary>
-          <pre>Suggest improvements to the flow and wording of the supplied LaTeX paragraph. Preserve the meaning, level of certainty, technical terminology, numerical values, citations,
-            references and LaTeX commands. Use British English and make only small, auditable suggestions. Then present the proposed wording.</pre>
-        </details>
-
         <details class="prompt-card">
           <summary>Code-correctness review</summary>
-          <pre>Review the code after implementation for logical and numerical correctness. Check array dimensions, tensor shapes, indexing, transformations,
-            data leakage, random-state handling and consistency between the implementation and the stated analysis.
-            Report each confirmed problem with the evidence used to identify it. If any errors are found list them with possible corrections.</pre>
+          <pre> Review the code file(s) [user input to the relevant directories] for logical and numerical correctness. Check array dimensions, tensor shapes, indexing, transformations,
+            data leakage, random-state handling and consistency between the implementation and the stated analysis: [user describes the implementation and intended analysis]
+            Report each confirmed problem with the evidence used to identify it. If any errors are found list them with suggested corrections.</pre>
         </details>
 
         <details class="prompt-card">
           <summary>Simulation-setup review</summary>
-          <pre>Review the completed simulation setup. Check that the assumptions, parameter values, random seeds, comparison baselines,
-            repetitions and evaluation measures answer the intended question. Identify confounding choices or cases in which the simulated evidence would
-            not support the stated interpretation. If any errors are found list them with possible corrections.</pre>
+          <pre>Review the completed simulation setup [user input to the relevant directories]. Check that the assumptions, parameter values, random seeds, comparison baselines,
+            repetitions and evaluation measures answer the intended question: [user input of the intended question]. Identify confounding choices or cases in which the simulated evidence would
+            not support the stated interpretation: [user input the interpretation]. If any errors are found list them with suggested corrections.</pre>
         </details>
 
         <details class="prompt-card">
@@ -208,7 +197,7 @@ The writing rules are provided below in no particular order:
 
 [User-supplied figure requirements, design choices and source data]
 
-Preserve every numerical value and label, use the established thesis colour palette and produce a transparent, publication-quality result. Save the figure-generation code and outputs in the relevant project directory:
+Preserve every numerical value and label and produce a transparent figure. Save the figure-generation code and outputs in the relevant project directory:
 
 [Path to the relevant project directory]</pre>
         </details>
@@ -219,7 +208,7 @@ Preserve every numerical value and label, use the established thesis colour pale
 
 [User description of the error, observed behaviour and suspected causes]
 
-Diagnose the reported behaviour and identify potential causes. List the potential errors and recommend appropriate code changes.</pre>
+Diagnose the reported behaviour and identify potential causes. List the potential errors and suggested code changes.</pre>
         </details>
 
       </section>
