@@ -12,6 +12,7 @@
       label: 'Machine learning',
       links: [
         ['machine-learning', 'Machine-learning guide', 'machine-learning.html'],
+        ['manifold-hypothesis', 'Manifold hypothesis', 'manifold-hypothesis.html'],
         ['representation-learning', 'Representation learning', 'representation-learning.html'],
         ['neural-networks', 'Neural networks and autoencoders', 'ml-neural-networks.html'],
         ['som', 'Self-organising maps', 'ml-som.html'],

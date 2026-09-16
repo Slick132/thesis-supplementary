@@ -1,0 +1,29 @@
+.manifold-intro, .manifold-context { max-width: 78ch; }
+.manifold-context { margin: 0 0 20px; color: var(--muted); }
+.manifold-figure { padding: 14px; }
+.manifold-stage { background: var(--page); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.manifold-panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.manifold-panels svg { display: block; width: 100%; height: auto; min-width: 0; }
+.manifold-controls { display: grid; grid-template-columns: minmax(180px, 1.2fr) repeat(2, minmax(150px, 0.8fr)); gap: 12px 18px; align-items: end; margin-top: 14px; }
+.manifold-control { display: grid; gap: 5px; color: var(--muted); font-size: .84rem; }
+.manifold-control output { color: var(--heading); font-family: var(--mono); font-size: .8rem; }
+.manifold-control input { width: 100%; accent-color: var(--accent); }
+.manifold-control button { justify-self: start; font: inherit; font-size: .84rem; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--paper); color: var(--ink); cursor: pointer; }
+.manifold-control button:hover, .manifold-control button:focus-visible { border-color: var(--accent); color: var(--accent); }
+.point-readout { margin-top: 14px; padding: 13px 15px; background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 var(--radius-md) var(--radius-md) 0; color: var(--ink); }
+.point-readout strong { color: var(--heading); }
+.manifold-note { margin-top: 18px; }
+.manifold-caption { max-width: 82ch; }
+.manifold-figure svg text { font-family: var(--font); }
+.manifold-figure svg .axis-label, .manifold-figure svg .panel-title { fill: var(--heading); font-weight: 650; }
+.manifold-figure svg .axis-label { font-size: 14px; }
+.manifold-figure svg .panel-title { font-size: 16px; }
+.manifold-figure svg .panel-subtitle { fill: var(--muted); font-size: 12px; }
+.manifold-figure svg .manifold-point { cursor: pointer; stroke: var(--paper); stroke-width: 1.2; }
+.manifold-figure svg .manifold-point:focus { outline: none; stroke: var(--ink); stroke-width: 3; }
+.manifold-figure svg .manifold-point.is-selected { stroke: var(--ink); stroke-width: 3; }
+.manifold-figure svg .surface { fill: rgba(140,47,74,.06); stroke: rgba(97,34,59,.32); stroke-width: 1; }
+.manifold-figure svg .grid-line { fill: none; stroke: rgba(97,34,59,.25); stroke-width: 1; }
+.manifold-figure svg .axis { stroke: var(--muted); stroke-width: 1.2; }
+@media (max-width: 720px) { .manifold-controls { grid-template-columns: 1fr; } .manifold-panels { grid-template-columns: 1fr; } .manifold-panels svg { border-bottom: 1px solid var(--border); } .manifold-panels svg:last-child { border-bottom: 0; } }
+@media (prefers-reduced-motion: reduce) { #manifold-svg * { transition: none !important; } }

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manifold hypothesis | Environmental regionalisation supplementary material</title>
+<meta name="description" content="An interactive introduction to the manifold hypothesis and intrinsic coordinates.">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/manifold.css">
+<script defer src="js/site-nav.js"></script>
+<script defer src="js/manifold.js"></script>
+</head>
+<body data-page="manifold-hypothesis">
+<header class="site-header"><div class="wrap"><a class="brand" href="index.html">Environmental regionalisation <span>supplementary material</span></a></div></header>
+<main>
+<section class="hero"><div class="wrap">
+<p class="eyebrow">Machine-learning guide</p>
+<h1>Manifold hypothesis</h1>
+<p class="lede manifold-intro">The manifold hypothesis proposes that high-dimensional observations often lie on or near lower-dimensional structures within the input space. Although each observation contains many measurements, fewer underlying factors may describe how the observations vary. Coordinates along these structures therefore offer a way to represent the observations using fewer variables <a href="#reference-1" aria-label="Reference 1">[1]</a>.</p>
+</div></section>
+<section><div class="wrap">
+<h2>From three coordinates to two</h2>
+<p>Consider observations sampled from a rolled sheet, called a Swiss roll. Each observation is recorded using three coordinates, <code>(x₁, x₂, x₃)</code>. However, a position on the sheet requires only two coordinates: distance along the roll and height.</p>
+<p>The surrounding three-dimensional space is the <strong>ambient space</strong>. The sheet has two <strong>intrinsic dimensions</strong>, corresponding to the two directions in which a point can move along the surface.</p>
+<figure class="figure-panel manifold-figure" aria-labelledby="manifold-caption"><div class="manifold-stage"><div class="manifold-panels"><svg id="manifold-roll" viewBox="0 0 520 360" role="img" aria-labelledby="manifold-roll-title manifold-roll-desc"></svg><svg id="manifold-sheet" viewBox="0 0 520 360" role="img" aria-labelledby="manifold-sheet-title manifold-sheet-desc"></svg></div></div><div class="manifold-controls" aria-label="Visual controls"><label class="manifold-control" for="unfold">Unfolding progress <output id="unfold-value" for="unfold">0%</output><input id="unfold" type="range" min="0" max="1" step="0.01" value="0" aria-label="Unfold from the original roll to the flat sheet"></label><label class="manifold-control" for="rotate-x">Tilt <output id="rotate-x-value" for="rotate-x">-24°</output><input id="rotate-x" type="range" min="-1.5" max="1.5" step="0.01" value="-.42" aria-label="Tilt the three-dimensional view"></label><label class="manifold-control" for="rotate-y">Turn <output id="rotate-y-value" for="rotate-y">36°</output><input id="rotate-y" type="range" min="-1.5" max="1.5" step="0.01" value=".62" aria-label="Turn the three-dimensional view"></label><button id="reset-view" type="button">Reset view</button></div><div class="point-readout" id="point-readout" aria-live="polite"></div><figcaption class="manifold-caption" id="manifold-caption">Illustrative unrolling using known surface coordinates — not a learned embedding.</figcaption></figure>
+<p>Hover over or select an observation to highlight the same point in both panels. The coordinate display compares its original three-dimensional coordinates with its two-dimensional surface coordinates. Colour indicates position along the roll. Use the unfolding slider to flatten the sheet and the rotation controls to examine its shape.</p>
+</div></section>
+<section id="machine-learning"><div class="wrap">
+<h2>How machine learning exploits this structure</h2>
+<p>Manifold learning assumes that plausible observations occupy only a small part of the full input space. Under this assumption, an algorithm does not need to learn equally detailed behaviour for every possible combination of input values. Instead, the algorithm exploits variation along the structures containing the observations, or differences between those structures. This provides a basis for generalising from training observations to unseen observations near the same structures <a href="#reference-1" aria-label="Reference 1">[1]</a>.</p>
+<p>One way to exploit this structure is to learn lower-dimensional coordinates and supply those coordinates to another algorithm. In the Swiss-roll example, points on adjacent folds can appear close in the original space while remaining far apart along the surface. A representation that captures the surface structure helps distinguish these relationships.</p>
+<p>Such representations have several potential uses:</p>
+<ul>
+<li><strong>Clustering and neighbour-based methods:</strong> compare observations using relationships captured in the representation.</li>
+<li><strong>Prediction:</strong> supply a classifier or regression model with fewer features that retain information relevant to the target.</li>
+<li><strong>Visualisation:</strong> examine patterns and relationships in a two- or three-dimensional representation.</li>
+</ul>
+<p>These benefits depend on the representation and the task. Reducing dimensionality does not automatically improve predictions or produce more meaningful clusters. A learned representation can discard useful information or distort neighbourhoods, so its suitability requires evaluation.</p>
+</div></section>
+<section><div class="wrap">
+<h2>Why the hypothesis is plausible</h2>
+<p>Randomly generated pixel values rarely resemble a meaningful image. Real images therefore occupy only a small part of the space of possible pixel combinations. Gradual changes in lighting or object orientation also connect related images through small changes in their appearance. These observations motivate the idea that structured data concentrate near lower-dimensional manifolds <a href="#reference-1" aria-label="Reference 1">[1]</a>.</p>
+<p>However, the hypothesis does not hold equally well for every dataset. Observations can lie away from a manifold because of noise, and a dataset can contain several manifolds. A lower-dimensional representation also does not necessarily preserve every distance in a single flat coordinate system.</p>
+</div></section>
+<section><div class="wrap">
+<h2>From illustration to representation learning</h2>
+<p>The surface coordinates in this illustration are known because the Swiss roll was constructed from them. In real applications, the underlying coordinates are usually unknown and must be estimated from observations.</p>
+<p>Autoencoders provide one approach to learning representations, but are not guaranteed to recover the underlying manifold or unfold it as neatly as this example.</p>
+<p><a href="representation-learning.html">Continue to representation learning →</a></p>
+<h2>Reference</h2>
+<p id="reference-1">[1] I. Goodfellow, Y. Bengio and A. Courville. <em>Deep Learning</em>. MIT Press, 2016. <a href="https://www.deeplearningbook.org/contents/ml.html">Section 5.11.3: Manifold Learning, pp. 157–161</a>.</p>
+</div></section>
+</main>
+<footer class="site-footer"><div class="wrap"><p>Electronic supplementary material for a Master of Commerce thesis, Stellenbosch University.</p></div></footer>
+</body>
+</html>
