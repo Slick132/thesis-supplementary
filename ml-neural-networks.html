@@ -16,7 +16,7 @@
 <main>
   <section class="hero"><div class="wrap"><p class="eyebrow">Machine-learning guide</p><h1>Neural networks and autoencoders</h1><p class="lede">This page provides the extended background removed from the technical appendix. The written thesis retains the layer equation, training objective and convolution arithmetic required by the final model.</p></div></section>
   <div class="wrap layout">
-    <aside class="toc" aria-label="Page contents"><strong>On this page</strong><a href="#neuron">Artificial neurons</a><a href="#passes">Forward and backward passes</a><a href="#training">Training</a><a href="#convolution">Convolutional operators</a><a href="#autoencoder">Autoencoders</a><a href="#geometry">Autoencoder geometry</a><a href="#geometry-pullback-metric">Pullback metric</a><a href="#geometry-paths">Decoded paths and geodesics</a></aside>
+    <aside class="toc" aria-label="Page contents"><strong>On this page</strong><a href="#neuron">Artificial neurons</a><a href="#passes">Forward and backward passes</a><a href="#training">Training</a><a href="#convolution">Convolutional operators</a><a href="#autoencoder">Autoencoders</a><a href="#geometry">Autoencoder geometry</a><a href="#geometry-distance-question">Why latent distance needs checking</a><a href="#geometry-autoencoder-geometry">Geometric role of the autoencoder</a><a href="#geometry-pullback-metric">Decoder Jacobian and pullback metric</a><a href="#geometry-curvature">Curvature and coordinate distortion</a><a href="#geometry-paths">Decoded paths</a><a href="#geometry-geodesics">Geodesics</a><a href="#geometry-thesis-analysis">Use in the thesis</a></aside>
     <div class="longform">
       <section id="neuron"><h2>Artificial neurons and layered networks</h2><p>A neuron calculates a weighted sum of its inputs, adds a bias and applies an activation function. Arranging these units in layers creates a nonlinear mapping from an input vector to an output vector.</p><div class="eq"><math display="block"><msup><mi mathvariant="bold">h</mi><mrow><mo>(</mo><mi>&ell;</mi><mo>)</mo></mrow></msup><mo>=</mo><msup><mi>&phi;</mi><mrow><mo>(</mo><mi>&ell;</mi><mo>)</mo></mrow></msup><mo>(</mo><msup><mi mathvariant="bold">W</mi><mrow><mo>(</mo><mi>&ell;</mi><mo>)</mo></mrow></msup><msup><mi mathvariant="bold">h</mi><mrow><mo>(</mo><mi>&ell;</mi><mo>&minus;</mo><mn>1</mn><mo>)</mo></mrow></msup><mo>+</mo><msup><mi mathvariant="bold">b</mi><mrow><mo>(</mo><mi>&ell;</mi><mo>)</mo></mrow></msup><mo>)</mo></math></div><p>The same operation is repeated through the hidden layers. Early layers transform the original variables, while later layers combine the transformed values into task-specific features.</p></section>
       <section id="passes"><h2>Forward and backward passes</h2><p>The layer equation above is applied once per layer to produce a prediction. The animation below shows this forward pass for a small network with three inputs, four hidden units and one output, revealing the weighted sum and activation computed by each unit in turn.</p>
@@ -43,12 +43,95 @@
         similar outputs. The decoder can stretch one part of the code space and compress another,
         so equal Euclidean steps can represent different amounts of input-space change.
       </p>
+      <figure class="figure-panel">
+        <svg viewBox="0 0 520 300" role="img" aria-labelledby="latent-codes-title latent-codes-desc">
+          <title id="latent-codes-title">Code positions for an illustrative dataset</title>
+          <desc id="latent-codes-desc">Two groups of observations occupy the two-dimensional code plane. The groups are largely separated, but one code from each group lies closer to its neighbour in the other group than to most members of its own group.</desc>
+          <line x1="60" y1="258" x2="495" y2="258" stroke="#c9bfb3"/>
+          <line x1="60" y1="258" x2="60" y2="30" stroke="#c9bfb3"/>
+          <text x="500" y="263" font-size="14" fill="currentColor">z₁</text>
+          <text x="46" y="26" font-size="14" fill="currentColor">z₂</text>
+          <circle cx="118" cy="208" r="4" fill="#ad672d"/>
+          <circle cx="140" cy="184" r="4" fill="#ad672d"/>
+          <circle cx="110" cy="164" r="4" fill="#ad672d"/>
+          <circle cx="154" cy="224" r="4" fill="#ad672d"/>
+          <circle cx="128" cy="240" r="4" fill="#ad672d"/>
+          <circle cx="188" cy="172" r="4" fill="#ad672d"/>
+          <circle cx="100" cy="198" r="4" fill="#ad672d"/>
+          <circle cx="166" cy="200" r="4" fill="#ad672d"/>
+          <circle cx="232" cy="180" r="4" fill="#ad672d"/>
+          <circle cx="250" cy="152" r="4" fill="#ad672d"/>
+          <rect x="396" y="116" width="8" height="8" fill="#3c7c89"/>
+          <rect x="416" y="142" width="8" height="8" fill="#3c7c89"/>
+          <rect x="438" y="100" width="8" height="8" fill="#3c7c89"/>
+          <rect x="366" y="86" width="8" height="8" fill="#3c7c89"/>
+          <rect x="454" y="136" width="8" height="8" fill="#3c7c89"/>
+          <rect x="412" y="170" width="8" height="8" fill="#3c7c89"/>
+          <rect x="388" y="198" width="8" height="8" fill="#3c7c89"/>
+          <rect x="460" y="172" width="8" height="8" fill="#3c7c89"/>
+          <rect x="288" y="136" width="8" height="8" fill="#3c7c89"/>
+          <rect x="268" y="156" width="8" height="8" fill="#3c7c89"/>
+          <line x1="250" y1="152" x2="272" y2="160" stroke="#61223b" stroke-width="2" stroke-dasharray="5 4"/>
+          <text x="261" y="130" text-anchor="middle" font-size="12" fill="#61223b">close in code space</text>
+        </svg>
+        <figcaption>
+          Two illustrative groups in the code plane. The pair joined by the dashed line is closer
+          together than either code is to most members of its own group, yet the two observations
+          belong to different groups. A grouping is not supplied to an autoencoder; it is shown
+          here only to identify which codes a downstream similarity analysis would treat as
+          neighbours.
+        </figcaption>
+      </figure>
+      <figure class="figure-panel">
+        <svg viewBox="0 0 520 320" role="img" aria-labelledby="decoder-magnification-title decoder-magnification-desc">
+          <title id="decoder-magnification-title">Local magnification of the decoder across the code plane</title>
+          <desc id="decoder-magnification-desc">The same code region shaded by how much the decoder changes the distance between nearby codes. A narrow band of high magnification separates the two highlighted codes, while two broad regions elsewhere are compressed.</desc>
+          <defs>
+            <radialGradient id="decoder-stretch" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#8C2F4A" stop-opacity="0.85"/>
+              <stop offset="45%" stop-color="#C2761F" stop-opacity="0.55"/>
+              <stop offset="100%" stop-color="#C2761F" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="decoder-compress" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#4A6670" stop-opacity="0.38"/>
+              <stop offset="100%" stop-color="#4A6670" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <rect x="60" y="30" width="435" height="228" rx="6" fill="#efe7dc" stroke="#c9bfb3"/>
+          <ellipse cx="150" cy="200" rx="72" ry="52" fill="url(#decoder-compress)"/>
+          <ellipse cx="420" cy="140" rx="78" ry="56" fill="url(#decoder-compress)"/>
+          <ellipse cx="261" cy="156" rx="26" ry="124" transform="rotate(-15 261 156)" fill="url(#decoder-stretch)"/>
+          <line x1="250" y1="152" x2="272" y2="160" stroke="#2B1F24" stroke-width="2" stroke-dasharray="5 4"/>
+          <circle cx="250" cy="152" r="5.5" fill="#FFFFFF" stroke="#2B1F24" stroke-width="2"/>
+          <rect x="267" y="155" width="10" height="10" fill="#FFFFFF" stroke="#2B1F24" stroke-width="2"/>
+          <rect x="60" y="284" width="16" height="12" rx="2" fill="#4A6670" fill-opacity="0.38" stroke="#c9bfb3"/>
+          <text x="82" y="294" font-size="12" fill="currentColor">decoder compresses</text>
+          <rect x="215" y="284" width="16" height="12" rx="2" fill="#efe7dc" stroke="#c9bfb3"/>
+          <text x="237" y="294" font-size="12" fill="currentColor">near-isometric</text>
+          <rect x="355" y="284" width="16" height="12" rx="2" fill="#8C2F4A" fill-opacity="0.8" stroke="#c9bfb3"/>
+          <text x="377" y="294" font-size="12" fill="currentColor">decoder stretches</text>
+        </svg>
+        <figcaption>
+          The frame covers the same code region as the panel above, shaded by local decoder
+          magnification. The band running between the two highlighted codes is where the decoder
+          expands small code differences into large reconstructed differences. Two separated codes
+          on either side of that band can therefore decode to quite different observations, even
+          though their Euclidean distance in code space is small. This is a constructed decoder,
+          not the fitted model, and it is drawn to show the mechanism rather than any measured
+          value.
+        </figcaption>
+      </figure>
+      <p>
+        The distortion in the second panel is a local property of the decoder rather than a global
+        scale factor, so it cannot be corrected by rescaling or standardising the codes. Measuring
+        it requires the derivative of the decoder with respect to its inputs.
+      </p>
 
     </section>
 
     <section id="geometry-autoencoder-geometry">
       <h3>Geometric role of the autoencoder</h3>
-      <p>The encoder <var>f</var> assigns an observation a latent code. The decoder <var>g</var> maps that code back into the input space. Varying the code traces a reconstructed surface, denoted <var>M</var><sub>rec</sub>, that need not coincide with the true data manifold.</p>
+      <p>Varying the latent code traces a reconstructed surface, denoted <var>M</var><sub>rec</sub>, that need not coincide with the true data manifold.</p>
       <div class="eq">
         <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
           <mi>f</mi><mo>:</mo><msup><mi mathvariant="double-struck">R</mi><mi>d</mi></msup>
@@ -122,10 +205,11 @@
     <section id="geometry-curvature">
       <h3>Curvature and coordinate distortion</h3>
       <p>A flat manifold does not guarantee undistorted latent coordinates: the decoder can still stretch one region and compress another. Intrinsic curvature and coordinate distortion are therefore different properties. Whether Euclidean latent distance approximates decoded distance must be checked for the fitted model.</p>
+      <p>The pullback metric measures decoder sensitivity rather than predictive uncertainty, and it describes a single fitted decoder rather than a distribution over plausible decoders.</p>
     </section>
 
     <section id="geometry-paths">
-      <h3>Decoded paths and geodesics</h3>
+      <h3>Decoded paths</h3>
       <p>
         A simple decoder-induced path places equally spaced points on the straight line between two
         latent codes, decodes every point and sums the Euclidean distances between consecutive
@@ -147,10 +231,14 @@
           </msqrt><mi>d</mi><mi>t</mi>
         </math>
       </div>
+      </section>
+
+    <section id="geometry-geodesics">
+      <h3>Geodesics and minimal decoded paths</h3>
       <p>
         The geodesic is the path with the smallest length under this metric. In distorted latent
-        coordinates the geodesic is not necessarily a straight line. The deterministic metric
-        measures decoder sensitivity rather than predictive uncertainty.
+        coordinates the geodesic is not necessarily a straight line, so the shortest decoded route
+        between two codes cannot be assumed to be the linear interpolation used above.
       </p>
 
       <h3>Discrete geodesic procedure</h3>
