@@ -10,6 +10,8 @@
 <link rel="stylesheet" href="css/manifold.css">
 <script defer src="js/site-nav.js"></script>
 <script defer src="js/manifold.js"></script>
+<link rel="stylesheet" href="css/environment-encoding.css">
+<script defer src="js/environment-encoding.js"></script>
 </head>
 <body data-page="manifold-hypothesis">
 <header class="site-header"><div class="wrap"><a class="brand" href="index.html">Environmental regionalisation <span>supplementary material</span></a></div></header>
@@ -24,7 +26,23 @@
 <p>Consider observations sampled from a rolled sheet, called a Swiss roll. Each observation is recorded using three coordinates, <code>(x₁, x₂, x₃)</code>. However, a position on the sheet requires only two coordinates: distance along the roll and height.</p>
 <p>The surrounding three-dimensional space is the <strong>ambient space</strong>. The sheet has two <strong>intrinsic dimensions</strong>, corresponding to the two directions in which a point can move along the surface.</p>
 <figure class="figure-panel manifold-figure" aria-labelledby="manifold-caption"><div class="manifold-stage"><div class="manifold-panels"><svg id="manifold-roll" viewBox="0 0 520 360" role="img" aria-labelledby="manifold-roll-title manifold-roll-desc"></svg><svg id="manifold-sheet" viewBox="0 0 520 360" role="img" aria-labelledby="manifold-sheet-title manifold-sheet-desc"></svg></div></div><div class="manifold-controls" aria-label="Visual controls"><label class="manifold-control" for="unfold">Unfolding progress <output id="unfold-value" for="unfold">0%</output><input id="unfold" type="range" min="0" max="1" step="0.01" value="0" aria-label="Unfold from the original roll to the flat sheet"></label><label class="manifold-control" for="rotate-x">Tilt <output id="rotate-x-value" for="rotate-x">-24°</output><input id="rotate-x" type="range" min="-1.5" max="1.5" step="0.01" value="-.42" aria-label="Tilt the three-dimensional view"></label><label class="manifold-control" for="rotate-y">Turn <output id="rotate-y-value" for="rotate-y">36°</output><input id="rotate-y" type="range" min="-1.5" max="1.5" step="0.01" value=".62" aria-label="Turn the three-dimensional view"></label><button id="reset-view" type="button">Reset view</button></div><div class="point-readout" id="point-readout" aria-live="polite"></div><figcaption class="manifold-caption" id="manifold-caption">Illustrative unrolling using known surface coordinates — not a learned embedding.</figcaption></figure>
-<p>Hover over or select an observation to highlight the same point in both panels. The coordinate display compares its original three-dimensional coordinates with its two-dimensional surface coordinates. Colour indicates position along the roll. Use the unfolding slider to flatten the sheet and the rotation controls to examine its shape.</p>
+
+</div></section>
+<section id="environmental-coordinates"><div class="wrap">
+<h2>From environmental sequences to learned coordinates</h2>
+<p>In environmental applications, each observation might contain several years of daily temperature, humidity, wind and precipitation measurements from one location. These measurements vary together through seasonal cycles and relationships between environmental variables. The manifold hypothesis suggests that fewer underlying factors may describe much of this variation. A learned representation aims to express relevant variation through a smaller set of coordinates, although these coordinates need not correspond individually to identifiable physical factors.</p>
+<figure class="encoding-demo" id="environment-encoding">
+<div class="encoding-toolbar"><label for="encoding-location">Illustrative location</label><select id="encoding-location"><option value="0">Location A</option><option value="1">Location B</option><option value="2">Location C</option></select><button id="encoding-toggle" type="button">Pause</button></div>
+<div class="encoding-flow">
+<div><h3>Daily environmental sequences</h3><div class="encoding-series" id="encoding-series"></div></div>
+<div class="encoding-arrow" aria-hidden="true">→</div>
+<div class="encoding-model"><strong>Encoder</strong><small>Same trained model<br>for every location</small></div>
+<div class="encoding-arrow" aria-hidden="true">→</div>
+<div><h3>Five learned coordinates</h3><div class="encoding-vector" id="encoding-vector" role="group" aria-label="Illustrative feature vector"></div></div>
+</div>
+<figcaption>Schematic example with synthetic sequences and illustrative coordinate values, not model outputs. The moving traces show part of a location’s record; the vector represents the complete record.</figcaption>
+</figure>
+<p>Each location is mapped from its environmental time series to a five-dimensional feature vector. The values provide coordinates in the learned representation space. Their relationship to environmental properties depends on the model and training objective and requires evaluation.</p>
 </div></section>
 <section id="machine-learning"><div class="wrap">
 <h2>How machine learning exploits this structure</h2>
