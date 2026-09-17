@@ -8,18 +8,221 @@
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate">
 <link rel="stylesheet" href="css/styles.css">
 <script defer src="js/site-nav.js"></script>
+<script defer src="js/blocks.js"></script>
+<style>.network-readable{overflow-x:auto}.network-readable canvas.op.tall{height:480px;min-width:740px}</style>
 </head>
 <body data-page="neural-networks">
 <header class="site-header"><div class="wrap"><a class="brand" href="index.html">Environmental regionalisation <span>supplementary material</span></a></div></header>
 <main>
   <section class="hero"><div class="wrap"><p class="eyebrow">Machine-learning guide</p><h1>Neural networks and autoencoders</h1><p class="lede">This page provides the extended background removed from the technical appendix. The written thesis retains the layer equation, training objective and convolution arithmetic required by the final model.</p></div></section>
   <div class="wrap layout">
-    <aside class="toc" aria-label="Page contents"><strong>On this page</strong><a href="#neuron">Artificial neurons</a><a href="#training">Training</a><a href="#convolution">Convolutional operators</a><a href="#autoencoder">Autoencoders</a></aside>
+    <aside class="toc" aria-label="Page contents"><strong>On this page</strong><a href="#neuron">Artificial neurons</a><a href="#passes">Forward and backward passes</a><a href="#training">Training</a><a href="#convolution">Convolutional operators</a><a href="#autoencoder">Autoencoders</a><a href="#geometry">Autoencoder geometry</a><a href="#geometry-pullback-metric">Pullback metric</a><a href="#geometry-paths">Decoded paths and geodesics</a></aside>
     <div class="longform">
       <section id="neuron"><h2>Artificial neurons and layered networks</h2><p>A neuron calculates a weighted sum of its inputs, adds a bias and applies an activation function. Arranging these units in layers creates a nonlinear mapping from an input vector to an output vector.</p><div class="eq"><math display="block"><msup><mi mathvariant="bold">h</mi><mrow><mo>(</mo><mi>&ell;</mi><mo>)</mo></mrow></msup><mo>=</mo><msup><mi>&phi;</mi><mrow><mo>(</mo><mi>&ell;</mi><mo>)</mo></mrow></msup><mo>(</mo><msup><mi mathvariant="bold">W</mi><mrow><mo>(</mo><mi>&ell;</mi><mo>)</mo></mrow></msup><msup><mi mathvariant="bold">h</mi><mrow><mo>(</mo><mi>&ell;</mi><mo>&minus;</mo><mn>1</mn><mo>)</mo></mrow></msup><mo>+</mo><msup><mi mathvariant="bold">b</mi><mrow><mo>(</mo><mi>&ell;</mi><mo>)</mo></mrow></msup><mo>)</mo></math></div><p>The same operation is repeated through the hidden layers. Early layers transform the original variables, while later layers combine the transformed values into task-specific features.</p></section>
+      <section id="passes"><h2>Forward and backward passes</h2><p>The layer equation above is applied once per layer to produce a prediction. The animation below shows this forward pass for a small network with three inputs, four hidden units and one output, revealing the weighted sum and activation computed by each unit in turn.</p>
+      <div class="canvas-wrap network-readable" tabindex="0" role="region" aria-label="Scrollable network animation"><canvas class="op tall" data-display-scale="1.6" data-block="ffwd" data-period="17" role="img" aria-label="Animation of a feedforward network computing one prediction, revealing the weighted sum and GELU activation of each of four hidden units in turn, then the linear output unit"></canvas></div>
+      <p>Backpropagation then runs the same network in reverse. Starting from the difference between the predicted output and a target value, the chain rule is applied one unit at a time to recover the gradient of the loss with respect to every weight and bias, matching the training objective introduced below.</p>
+      <div class="canvas-wrap network-readable" tabindex="0" role="region" aria-label="Scrollable network animation"><canvas class="op tall" data-display-scale="1.6" data-block="backprop" data-period="17" role="img" aria-label="Animation of the same network propagating the loss gradient backward from the output through each hidden unit to every weight, applying the chain rule at each step"></canvas></div>
+      </section>
       <section id="training"><h2>Training through loss minimisation</h2><p>A loss function measures disagreement between the model output and its target. Backpropagation calculates the gradient of the loss with respect to each parameter. A gradient-based optimiser then updates the weights and biases over successive mini-batches.</p><div class="eq"><math display="block"><mover><mi>&theta;</mi><mo>^</mo></mover><mo>=</mo><munder><mo>arg min</mo><mi>&theta;</mi></munder><mfrac><mn>1</mn><mi>n</mi></mfrac><munderover><mo>&sum;</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mi mathvariant="script">L</mi><mo>(</mo><mi>f</mi><mo>(</mo><msub><mi mathvariant="bold">x</mi><mi>i</mi></msub><mo>,</mo><mi>&theta;</mi><mo>)</mo><mo>,</mo><msub><mi mathvariant="bold">y</mi><mi>i</mi></msub><mo>)</mo></math></div></section>
-      <section id="convolution"><h2>Convolutional operators</h2><p>A convolution applies one learned kernel to successive local windows. Reusing the kernel allows the same temporal pattern to be detected at different positions. A strided convolution reduces the sequence length, while a dilated convolution spreads the kernel taps apart and widens the receptive field without adding kernel parameters.</p><div class="grid grid-3"><div class="stat"><span class="n">Stride</span><span class="k">Moves the kernel by more than one position and downsamples the sequence.</span></div><div class="stat"><span class="n">Dilation</span><span class="k">Adds gaps between kernel taps and expands the temporal view.</span></div><div class="stat"><span class="n">Transpose</span><span class="k">Increases sequence length in the decoder but is not an inverse convolution.</span></div></div><p>The receptive field of deeper layers grows because each output combines the receptive fields of the preceding layer. The <a href="architectures.html">animated architecture search</a> shows these operations layer by layer for the models evaluated in the thesis.</p></section>
-      <section id="autoencoder"><h2>Autoencoders</h2><p>An autoencoder contains an encoder that maps an observation to a lower-dimensional embedding and a decoder that reconstructs the observation from the embedding. Training minimises reconstruction error, so the bottleneck must retain information required to reproduce the inputs.</p><div class="eq"><math display="block"><mi mathvariant="bold">z</mi><mo>=</mo><msub><mi>g</mi><mtext>enc</mtext></msub><mo>(</mo><mi mathvariant="bold">x</mi><mo>)</mo><mo>,</mo><mspace width="1em"/><mover><mi mathvariant="bold">x</mi><mo>^</mo></mover><mo>=</mo><msub><mi>g</mi><mtext>dec</mtext></msub><mo>(</mo><mi mathvariant="bold">z</mi><mo>)</mo></math></div><p>The final environmental model used a convolutional encoder and decoder because every observation contained six aligned daily time series. The bottleneck reduced each complete record to five embedding values used for subsequent interpretation and clustering.</p></section>
+      <section id="convolution"><h2>Convolutional operators</h2><p>A convolution applies one learned kernel to successive local windows. Reusing the kernel allows the same temporal pattern to be detected at different positions. A strided convolution reduces the sequence length, while a dilated convolution spreads the kernel taps apart and widens the receptive field without adding kernel parameters.</p><div class="grid grid-3"><div class="stat"><span class="n">Stride</span><span class="k">Moves the kernel by more than one position and downsamples the sequence.</span></div><div class="stat"><span class="n">Dilation</span><span class="k">Adds gaps between kernel taps and expands the temporal view.</span></div><div class="stat"><span class="n">Transpose</span><span class="k">Increases sequence length in the decoder but is not an inverse convolution.</span></div></div><p>The receptive field of deeper layers grows because each output combines the receptive fields of the preceding layer. The <a href="convolutional-operators.html">neural-network operators page</a> illustrates these operations with animated examples.</p></section>
+      <section id="autoencoder"><h2>Autoencoders</h2><p>An autoencoder contains an encoder that maps an observation to a lower-dimensional embedding and a decoder that reconstructs the observation from the embedding. Training minimises reconstruction error, so the bottleneck must retain information required to reproduce the inputs.</p><div class="eq"><math display="block"><mi mathvariant="bold">z</mi><mo>=</mo><msub><mi>g</mi><mtext>enc</mtext></msub><mo>(</mo><mi mathvariant="bold">x</mi><mo>)</mo><mo>,</mo><mspace width="1em"/><mover><mi mathvariant="bold">x</mi><mo>^</mo></mover><mo>=</mo><msub><mi>g</mi><mtext>dec</mtext></msub><mo>(</mo><mi mathvariant="bold">z</mi><mo>)</mo></math></div></section>
+<section id="geometry"><h2>Autoencoder geometry</h2><p>This section explains how the decoder shapes distances in the learned representation space, including the pullback metric and decoded paths used in the thesis analysis.</p>
+    <section id="geometry-distance-question">
+      <h3>Why latent distance needs checking</h3>
+      <p>
+        An autoencoder contains an encoder <var>f</var> that maps an input to a
+        lower-dimensional code and a decoder <var>g</var> that reconstructs the input from the
+        code. A common downstream workflow treats the codes as ordinary feature vectors and
+        applies clustering with Euclidean distance. This workflow assumes that distances between
+        codes reflect differences between the corresponding reconstructed inputs.
+      </p>
+      <p>
+        Reconstruction loss does not directly impose that constraint. Similar inputs are not
+        guaranteed to receive nearby codes, and nearby codes are not guaranteed to decode to
+        similar outputs. The decoder can stretch one part of the code space and compress another,
+        so equal Euclidean steps can represent different amounts of input-space change.
+      </p>
+
+    </section>
+
+    <section id="geometry-manifold-hypothesis">
+      <p>For background on low-dimensional structure in high-dimensional data, see the <a href="manifold-hypothesis.html">manifold hypothesis</a> page.</p>
+    </section>
+
+    <section id="geometry-autoencoder-geometry">
+      <h3>Geometric role of the autoencoder</h3>
+      <p>The encoder <var>f</var> assigns an observation a latent code. The decoder <var>g</var> maps that code back into the input space. Varying the code traces a reconstructed surface, denoted <var>M</var><sub>rec</sub>, that need not coincide with the true data manifold.</p>
+      <div class="eq">
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <mi>f</mi><mo>:</mo><msup><mi mathvariant="double-struck">R</mi><mi>d</mi></msup>
+          <mo>&#x2192;</mo><mi mathvariant="script">Z</mi>
+          <mspace width="2em"/>
+          <mi>g</mi><mo>:</mo><mi mathvariant="script">Z</mi><mo>&#x2192;</mo>
+          <msub><mi mathvariant="script">M</mi><mtext>rec</mtext></msub>
+          <mo>&#x2282;</mo><msup><mi mathvariant="double-struck">R</mi><mi>d</mi></msup>
+        </math>
+      </div>
+      <p>Latent codes act as coordinates for the reconstructed surface. Equal steps in those coordinates need not produce equal changes after decoding, even when reconstruction is accurate.</p>
+      <figure class="figure-panel">
+        <img src="images/geometry/decoder-manifold.png"
+             alt="Decoder mapping a low-dimensional code space to a curved reconstructed manifold in input space">
+        <figcaption>
+          Decoder mapping from the code space to the reconstructed manifold in the ambient input
+          space, redrawn from Arvanitidis, Hansen and Hauberg (2018).
+        </figcaption>
+      </figure>
+    </section>
+
+    <section id="geometry-pullback-metric">
+      <h3>Decoder Jacobian and pullback metric</h3>
+      <p>
+        The decoder Jacobian describes the local response of the reconstructed output to a small
+        change in each latent coordinate. For a decoder from a <var>p</var>-dimensional code space
+        to a <var>d</var>-dimensional input space, the Jacobian at code <var>z</var> is
+      </p>
+      <div class="eq">
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <msub><mi mathvariant="bold">J</mi><mi>z</mi></msub><mo>=</mo>
+          <mfrac><mrow><mo>&#x2202;</mo><mi>g</mi><mo>(</mo><mi mathvariant="bold">z</mi><mo>)</mo></mrow>
+                 <mrow><mo>&#x2202;</mo><mi mathvariant="bold">z</mi></mrow></mfrac>
+          <mo>&#x2208;</mo><msup><mi mathvariant="double-struck">R</mi>
+            <mrow><mi>d</mi><mo>&#x00D7;</mo><mi>p</mi></mrow></msup>
+        </math>
+      </div>
+      <p>
+        Each column gives the input-space direction produced by a small displacement along one
+        latent axis. The pullback metric combines these directions into a local measure of decoder
+        distortion:
+      </p>
+      <div class="eq">
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <msub><mi mathvariant="bold">M</mi><mi>z</mi></msub><mo>=</mo>
+          <msubsup><mi mathvariant="bold">J</mi><mi>z</mi><mi mathvariant="normal">T</mi></msubsup>
+          <msub><mi mathvariant="bold">J</mi><mi>z</mi></msub>
+          <mo>&#x2208;</mo><msup><mi mathvariant="double-struck">R</mi>
+            <mrow><mi>p</mi><mo>&#x00D7;</mo><mi>p</mi></mrow></msup>
+        </math>
+      </div>
+      <p>
+        For a small latent displacement, the quadratic form below approximates the corresponding
+        squared change in the decoded input:
+      </p>
+      <div class="eq">
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <mi>&#x394;</mi><msup><mi mathvariant="bold">z</mi><mi mathvariant="normal">T</mi></msup>
+          <msub><mi mathvariant="bold">M</mi><mi>z</mi></msub>
+          <mi>&#x394;</mi><mi mathvariant="bold">z</mi>
+        </math>
+      </div>
+      <p>
+        A large value means that the decoder turns a small latent step into a large reconstructed
+        change. A small value means that the same latent step produces little reconstructed change.
+        Variation in the metric across the code space therefore describes local stretching and
+        compression by the decoder.
+      </p>
+    </section>
+
+    <section id="geometry-curvature">
+      <h3>Curvature and coordinate distortion</h3>
+      <p>A flat manifold does not guarantee undistorted latent coordinates: the decoder can still stretch one region and compress another. Intrinsic curvature and coordinate distortion are therefore different properties. Whether Euclidean latent distance approximates decoded distance must be checked for the fitted model.</p>
+    </section>
+
+    <section id="geometry-paths">
+      <h3>Decoded paths and geodesics</h3>
+      <p>
+        A simple decoder-induced path places equally spaced points on the straight line between two
+        latent codes, decodes every point and sums the Euclidean distances between consecutive
+        decoded outputs. This procedure measures the length of the decoded straight path, not
+        necessarily the shortest path on the reconstructed manifold.
+      </p>
+      <p>
+        For a continuous latent curve <var>&gamma;</var>, the Riemannian length equals the arc
+        length of the decoded curve:
+      </p>
+      <div class="eq">
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <mi>L</mi><mo>[</mo><mi>&#x3B3;</mi><mo>]</mo><mo>=</mo>
+          <msubsup><mo>&#x222B;</mo><mn>0</mn><mn>1</mn></msubsup>
+          <msqrt>
+            <msubsup><mover><mi>&#x3B3;</mi><mo>&#x02D9;</mo></mover><mi>t</mi><mi mathvariant="normal">T</mi></msubsup>
+            <msub><mi mathvariant="bold">M</mi><msub><mi>&#x3B3;</mi><mi>t</mi></msub></msub>
+            <msub><mover><mi>&#x3B3;</mi><mo>&#x02D9;</mo></mover><mi>t</mi></msub>
+          </msqrt><mi>d</mi><mi>t</mi>
+        </math>
+      </div>
+      <p>
+        The geodesic is the path with the smallest length under this metric. In distorted latent
+        coordinates the geodesic is not necessarily a straight line. The deterministic metric
+        measures decoder sensitivity rather than predictive uncertainty.
+      </p>
+
+      <h3>Discrete geodesic procedure</h3>
+      <div class="card procedure">
+        <ol>
+          <li>Place <var>T</var> path points on a linear interpolation between the two fixed latent endpoints.</li>
+          <li>Treat the interior path points as optimisation variables while keeping the endpoints fixed.</li>
+          <li>Decode every path point using the trained decoder.</li>
+          <li>Calculate the sum of squared distances between consecutive decoded outputs.</li>
+          <li>Backpropagate through the decoder and update the interior path points.</li>
+          <li>Repeat until the relative change in path energy is below the convergence tolerance or the iteration limit is reached.</li>
+        </ol>
+      </div>
+      <p>The discrete decoded-path energy is</p>
+      <div class="eq">
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <mi>E</mi><mo>[</mo><mi>&#x3B3;</mi><mo>]</mo><mo>=</mo>
+          <munderover><mo>&#x2211;</mo><mrow><mi>i</mi><mo>=</mo><mn>0</mn></mrow>
+            <mrow><mi>T</mi><mo>&#x2212;</mo><mn>2</mn></mrow></munderover>
+          <msup>
+            <mrow><mo>&#x2016;</mo><mi>g</mi><mo>(</mo><msub><mi mathvariant="bold">z</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>)</mo>
+            <mo>&#x2212;</mo><mi>g</mi><mo>(</mo><msub><mi mathvariant="bold">z</mi><mi>i</mi></msub><mo>)</mo><mo>&#x2016;</mo></mrow>
+            <mn>2</mn>
+          </msup>
+        </math>
+      </div>
+    </section>
+
+    <section id="geometry-thesis-analysis">
+      <h3>Use in the thesis</h3>
+      <p>The 9,364 distinct training embeddings produced more than 43 million unique pairs, so a complete Riemannian distance matrix was not constructed and the full dataset was not reclustered under that metric.</p>
+      <p>The main diagnostic used nearest-neighbour graph edges. Each straight latent path was divided into ten segments. The 11 decoded outputs were flattened across all six channels and time steps, and the consecutive decoded distances were summed. These path lengths were correlated with Euclidean distances in the standardised embedding.</p>
+      <p>For 1,200 sampled pairs spanning the Euclidean distance range, the interior path points were also optimised from a linear initialisation. This checked whether the straight-path conclusion remained valid when the decoded path energy was minimised.</p>
+      <div class="note">
+        <p>
+          Pairwise Riemannian distances can be used directly by methods that accept arbitrary
+          dissimilarities, including hierarchical clustering and graph-based analyses. Standard
+          <var>K</var>-means requires coordinates and cannot accept an arbitrary distance matrix
+          without a separate Riemannian formulation.
+        </p>
+      </div>
+    </section>
+
+    <section id="geometry-sources">
+      <h3>Sources</h3>
+      <ul class="source-list">
+        <li>
+          Arvanitidis, G., Hansen, L. K. and Hauberg, S. (2018).
+          <a href="https://openreview.net/forum?id=SJzRZ-WCZ" rel="external">
+            Latent space oddity: On the curvature of deep generative models
+          </a>. Proceedings of the 6th International Conference on Learning Representations.
+        </li>
+        <li>
+          Bengio, Y., Courville, A. and Vincent, P. (2013).
+          <a href="https://doi.org/10.1109/TPAMI.2013.50" rel="external">
+            Representation learning: A review and new perspectives
+          </a>. IEEE Transactions on Pattern Analysis and Machine Intelligence, 35(8), 1798–1828.
+        </li>
+        <li>
+          Shao, H., Kumar, A. and Fletcher, P. T. (2018).
+          <a href="https://openaccess.thecvf.com/content_cvpr_2018_workshops/w10/html/Shao_The_Riemannian_Geometry_CVPR_2018_paper.html" rel="external">
+            The Riemannian geometry of deep generative models
+          </a>. Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition Workshops, 315–323.
+        </li>
+      </ul>
+    </section>
+</section>
+
     </div>
   </div>
 </main>
