@@ -1438,6 +1438,10 @@
       // Enlarge the diagram's geometry and type together on opt-in pages.
       // The canvas backing store still follows devicePixelRatio for crisp text.
       var displayScale = Number(canvas.dataset.displayScale) || 1;
+      /* Keep a minimum logical drawing width, so a large display scale cannot
+         squeeze the layout into itself on a narrow screen. */
+      var minLogical = Number(canvas.dataset.displayMinWidth) || 0;
+      if (minLogical) displayScale = Math.max(1, Math.min(displayScale, W / minLogical));
       ctx.save();
       ctx.scale(displayScale, displayScale);
       drawFn(ctx, W / displayScale, H / displayScale, t);

@@ -89,7 +89,7 @@ window.ARCHITECTURES = [
    "kappa_det": 5.5
   },
   "outcome": "retained",
-  "why": "Deterministic: lost on reconstruction (0.0676 vs 0.0351) but won every latent/cluster metric and cleared the 0.7 effective-rank threshold, at one sixth the parameters. Deterministic block-level parameters: encoder conv 1,220,896; encoder bridge 3,572,485; decoder bridge 3,600,384; decoder conv 1,220,646. Per-channel validation FVU (det): tmax 0.0114, tmin 0.0156, rhmax 0.0152, rhmin 0.0274, wind 0.1019, precip 0.2339. Latent detail (det): train erank 4.001/ratio 0.800/kappa 5.70, validation erank 4.014/ratio 0.803/kappa 5.45, m=4 for 90% variance; PC1+PC2 = 72.2% of validation latent variance; Pillai 4.977, normalised Pillai trace 0.7111. Variational metrics: FVU 0.0700, KL 21.85 per sample, silhouette 0.289, spatial r 0.659, normalised Pillai trace 0.690, erank ratio 0.943, kappa 2.68, pass. This same network is the Stage 2 strided baseline and the final variational reference model.",
+  "why": "Deterministic: lost on reconstruction (0.0676 vs 0.0351) but won every latent/cluster metric and cleared the 0.7 effective-rank threshold, at one sixth the parameters. Deterministic block-level parameters: encoder conv 1,220,896; encoder bridge 3,572,485; decoder bridge 3,600,384; decoder conv 1,220,646. Per-channel validation FVU (det): tmax 0.0114, tmin 0.0156, rhmax 0.0152, rhmin 0.0274, wind 0.1019, precip 0.2339. Latent detail (det): train erank 4.001/ratio 0.800/κ 5.70, validation erank 4.014/ratio 0.803/κ 5.45, m=4 for 90% variance; PC1+PC2 = 72.2% of validation latent variance; Pillai 4.977, normalised Pillai trace 0.7111. Variational metrics: FVU 0.0700, KL 21.85 per sample, silhouette 0.289, spatial r 0.659, normalised Pillai trace 0.690, erank ratio 0.943, κ 2.68, pass. This same network is the Stage 2 strided baseline and the final variational reference model.",
   "refs": [
    "ORIG:26-46 (per-layer table: length, channels, receptive field)",
    "ORIG:48-65 (component table: 6x6935 -> 256x109 -> flatten MLP 27,904 -> 128 -> 5)",
@@ -97,7 +97,7 @@ window.ARCHITECTURES = [
    "ORIG:123 (variational metrics row)",
    "APP:41-46 (parameter counts per block)",
    "APP:93-100 (per-channel FVU)",
-   "APP:149-152 (erank, kappa, m)",
+   "APP:149-152 (erank, κ, m)",
    "APP:197-200 (silhouette, spatial r, Pillai, normalised Pillai trace)",
    "SHORT:33 (k=7, stride 2, padding 3; 6,935 -> 109; RF 379; bridge 27,904)",
    "SHORT:44,46 (parameter and metric rows)",
@@ -188,7 +188,7 @@ window.ARCHITECTURES = [
    "kappa_det": 79.1
   },
   "outcome": "eliminated",
-  "why": "Reconstructed best of the two (0.0351 vs 0.0676) but failed the effective-rank collapse check on both splits (train ratio 0.631, validation 0.614, below the 0.7 threshold) with kappa 66.74 train / 79.12 validation, and lost every cluster diagnostic, at roughly six times the parameters. Deterministic block-level parameters: encoder conv 7,318,656 (6 x 1,219,776; per-head first layer is 1->32 not 6->32); encoder bridge 21,431,045; decoder bridge 21,598,464; decoder conv 7,317,126. Per-channel FVU (det): tmax 0.0034, tmin 0.0035, rhmax 0.0050, rhmin 0.0117, wind 0.0706, precip 0.1166. Fifth eigenvalue 1.42 vs first 112.26 (1.3%); m=3 for 90% variance; PC1+PC2 = 81.4%. Pillai 4.509, normalised Pillai trace 0.6442. Variational: FVU 0.0553, KL 27.85, silhouette 0.271, spatial r 0.643, normalised Pillai trace 0.705, erank ratio 0.937, kappa 2.90, pass; still eliminated because the reconstruction gain did not justify the six-fold parameter increase.",
+  "why": "Reconstructed best of the two (0.0351 vs 0.0676) but had lower effective-rank ratios on both splits (train 0.631, validation 0.614) with κ 66.74 train / 79.12 validation, and lost every cluster diagnostic, at roughly six times the parameters. Deterministic block-level parameters: encoder conv 7,318,656 (6 x 1,219,776; per-head first layer is 1->32 not 6->32); encoder bridge 21,431,045; decoder bridge 21,598,464; decoder conv 7,317,126. Per-channel FVU (det): tmax 0.0034, tmin 0.0035, rhmax 0.0050, rhmin 0.0117, wind 0.0706, precip 0.1166. Fifth eigenvalue 1.42 vs first 112.26 (1.3%); m=3 for 90% variance; PC1+PC2 = 81.4%. Pillai 4.509, normalised Pillai trace 0.6442. Variational: FVU 0.0553, KL 27.85, silhouette 0.271, spatial r 0.643, normalised Pillai trace 0.705, erank ratio 0.937, κ 2.90; still eliminated because the reconstruction gain did not justify the six-fold parameter increase.",
   "refs": [
    "ORIG:67-84 (topology table: 1 x 6,935 per stack, 256 x 109 per stack, bridge 27,904 vs 167,424)",
    "ORIG:98,124 (metric rows)",
@@ -282,7 +282,7 @@ window.ARCHITECTURES = [
    "kappa_det": 5.5
   },
   "outcome": "selected",
-  "why": "Deterministic: joint runner-up. Reached the last two with the sequential hybrid at identical parameter count and balanced latent (kappa 5.5), then lost on silhouette and effective-rank ratio. Variational: selected as the Stage 2 VAE winner, holding the highest effective-rank ratio (0.943) and lowest kappa (2.68) of all eight, beating Dilated B on latent balance and cost despite Dilated B reconstructing about 15 per cent better. Not retrained for Stage 2; the Stage 1 checkpoint was carried forward. Variational latent metrics: silhouette 0.289, spatial r 0.659, normalised Pillai trace 0.690, erank 0.943, kappa 2.68.",
+  "why": "Deterministic: joint runner-up. Reached the last two with the sequential hybrid at identical parameter count and balanced latent (κ 5.5), then lost on silhouette and effective-rank ratio. Variational: selected as the Stage 2 VAE winner, holding the highest effective-rank ratio (0.943) and lowest κ (2.68) of all eight, beating Dilated B on latent balance and cost despite Dilated B reconstructing about 15 per cent better. Not retrained for Stage 2; the Stage 1 checkpoint was carried forward. Variational latent metrics: silhouette 0.289, spatial r 0.659, normalised Pillai trace 0.690, erank 0.943, κ 2.68.",
   "refs": [
    "APP:230 (baseline carried forward without retraining)",
    "ORIG:158 (summary row)",
@@ -375,7 +375,7 @@ window.ARCHITECTURES = [
    "kappa_det": 36.3
   },
   "outcome": "eliminated",
-  "why": "Cheapest configuration but reconstruction collapsed: FVU 0.6427 deterministic and 0.6463 variational, roughly ten times every other configuration, because the pooled head discards temporal phase. Acts as the lower-bound baseline for the dilated family. Also worst on spatial coherence and, in the variational run, kappa 202.4, more than ten times the next worst. Variational latent metrics: silhouette 0.274, spatial r 0.538, normalised Pillai trace 0.618, erank 0.742. Block parameters: encoder conv 1,220,896; encoder bridge 33,541 (256x128+128, then 128x5+5); decoder bridge 33,792; decoder conv 1,220,646.",
+  "why": "Cheapest configuration but reconstruction collapsed: FVU 0.6427 deterministic and 0.6463 variational, roughly ten times every other configuration, because the pooled head discards temporal phase. Acts as the lower-bound baseline for the dilated family. Also worst on spatial coherence and, in the variational run, κ 202.4, more than ten times the next worst. Variational latent metrics: silhouette 0.274, spatial r 0.538, normalised Pillai trace 0.618, erank 0.742. Block parameters: encoder conv 1,220,896; encoder bridge 33,541 (256x128+128, then 128x5+5); decoder bridge 33,792; decoder conv 1,220,646.",
   "refs": [
    "APP:232 (global average pooling, discards temporal phase, lower-bound baseline)",
    "ORIG:159,183 (bridge input 256, sequence)",
@@ -467,7 +467,7 @@ window.ARCHITECTURES = [
    "kappa_det": 17.8
   },
   "outcome": "eliminated",
-  "why": "Deterministic: failed the effective-rank check (0.664, kappa 17.8) at 2.3 times the baseline parameters. Variational: best reconstruction of the field (0.0594, about 15 per cent better than the strided VAE) and reached the final two, but the missing hidden layer means the second (log-variance) head doubles the bridge, taking the count from 21,970,507 to 30,847,312, an increase of 8,876,805 and about 3.2 times the strided baseline, with a less balanced latent (erank 0.807 vs 0.943). Encoder bridge is exactly 1,775,360 x 5 + 5 = 8,876,805; decoder bridge 10,652,160. Variational latent metrics: silhouette 0.284, spatial r 0.707, normalised Pillai trace 0.697, kappa 6.85.",
+  "why": "Deterministic: effective-rank ratio 0.664 and κ 17.8 at 2.3 times the baseline parameters. Variational: best reconstruction of the field (0.0594, about 15 per cent better than the strided VAE) and reached the final two, but the missing hidden layer means the second (log-variance) head doubles the bridge, taking the count from 21,970,507 to 30,847,312, an increase of 8,876,805 and about 3.2 times the strided baseline, with a less balanced latent (erank 0.807 vs 0.943). Encoder bridge is exactly 1,775,360 x 5 + 5 = 8,876,805; decoder bridge 10,652,160. Variational latent metrics: silhouette 0.284, spatial r 0.707, normalised Pillai trace 0.697, κ 6.85.",
   "refs": [
    "APP:232 (largest-bridge variant in the family)",
    "ORIG:160,184 (bridge 1,775,360, linear, no hidden layer)",
@@ -613,7 +613,7 @@ window.ARCHITECTURES = [
    "kappa_det": 25.8
   },
   "outcome": "eliminated",
-  "why": "Deterministic: best reconstruction of the eight (0.0618) but catastrophic spatial coherence (0.302, the lowest of the field by a wide margin), normalised Pillai trace 0.565 and a failed rank check (0.661, kappa 25.8). Variational: lowest silhouette of all eight (0.244) and lowest spatial coherence of the final three (0.603), dropped on cluster diagnostics. Encoder conv 3,974,944 (dilated trunk 1,220,896 plus 6 x 459,008 tail). Variational latent metrics: erank 0.894, kappa 3.35, normalised Pillai trace 0.693.",
+  "why": "Deterministic: best reconstruction of the eight (0.0618) but catastrophic spatial coherence (0.302, the lowest of the field by a wide margin), normalised Pillai trace 0.565 and an effective-rank ratio of 0.661 and κ of 25.8. Variational: lowest silhouette of all eight (0.244) and lowest spatial coherence of the final three (0.603), dropped on cluster diagnostics. Encoder conv 3,974,944 (dilated trunk 1,220,896 plus 6 x 459,008 tail). Variational latent metrics: erank 0.894, κ 3.35, normalised Pillai trace 0.693.",
   "refs": [
    "APP:232 (six-layer strided tail compresses to 109)",
    "ORIG:161,185 (6 strided tail layers, mirrored 12-layer decoder)",
@@ -705,7 +705,7 @@ window.ARCHITECTURES = [
    "kappa_det": 4.9
   },
   "outcome": "eliminated",
-  "why": "Parameter count is identical to the strided baseline because pooling is parameter-free. Deterministic: dropped in the first cut as one of the three lowest spatial-coherence configurations (0.700), despite the best kappa of the field (4.9). Variational: FVU 0.1432, 2.05 times the baseline, dropped on reconstruction. Variational latent metrics: silhouette 0.311, spatial r 0.759, normalised Pillai trace 0.687, erank 0.855, kappa 4.53.",
+  "why": "Parameter count is identical to the strided baseline because pooling is parameter-free. Deterministic: dropped in the first cut as one of the three lowest spatial-coherence configurations (0.700), despite the best κ of the field (4.9). Variational: FVU 0.1432, 2.05 times the baseline, dropped on reconstruction. Variational latent metrics: silhouette 0.311, spatial r 0.759, normalised Pillai trace 0.687, erank 0.855, κ 4.53.",
   "refs": [
    "APP:232 (adaptive pooling to 109, closest analogue of the Stage 1 bridge)",
    "ORIG:162,186",
@@ -797,7 +797,7 @@ window.ARCHITECTURES = [
    "kappa_det": 5.6
   },
   "outcome": "selected",
-  "why": "Deterministic Stage 2 winner and the parent of all Stage 3 deterministic work. Matched the strided baseline exactly on parameter count (identical channel progression, only the operator in layers 4 to 6 differs), reconstructed within 0.005 channel-mean FVU, and produced the highest effective-rank ratio (0.842) and near-best silhouette with a balanced latent (kappa 5.6). Variational: FVU 0.1121, 1.60 times the strided VAE, eliminated on reconstruction; variational latent metrics silhouette 0.306, spatial r 0.759, normalised Pillai trace 0.710, erank 0.879, kappa 4.42. Design inspired by DeepLabv3+ segmentation models. Dilations {1,2,4} are not printed in any source; they are the unique schedule consistent with the stated 379-day receptive field (43 after 3 strided layers, jump 8, plus 8x6x(1+2+4)=336).",
+  "why": "Deterministic Stage 2 winner and the parent of all Stage 3 deterministic work. Matched the strided baseline exactly on parameter count (identical channel progression, only the operator in layers 4 to 6 differs), reconstructed within 0.005 channel-mean FVU, and produced the highest effective-rank ratio (0.842) and near-best silhouette with a balanced latent (κ 5.6). Variational: FVU 0.1121, 1.60 times the strided VAE, eliminated on reconstruction; variational latent metrics silhouette 0.306, spatial r 0.759, normalised Pillai trace 0.710, erank 0.879, κ 4.42. Design inspired by DeepLabv3+ segmentation models. Dilations {1,2,4} are not printed in any source; they are the unique schedule consistent with the stated 379-day receptive field (43 after 3 strided layers, jump 8, plus 8x6x(1+2+4)=336).",
   "refs": [
    "APP:236 (three strided early, three dilated late, RF 379)",
    "ORIG:163,187 (channels 32,64,128 -> 256,256,256; adaptive pool to 109)",
@@ -927,7 +927,7 @@ window.ARCHITECTURES = [
    "kappa_det": 30.6
   },
   "outcome": "eliminated",
-  "why": "Best silhouette (0.345) and best spatial coherence (0.871) of the whole deterministic field, but the worst effective-rank ratio (0.618, a clear collapse fail) with kappa 30.6, and reconstruction 1.68 times the baseline. Variational: worst FVU of the retained field at 0.1515; variational latent metrics silhouette 0.327, spatial r 0.854, normalised Pillai trace 0.684, erank 0.735, kappa 9.54. The thesis stresses that both branches see the full six-channel input, so this is a temporal-scale split, not a reintroduction of the per-variable multi-head topology rejected in Stage 1. Branch dilations {2,4,8,16,32,64} are inferred: the stated 757-day field requires the dilations to sum to 126, and doubling from 2 is the only natural schedule (1+6x126 = 757).",
+  "why": "Best silhouette (0.345) and best spatial coherence (0.871) of the whole deterministic field, but the worst effective-rank ratio (0.618) with κ 30.6, and reconstruction 1.68 times the baseline. Variational: worst FVU of the retained field at 0.1515; variational latent metrics silhouette 0.327, spatial r 0.854, normalised Pillai trace 0.684, erank 0.735, κ 9.54. Branch dilations {2,4,8,16,32,64} are inferred: the stated 757-day field requires the dilations to sum to 126, and doubling from 2 is the only natural schedule (1+6x126 = 757).",
   "refs": [
    "APP:238 (branch A four-layer strided 91 days, branch B six-layer dilated 757 days, concat plus 1x1 conv)",
    "ORIG:164,188 (channels 32,64,128,128 parallel 16,32,64,128,128,128; bridge 13,952)",
@@ -1056,7 +1056,7 @@ window.ARCHITECTURES = [
    "kappa_det": 16
   },
   "outcome": "eliminated",
-  "why": "Same pattern as the concat variant: strong silhouette (0.342) and spatial coherence (0.866) and the joint-best normalised Pillai trace (0.711), but a failed rank check (0.679, kappa 16.0) and reconstruction 1.53 times the baseline. Variational: FVU 0.1401, eliminated on reconstruction; variational latent metrics silhouette 0.340, spatial r 0.818, normalised Pillai trace 0.683, erank 0.765, kappa 12.53. Carries two full bridges, which is why the parameter count is 8.20 M against 4.68 M for the concat variant despite having no fusion convolution.",
+  "why": "Same pattern as the concat variant: strong silhouette (0.342) and spatial coherence (0.866) and the joint-best normalised Pillai trace (0.711), but an effective-rank ratio of 0.679 and κ of 16.0 and reconstruction 1.53 times the baseline. Variational: FVU 0.1401, eliminated on reconstruction; variational latent metrics silhouette 0.340, spatial r 0.818, normalised Pillai trace 0.683, erank 0.765, κ 12.53. Carries two full bridges, which is why the parameter count is 8.20 M against 4.68 M for the concat variant despite having no fusion convolution.",
   "refs": [
    "APP:238 (fuses by summing two branch-specific latent contributions)",
    "ORIG:165,189 (13,952 per branch, sum of branch latents)",
@@ -1139,7 +1139,7 @@ window.ARCHITECTURES = [
    "kappa_det": 13
   },
   "outcome": "eliminated",
-  "why": "Dropped in the first cut of Phase A: worst condition number of the sweep (kappa 13.0) with a borderline rank ratio of 0.720. Per-channel FVU: tmax 0.013, tmin 0.017, rhmax 0.017, rhmin 0.031, wind 0.120, precip 0.258. Widths {32,64} then {256,256,256} are not printed in the thesis; they are recovered exactly from the stated 9,270,091 parameters (encoder conv 1,048,736, note the first dilated layer maps 64 -> 256). Receptive field 187 days is derived, not printed: 19 after 2 strided layers, jump 4, plus 4x6x(1+2+4)=168.",
+  "why": "Dropped in the first cut of Phase A: worst condition number of the sweep (κ 13.0) with a borderline rank ratio of 0.720. Per-channel FVU: tmax 0.013, tmin 0.017, rhmax 0.017, rhmin 0.031, wind 0.120, precip 0.258. Widths {32,64} then {256,256,256} are not printed in the thesis; they are recovered exactly from the stated 9,270,091 parameters (encoder conv 1,048,736, note the first dilated layer maps 64 -> 256). Receptive field 187 days is derived, not printed: 19 after 2 strided layers, jump 4, plus 4x6x(1+2+4)=168.",
   "refs": [
    "ORIG:292 (metrics row, strided 2 dilated 3)",
    "ORIG:303 (elimination reason)",
@@ -1419,7 +1419,6 @@ window.ARCHITECTURES = [
    "kappa_det": 5.5
   },
   "outcome": "selected",
-  "why": "Phase A winner on the strength of a 763-day receptive field covering roughly two annual cycles and a 5.1 per cent better channel-mean FVU than the Stage 2 baseline; confirmed unchanged through Phase B (width), Phase C (training settings) and Phase D (latent size), and through the kernel-size check. The only model carried into the downstream clustering analysis, chosen over the final VAE mainly on spatial coherence (0.727 vs 0.659). Validation normalised Pillai trace 0.695. Per-channel validation FVU: tmax 0.0120, tmin 0.0169, rhmax 0.0161, rhmin 0.0277, wind 0.1031, precip 0.2353. Held-out test set: channel-mean FVU 0.0692 (train 0.0672), silhouette 0.281, spatial r 0.737, erank ratio 0.815, kappa 5.34. Widths and the 27,904 bridge reproduce the published 10,532,427 parameters exactly (encoder conv 1,679,904; encoder bridge 3,572,485; decoder bridge 3,600,384; decoder conv 1,679,654).",
   "refs": [
    "ORIG:374-406 (final architecture table: 3 strided {32,64,128}, 4 dilated width 256 dilations {1,2,4,8}, pool to 109, bridge 128 hidden, z=5, RF 763, 10,532,427 params, per-channel FVU)",
    "ORIG:408-482 (final block diagram with tensor shapes)",
@@ -1724,7 +1723,7 @@ window.ARCHITECTURES = [
    "kappa_det": 3.8
   },
   "outcome": "eliminated",
-  "why": "Best silhouette (0.318), best normalised Pillai trace (0.701), best erank ratio (0.873) and best kappa (3.8) of the sweep, but reconstruction degraded to 0.0814 and none of the alternatives improved the joint criteria, so z = 5 was retained. Parameter count not reported for the z variants.",
+  "why": "Best silhouette (0.318), best normalised Pillai trace (0.701), best erank ratio (0.873) and best κ (3.8) of the sweep, but reconstruction degraded to 0.0814 and none of the alternatives improved the joint criteria, so z = 5 was retained. Parameter count not reported for the z variants.",
   "refs": [
    "APP:326 (Phase D table)",
    "ORIG:336",
@@ -1835,7 +1834,7 @@ window.ARCHITECTURES = [
   "name": "Stage 3 Phase D: z = 10 (deterministic)",
   "stage": "Stage 3",
   "pipeline": "deterministic",
-  "tagline": "depth_dilated_4 with a ten-dimensional latent, the only Phase D point that failed the collapse check.",
+  "tagline": "depth_dilated_4 with a ten-dimensional latent and an effective-rank ratio of 0.647.",
   "heads": 1,
   "parallel": false,
   "layers": [
@@ -1922,7 +1921,7 @@ window.ARCHITECTURES = [
    "kappa_det": 28.8
   },
   "outcome": "eliminated",
-  "why": "Best reconstruction of the sweep (0.0623) but failed the effective-rank collapse check at 0.647 with kappa 28.8, and the lowest normalised Pillai trace at 0.672.",
+  "why": "Best reconstruction of the sweep (0.0623) but had an effective-rank ratio of 0.647 with κ 28.8, and the lowest normalised Pillai trace at 0.672.",
   "refs": [
    "APP:329 (marked FAIL)",
    "ORIG:336",
@@ -2120,7 +2119,7 @@ window.ARCHITECTURES = [
    "kappa_det": 11.17
   },
   "outcome": "eliminated",
-  "why": "Slightly lower channel-mean FVU than the k = 7 reference, but weakened every latent diagnostic (silhouette 0.254, spatial r 0.649, erank 0.738, kappa 11.17) and added 3.8 million parameters. Trained at the locked learning rate 1e-3.",
+  "why": "Slightly lower channel-mean FVU than the k = 7 reference, but weakened every latent diagnostic (silhouette 0.254, spatial r 0.649, erank 0.738, κ 11.17) and added 3.8 million parameters. Trained at the locked learning rate 1e-3.",
   "refs": [
    "ORIG:355,364",
    "SHORT:208"
@@ -2218,7 +2217,7 @@ window.ARCHITECTURES = [
    "kappa_det": 15.54
   },
   "outcome": "eliminated",
-  "why": "Failed the effective-rank collapse check at 0.624 with kappa 15.54 and reconstructed worst of the kernel check at 0.1544. Struggled to converge at the locked 1e-3 rate and had to be trained at 3e-4, unlike k = 3 and k = 15. Strided chain with padding 14: 6935 -> 3467 -> 1733 -> 866.",
+  "why": "Had an effective-rank ratio of 0.624 with κ 15.54 and reconstructed worst of the kernel check at 0.1544. Struggled to converge at the locked 1e-3 rate and had to be trained at 3e-4, unlike k = 3 and k = 15. Strided chain with padding 14: 6935 -> 3467 -> 1733 -> 866.",
   "refs": [
    "ORIG:356,364",
    "ORIG:342 (k = 30 trained at 3e-4)",
@@ -2366,7 +2365,7 @@ window.ARCHITECTURES = [
    "kappa_det": 2.13
   },
   "outcome": "eliminated",
-  "why": "Best reconstruction (0.0657) and cleanest latent geometry (erank 0.956, kappa 2.13) of the VAE depth sweep, but cost 28.6 million parameters, three times the depth-6 reference, so the reference was retained. Widths {32,64} and the 110,976 bridge reproduce the published 28,554,512 parameters exactly. Receptive field 19 days is derived, not printed.",
+  "why": "Best reconstruction (0.0657) and cleanest latent geometry (erank 0.956, κ 2.13) of the VAE depth sweep, but cost 28.6 million parameters, three times the depth-6 reference, so the reference was retained. Widths {32,64} and the 110,976 bridge reproduce the published 28,554,512 parameters exactly. Receptive field 19 days is derived, not printed.",
   "refs": [
    "ORIG:506,520",
    "SHORT:228"
@@ -2873,7 +2872,7 @@ window.ARCHITECTURES = [
    "kappa_det": 4.24
   },
   "outcome": "eliminated",
-  "why": "Dropped first in the VAE width sweep: FVU 0.1443, more than twice the reference, plus the lowest effective-rank ratio (0.867) and highest kappa (4.24) of the three. Widths {16,32,64,128,128,128} and the 13,952 bridge reproduce the published 4,199,344 parameters exactly.",
+  "why": "Dropped first in the VAE width sweep: FVU 0.1443, more than twice the reference, plus the lowest effective-rank ratio (0.867) and highest κ (4.24) of the three. Widths {16,32,64,128,128,128} and the 13,952 bridge reproduce the published 4,199,344 parameters exactly.",
   "refs": [
    "ORIG:536,546",
    "SHORT:236"
@@ -3051,7 +3050,7 @@ window.ARCHITECTURES = [
    "kappa_det": 2.28
   },
   "outcome": "eliminated",
-  "why": "Best silhouette (0.310), spatial coherence (0.709), erank ratio (0.949) and kappa (2.28) of the variational Phase D, but reconstruction degraded to 0.0936. Normalised Pillai trace 0.666.",
+  "why": "Best silhouette (0.310), spatial coherence (0.709), erank ratio (0.949) and κ (2.28) of the variational Phase D, but reconstruction degraded to 0.0936. Normalised Pillai trace 0.666.",
   "refs": [
    "APP:379",
    "ORIG:553",
@@ -3141,7 +3140,7 @@ window.ARCHITECTURES = [
    "kappa_det": 3.6
   },
   "outcome": "eliminated",
-  "why": "Improved reconstruction to 0.0661 but reduced the silhouette to 0.238 and spatial coherence to 0.635, and produced a less balanced latent than the z = 5 reference. Normalised Pillai trace 0.692. Every VAE Phase D point cleared the collapse check.",
+  "why": "Improved reconstruction to 0.0661 but reduced the silhouette to 0.238 and spatial coherence to 0.635, and produced a less balanced latent than the z = 5 reference. Normalised Pillai trace 0.692.",
   "refs": [
    "APP:381",
    "ORIG:553",
@@ -3231,7 +3230,7 @@ window.ARCHITECTURES = [
    "kappa_det": 3.53
   },
   "outcome": "eliminated",
-  "why": "Best reconstruction (0.0653) and best normalised Pillai trace (0.708) of the variational Phase D, but the worst silhouette (0.197) and worst spatial coherence (0.603) of the sweep. Unlike the deterministic z = 10 run it still cleared the collapse check at 0.930.",
+  "why": "Best reconstruction (0.0653) and best normalised Pillai trace (0.708) of the variational Phase D, but the worst silhouette (0.197) and worst spatial coherence (0.603) of the sweep. Its effective-rank ratio was 0.930.",
   "refs": [
    "APP:382",
    "ORIG:553",
@@ -3499,7 +3498,7 @@ window.ARCHITECTURES = [
    "kappa_det": 386.8
   },
   "outcome": "eliminated",
-  "why": "Produced a severely anisotropic latent (kappa 386.8, the worst number anywhere in the search) and spatial coherence collapsed to 0.512, even though the collapse flag still reads pass at erank 0.783. Trained at a reduced learning rate of 3e-4 to converge. Receptive field 1,828 days is derived, not printed.",
+  "why": "Produced a severely anisotropic latent (κ 386.8, the worst number anywhere in the search) and spatial coherence fell to 0.512, while the effective-rank ratio was 0.783. Trained at a reduced learning rate of 3e-4 to converge. Receptive field 1,828 days is derived, not printed.",
   "refs": [
    "ORIG:573,581",
    "ORIG:559 (reduced learning rate for k = 30)",

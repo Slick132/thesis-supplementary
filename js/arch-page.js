@@ -165,7 +165,7 @@
         card.appendChild(el('h3', null, 'Layer-by-layer trajectory'));
         card.appendChild(tt);
         card.appendChild(el('p', 'fig-note',
-          'Lengths follow the same-padding rule, where each strided layer maps a length to its ceiling half and each dilated layer preserves the length. The receptive field is the span of input days feeding one output position at that depth.'));
+          'Lengths follow the same-padding rule, where each strided layer maps a length to its ceiling half and each dilated layer preserves the length.'));
       }
     }
 
