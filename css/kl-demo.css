@@ -1,0 +1,7 @@
+.kl-demo{border:1px solid var(--border);border-radius:12px;padding:20px;margin:24px 0;background:var(--paper)}
+.kl-demo svg{display:block;width:100%;height:auto}.kl-demo svg text{font-family:var(--font);font-size:14px;fill:var(--ink)}
+.kl-controls{display:grid;grid-template-columns:1fr 1fr;gap:16px}.kl-controls label{display:grid;gap:8px;font-size:1rem}.kl-controls input{width:100%;accent-color:#8c2f4a}
+.kl-actions{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap}.kl-actions button{font:inherit;padding:8px 14px;border:1px solid var(--border);border-radius:6px;background:var(--page);color:var(--ink);cursor:pointer}
+.kl-scores{display:grid;grid-template-columns:1fr 1fr;gap:12px}.kl-scores div{padding:14px;background:var(--page);border-radius:8px}.kl-scores strong{display:block;font-size:1.3rem;margin-top:6px}
+.kl-demo figcaption{font-size:.875rem}.kl-legend{display:flex;gap:20px;flex-wrap:wrap}.kl-legend span:first-child{color:#4477aa}.kl-legend span:last-child{color:#8c2f4a}
+@media(max-width:550px){.kl-controls,.kl-scores{grid-template-columns:1fr}}

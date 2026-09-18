@@ -18,6 +18,16 @@
   function gelu(x) {
     return 0.5 * x * (1 + Math.tanh(Math.sqrt(2 / Math.PI) * (x + 0.044715 * x * x * x)));
   }
+  /* derivative of the tanh-approximate GELU above, used by the backprop
+     block; checked against a numerical gradient before use, see
+     verify_backprop.py in the thesis analysis scripts */
+  function geluGrad(x) {
+    var c = Math.sqrt(2 / Math.PI);
+    var inner = c * (x + 0.044715 * x * x * x);
+    var th = Math.tanh(inner);
+    var dinner = c * (1 + 3 * 0.044715 * x * x);
+    return 0.5 * (1 + th) + 0.5 * x * (1 - th * th) * dinner;
+  }
   function roundRect(ctx, x, y, w, h, r) {
     r = Math.min(r, Math.abs(w) / 2, Math.abs(h) / 2);
     ctx.beginPath();
@@ -148,6 +158,57 @@
     return s;
   }
 
+  /* ---------- shared toy network for the forward/backward pair -----------
+     Fixed so the two animations describe the same network, and the numbers
+     were checked against a numerical (finite-difference) gradient before
+     being used here; see verify_backprop.py in the thesis analysis scripts. */
+  var FF_X = [0.80, -0.35, 0.55];
+  var FF_W1 = [
+    [0.60, -0.40, 0.20],
+    [-0.30, 0.80, -0.10],
+    [0.20, 0.30, -0.70],
+    [-0.50, 0.10, 0.40]
+  ];
+  var FF_B1 = [0.05, -0.10, 0.20, 0.00];
+  var FF_W2 = [0.70, -0.50, 0.30, 0.20];
+  var FF_B2 = 0.10;
+  var FF_TARGET = 1.20;
+
+  function ffForward() {
+    var z1 = FF_W1.map(function (row, j) {
+      return row.reduce(function (s, w, i) { return s + w * FF_X[i]; }, FF_B1[j]);
+    });
+    var hid = z1.map(gelu);
+    var out = FF_W2.reduce(function (s, w, j) { return s + w * hid[j]; }, FF_B2);
+    return { z1: z1, hid: hid, out: out };
+  }
+
+  function ffBackward(fwd) {
+    var dOut = fwd.out - FF_TARGET;                     /* d(0.5(out-y)^2)/d(out) */
+    var dH = FF_W2.map(function (w) { return dOut * w; });
+    var dZ1 = dH.map(function (v, j) { return v * geluGrad(fwd.z1[j]); });
+    var dW1 = dZ1.map(function (dz) { return FF_X.map(function (x) { return dz * x; }); });
+    var dW2 = fwd.hid.map(function (h) { return dOut * h; });
+    return { dOut: dOut, dH: dH, dZ1: dZ1, dW1: dW1, dB1: dZ1, dW2: dW2, dB2: dOut };
+  }
+
+  /* shared node layout, so the forward and backward canvases place every
+     input, hidden and output circle at the identical pixel position */
+  function ffLayout(W, H) {
+    var yTop = 34, yBot = H - CAP - 10;
+    var colX = [W * 0.16, W * 0.5, W * 0.84];
+    var R = Math.min(18, (yBot - yTop) / 9, W * 0.05);
+    function pts(count, x) {
+      var out = [];
+      for (var j = 0; j < count; j++) {
+        out.push({ x: x, y: yTop + ((yBot - yTop) * (j + 0.5)) / count });
+      }
+      return out;
+    }
+    return { yTop: yTop, yBot: yBot, colX: colX, R: R,
+            pIn: pts(3, colX[0]), pHid: pts(4, colX[1]), pOut: pts(1, colX[2]) };
+  }
+
   /* ---------- individual blocks ---------- */
 
   var BLOCKS = {};
@@ -174,7 +235,7 @@
     var pos = Math.floor(t * n) % n;
     var sub = t * n - Math.floor(t * n);
 
-    title(ctx, 'input, 2 variables x 12 days', pad, yIn - 8, W);
+    title(ctx, 'input, 2 channels x 12 positions', pad, yIn - 8, W);
     var neutral = cssVar('--ink', '#2B1F24');
     for (var c = 0; c < 2; c++) {
       /* the implicit zero padding the kernel reads at the two ends */
@@ -189,7 +250,7 @@
       ctx.fillStyle = muted;
       ctx.font = '8px ' + cssVar('--mono', 'monospace');
       ctx.textAlign = 'right';
-      ctx.fillText(c === 0 ? 'tmax' : 'rain', pad - cw - 5, yIn + c * (ch + 2) + 12);
+      ctx.fillText(c === 0 ? 'c1' : 'c2', pad - cw - 5, yIn + c * (ch + 2) + 12);
     }
 
     /* the kernel window */
@@ -234,127 +295,51 @@
 
   /* 2. strided convolution with same-padding */
   BLOCKS.strided = function (ctx, W, H, t) {
-    var muted = cssVar('--muted', '#6B5D63'), accent = cssVar('--accent', '#8C2F4A');
-    var colour = cssVar('--d-strided', '#61223B');
-    var n = 17, k = 7, s = 2, p = 3;
-    var nOut = Math.floor((n + 2 * p - (k - 1) - 1) / s) + 1;
-    var pad = 26, cw = (W - pad * 2) / (n + 2 * p), chh = 16;
-    var yIn = 34, yOut = H - CAP - 22;
-    var step = Math.floor(t * nOut) % nOut;
-    var centre = step * s;
-
-    title(ctx, 'input, 17 positions with 3 padding cells at each end', pad, yIn - 9, W);
-    for (var i = -p; i < n + p; i++) {
-      var isPad = i < 0 || i >= n;
-      var inWin = i >= centre - (k - 1) / 2 + 0 && i <= centre + (k - 1) / 2;
-      var x = pad + (i + p) * cw;
-      cell(ctx, x, yIn, cw - 1.5, chh, isPad ? muted : colour,
-           isPad ? (inWin ? 0.34 : 0.12) : (inWin ? 0.8 : 0.18));
-    }
-    ctx.strokeStyle = accent;
-    ctx.lineWidth = 1.3;
-    ctx.strokeRect(pad + (centre - 3 + p) * cw - 1, yIn - 2, cw * k, chh + 4);
-
-    title(ctx, 'output, ' + nOut + ' positions, one per two inputs   (the model halves 1,734 to 867)',
-          pad, yOut - 9, W);
-    var ow = cw;                       /* same pitch, so the row is visibly shorter */
-    var oPad = pad + p * cw;           /* start under the first real input */
-    for (i = 0; i < nOut; i++) {
-      cell(ctx, oPad + i * ow, yOut, ow - 1.5, chh, colour, i < step ? 0.62 : (i === step ? 0.8 : 0.1));
-    }
-    arrow(ctx, pad + (centre + p) * cw + cw / 2, yIn + chh + 4,
-          oPad + step * ow + ow / 2, yOut - 5, accent, 0.8);
-
-    caption(ctx, W, H,
-            'the window steps two positions at a time, so consecutive windows overlap by five',
-            'the pale cells at each end are the padding that lets the kernel centre reach the first and last day');
+    var accent=cssVar('--accent','#8C2F4A'), colour=cssVar('--d-strided','#61223B');
+    var n=17,k=7,s=2,nOut=Math.floor((n-k)/s)+1;
+    var pad=40,cw=(W-2*pad)/n,yIn=45,yOut=H-CAP-58,ch=22;
+    var step=Math.min(nOut-1,Math.floor(t*nOut)),start=step*s;
+    title(ctx,'input: 17 positions, no padding; kernel 7, stride 2',pad,24,W);
+    for(var i=0;i<n;i++)cell(ctx,pad+i*cw,yIn,cw-2,ch,colour,i>=start&&i<start+k?.8:.15,String(i+1),i>=start&&i<start+k?'#fff':cssVar('--ink','#222'));
+    ctx.strokeStyle=accent;ctx.lineWidth=1.5;ctx.strokeRect(pad+start*cw-1,yIn-2,k*cw,ch+4);
+    for(i=0;i<nOut;i++)cell(ctx,pad+i*cw,yOut,cw-2,ch,colour,i<=step?.7:.12,i<=step?String(i+1):'');
+    arrow(ctx,pad+(start+k/2)*cw,yIn+ch+5,pad+(step+.5)*cw,yOut-6,accent,.7);
+    title(ctx,'output: 6 positions',pad,yOut+ch+18,W);
+    caption(ctx,W,H,'stride 2: each new window starts two input positions further right','17 inputs, kernel 7, no padding: floor((17 − 7) / 2) + 1 = 6 outputs');
   };
 
   /* 3. dilated convolution, cycling the rate */
   BLOCKS.dilated = function (ctx, W, H, t) {
-    var muted = cssVar('--muted', '#6B5D63'), accent = cssVar('--accent', '#8C2F4A');
-    var colour = cssVar('--d-dilated', '#8C6B2F');
-    var rates = [1, 2, 4, 8];
-    var phase = t * rates.length;
-    var idx = Math.floor(phase) % rates.length;
-    var d = rates[idx];
-    /* Ease the tap spacing between rates so the kernel visibly opens out
-       instead of teleporting, while the labels stay on the exact rate. */
-    var local = phase - Math.floor(phase);
-    var nxt = rates[(idx + 1) % rates.length];
-    /* The loop dwells near t = 1, so the last slot must not morph back to
-       d = 1 or the frame held longest is the one that looks like an ordinary
-       convolution. Earlier slots start their fan-out sooner as well. */
-    var lastSlot = idx === rates.length - 1;
-    var ease = lastSlot ? 0 : (local < 0.45 ? 0 : (local - 0.45) / 0.55);
-    var eased = ease * ease * (3 - 2 * ease);
-    var dEff = d + (nxt - d) * eased;
-    var k = 7, n = 57;
-    var pad = 20, cw = (W - pad * 2) / n, chh = 16;
-    var yIn = 40, yOut = H - CAP - 22;
-    var centre = Math.round(n / 2);
-    /* name the rate the taps have actually reached, not the one just left */
-    var dShown = eased > 0.5 ? nxt : d;
-    var span = dShown * (k - 1) + 1;
+    var accent=cssVar('--accent','#8C2F4A'),colour=cssVar('--d-dilated','#8C6B2F');
+    var phase=Math.min(3.9999,t*4),d=[1,2,4,8][Math.floor(phase)],local=phase-Math.floor(phase);
+    var k=7,n=65,span=(k-1)*d+1,nOut=n-span+1;
+    var pos=Math.min(nOut-1,Math.floor(local*nOut));
+    var pad=24,cw=(W-2*pad)/n,yIn=54,yOut=H-CAP-65,ch=19;
+    title(ctx,'input: 65 positions · dilation '+d+' · seven weights · span '+span,pad,25,W);
+    for(var i=0;i<n;i++){var tap=i>=pos&&i<=pos+span-1&&(i-pos)%d===0;cell(ctx,pad+i*cw,yIn,cw-1,ch,colour,tap?.9:.16);}
+    ctx.strokeStyle=accent;ctx.lineWidth=1.4;ctx.strokeRect(pad+pos*cw-1,yIn-4,span*cw,ch+8);
+    for(i=0;i<nOut;i++)cell(ctx,pad+i*cw,yOut,cw-1,ch,colour,i<=pos?.65:.12);
+    for(var j=0;j<k;j++)arrow(ctx,pad+(pos+j*d+.5)*cw,yIn+ch+7,pad+(pos+.5)*cw,yOut-6,accent,.35);
+    title(ctx,'output: '+nOut+' positions without padding',pad,yOut+ch+19,W);
+    caption(ctx,W,H,'left-to-right pass with dilation '+d+'; the next pass uses a different rate','seven kernel weights at every rate · stride 1 · no padding in this illustration');
+  };
 
-    title(ctx, 'input, stride 1 so the length never changes', pad, yIn - 9, W);
-    var taps = [];        /* integer cells for the highlight */
-    var tapsF = [];       /* continuous positions for the moving marks */
-    for (var j = 0; j < k; j++) {
-      taps.push(Math.round(centre + (j - (k - 1) / 2) * dEff));
-      tapsF.push(centre + (j - (k - 1) / 2) * dEff);
+  BLOCKS.dilatedSame = function (ctx, W, H, t) {
+    var colour=cssVar('--d-dilated','#8C6B2F'),accent=cssVar('--accent','#8C2F4A');
+    var muted=cssVar('--muted','#6B5D63'),ink=cssVar('--ink','#2B1F24');
+    var n=12,p=6,k=7,d=2,margin=24,cw=(W-2*margin)/(n+2*p),ch=22;
+    var pos=Math.min(n-1,Math.floor(t*n)),yIn=48,yOut=H-82;
+    title(ctx,'6 padding zeros  |  12 input positions  |  6 padding zeros',margin,24,W);
+    for(var i=-p;i<n+p;i++){
+      var padding=i<0||i>=n,tap=i>=pos-p&&i<=pos+p&&(i-(pos-p))%d===0;
+      var x=margin+(i+p)*cw;
+      cell(ctx,x,yIn,cw-2,ch,padding?muted:colour,padding?.10:(tap?.8:.25),padding?'0':String(i+1),padding?muted:(tap?'#fff':ink));
+      if(tap){ctx.strokeStyle=accent;ctx.lineWidth=1.5;ctx.strokeRect(x,yIn,cw-2,ch);}
     }
-    for (var i = 0; i < n; i++) {
-      var isTap = taps.indexOf(i) !== -1;
-      var inSpan = i >= taps[0] && i <= taps[k - 1];
-      cell(ctx, pad + i * cw, yIn, Math.max(1.5, cw - 1.2), chh, colour,
-           isTap ? 0.85 : (inSpan ? 0.10 : 0.16));
-    }
-    ctx.strokeStyle = accent;
-    ctx.globalAlpha = 0.8;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(pad + tapsF[0] * cw, yIn - 5);
-    ctx.lineTo(pad + (tapsF[k - 1] + 1) * cw, yIn - 5);
-    ctx.stroke();
-    ctx.fillStyle = accent;
-    ctx.font = '600 8.5px ' + cssVar('--mono', 'monospace');
-    ctx.textAlign = 'center';
-    ctx.fillText(k + ' weights',
-                 pad + ((tapsF[0] + tapsF[k - 1] + 1) / 2) * cw, yIn - 10);
-    /* the unspread span, kept on screen so the widening is always comparative */
-    var refLo = centre - (k - 1) / 2, refHi = centre + (k - 1) / 2;
-    ctx.strokeStyle = muted;
-    ctx.globalAlpha = 0.55;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(pad + refLo * cw, yIn + chh + 16);
-    ctx.lineTo(pad + (refHi + 1) * cw, yIn + chh + 16);
-    ctx.moveTo(pad + refLo * cw, yIn + chh + 13);
-    ctx.lineTo(pad + refLo * cw, yIn + chh + 19);
-    ctx.moveTo(pad + (refHi + 1) * cw, yIn + chh + 13);
-    ctx.lineTo(pad + (refHi + 1) * cw, yIn + chh + 19);
-    ctx.stroke();
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = muted;
-    ctx.font = '8px ' + cssVar('--mono', 'monospace');
-    ctx.fillText('d=1 span 7', pad + (centre + 0.5) * cw, yIn + chh + 29);
-    ctx.globalAlpha = 1;
-
-    title(ctx, 'output, same length', pad, yOut - 9, W);
-    for (i = 0; i < n; i++) {
-      cell(ctx, pad + i * cw, yOut, Math.max(1.5, cw - 1.2), chh, colour,
-           i === centre ? 0.85 : 0.14);
-    }
-    for (j = 0; j < k; j++) {
-      if (tapsF[j] < 0 || tapsF[j] >= n) continue;
-      arrow(ctx, pad + tapsF[j] * cw + cw / 2, yIn + chh + 3,
-            pad + centre * cw + cw / 2, yOut - 4, accent, 0.28);
-    }
-
-    caption(ctx, W, H,
-            'dilation ' + dShown + ':  seven weights spread over ' + span + ' positions, output length unchanged',
-            'stacking rates 1, 2, 4 and 8 is what carries the selected model to a 763-day receptive field');
+    for(i=0;i<n;i++)cell(ctx,margin+(i+p)*cw,yOut,cw-2,ch,colour,i<=pos?.75:.13,i<=pos?String(i+1):'',i<=pos?'#fff':ink);
+    for(var j=0;j<k;j++)arrow(ctx,margin+(pos+j*d+.5)*cw,yIn+ch+4,margin+(pos+p+.5)*cw,yOut-5,accent,.4);
+    title(ctx,'12 output positions: stride 1 preserves the resolution with same padding',margin,yOut+ch+18,W);
+    caption(ctx,W,H,'kernel 7 · dilation 2 · stride 1 · padding 6 on each side','Numbers label positions; output cells do not show computed convolution values.');
   };
 
   /* 4. adaptive average pooling */
@@ -393,8 +378,8 @@
       ctx.globalAlpha = 1;
     }
 
-    title(ctx, 'the same channel pooled to 4 positions   (the model pools 867 to 109)',
-          pad, yOut - 10, W);
+    title(ctx, 'the same channel pooled to 4 positions',
+          pad, yOut + chh + 18, W);
     for (i = 0; i < nOut; i++) {
       var mean = 0;
       for (var q = 0; q < perBin; q++) mean += POOLV[i * perBin + q];
@@ -563,7 +548,7 @@
     if (hold) {
       caption(ctx, W, H,
               'the four inputs are now two numbers: ' + out[0].toFixed(2) + ' and ' + out[1].toFixed(2),
-              'the real model carries 27,904 values down to five in exactly this way');
+              'a fully connected bridge learns combinations of the flattened values');
     } else if (inHidden) {
       var kk = revealH;
       for (i = 0; i < kk; i++) {
@@ -755,7 +740,7 @@
     ctx.fill();
 
     title(ctx, known.length + ' known values become ' + nOut +
-          ' positions   (the model expands 109 back to 867)', pad, 20, W);
+          ' positions   (linear interpolation within each channel)', pad, 20, W);
     var fq = Math.floor(f * per) / per;
     var mvq = known[g] * (1 - fq) + known[g + 1] * fq;
     caption(ctx, W, H,
@@ -773,7 +758,7 @@
     var inVals = [0.7, 0.4, 0.9, 0.3, 0.6];
     var nOut = (nIn - 1) * s + k;
     var pad = 40, ow = (W - pad * 2) / nOut, iw = ow * s;   /* input spans less */
-    var yIn = 34, yOut = H - CAP - 26, chh = 16;
+    var yIn = 34, yOut = H - CAP - 55, chh = 20;
     var cur = Math.floor(t * nIn) % nIn;
 
     title(ctx, 'input, ' + nIn + ' positions, each multiplies the whole kernel', pad, yIn - 9, W);
@@ -798,7 +783,7 @@
       for (var j = 0; j < k; j++) acc[i * s + j] += inVals[i] * kern[j];
     }
     var maxV = Math.max.apply(null, acc.concat([1]));
-    title(ctx, 'output, ' + nOut + ' positions, overlapping contributions are added', pad, yOut - 9, W);
+    title(ctx, 'output, ' + nOut + ' positions, overlapping contributions are added', pad, yOut + chh + 18, W);
     for (i = 0; i < nOut; i++) {
       var touched = i >= cur * s && i < cur * s + k;
       cell(ctx, pad + i * ow, yOut, ow - 3, chh, colour,
@@ -812,8 +797,16 @@
       }
     }
     for (j = 0; j < k; j++) {
-      arrow(ctx, pad + cur * iw + iw / 2, yIn + chh + 3,
-            pad + (cur * s + j) * ow + ow / 2, yOut - 4, accent, 0.4);
+      var ax=pad+cur*iw+iw/2, ay=yIn+chh+3;
+      var bx=pad+(cur*s+j)*ow+ow/2, by=yOut-4;
+      arrow(ctx,ax,ay,bx,by,accent,.5);
+      // Stagger multiplication labels along the arrows, away from their shared origin.
+      var f=.40+j*.13,lx=ax+(bx-ax)*f,ly=ay+(by-ay)*f;
+      var label=inVals[cur].toFixed(1)+' × '+kern[j].toFixed(1)+' = '+(inVals[cur]*kern[j]).toFixed(2);
+      ctx.font='9px '+cssVar('--mono','monospace');ctx.textAlign='center';
+      var tw=ctx.measureText(label).width;
+      ctx.fillStyle=cssVar('--paper','#fff');ctx.fillRect(lx-tw/2-4,ly-10,tw+8,15);
+      ctx.fillStyle=accent;ctx.fillText(label,lx,ly);
     }
 
     caption(ctx, W, H,
@@ -872,7 +865,7 @@
     ctx.lineWidth = 1.4;
     ctx.strokeRect(highlightX, inputTop - 2, cellW, inputChannels * (cellH + 3));
 
-    var matrixTop = inputTop + inputChannels * (cellH + 3) + 18;
+    var matrixTop = inputTop + inputChannels * (cellH + 3) + 35;
     var matrixW = Math.min(190, gridW * 0.48);
     var matrixX = pad + (gridW - matrixW) / 2;
     ctx.fillStyle = ink;
@@ -888,7 +881,7 @@
       }
     }
 
-    title(ctx, 'output feature maps, 3 channels x 10 positions', pad, outputTop - 9, W);
+    title(ctx, 'output feature maps, 3 channels x 10 positions', pad, outputTop + outputChannels * (cellH + 3) + 14, W);
     for (q = 0; q < outputChannels; q++) {
       for (i = 0; i < positions; i++) {
         var calculated = outputAt(q, i);
@@ -908,7 +901,7 @@
 
     arrow(ctx, pad + active * cellW + cellW / 2,
           inputTop + inputChannels * (cellH + 3) + 2,
-          matrixX + matrixW / 2, matrixTop - 9, accent, 0.75);
+          matrixX + matrixW / 2, matrixTop - 20, accent, 0.75);
     arrow(ctx, matrixX + matrixW / 2, matrixTop + outputChannels * 17 + 2,
           pad + active * cellW + cellW / 2, outputTop - 5, accent, 0.75);
 
@@ -998,75 +991,39 @@
 
   /* 10. variational sampling */
   BLOCKS.vae = function (ctx, W, H, t) {
-    var muted = cssVar('--muted', '#6B5D63'), ink = cssVar('--ink', '#2B1F24');
-    var cM = cssVar('--d-mlp', '#3F6B4A'), cL = cssVar('--d-latent', '#C2761F');
+    var ink = cssVar('--ink', '#2B1F24'), muted = cssVar('--muted', '#6B5D63');
     var accent = cssVar('--accent', '#8C2F4A');
-    var mu = [0.35, -0.20, 0.62, 0.05, -0.44];
-    var sd = [0.22, 0.31, 0.18, 0.27, 0.24];
-    var draw = Math.floor(t * 4);
-    var yTop = 46, rowH = (H - yTop - CAP - 12) / 5;
-
-    ctx.fillStyle = muted;
-    ctx.font = '8.5px ' + cssVar('--font', 'sans-serif');
-    ctx.textAlign = 'center';
-    ctx.fillText('mean', W * 0.11, yTop - 12);
-    ctx.fillText('std dev', W * 0.25, yTop - 12);
-    ctx.fillText('epsilon', W * 0.39, yTop - 12);
-    ctx.fillText('sampled embedding, 5 dimensions', W * 0.75, yTop - 12);
-
-    for (var i = 0; i < 5; i++) {
-      var y = yTop + rowH * (i + 0.5);
-      /* column pitch is 0.14W, so a fixed 52px box collides below W = 371 */
-      var colW = Math.min(52, W * 0.14 - 5);
-      cell(ctx, W * 0.11 - colW / 2, y - 8, colW, 16, cM, 0.45, mu[i].toFixed(2), '#fff');
-      cell(ctx, W * 0.25 - colW / 2, y - 8, colW, 16, cM, 0.30, sd[i].toFixed(2), ink);
-      /* a deterministic pseudo-noise per draw so the value visibly jitters */
-      /* Sum of three uniforms on [-1,1) has unit variance, so draws leave the
-         one-standard-deviation band at about the rate a normal would. */
-      var eps = 0;
-      for (var q = 0; q < 3; q++) {
-        var r = Math.sin((i + 1) * 12.9898 + draw * 4.1414 + q * 7.233) * 43758.5453;
-        eps += (r - Math.floor(r)) * 2 - 1;
-      }
-      var z = mu[i] + sd[i] * eps;
-      var bx = W * 0.55;
-      var bw = W * 0.40;
-      ctx.strokeStyle = cssVar('--border', '#E0D6C9');
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(bx, y); ctx.lineTo(bx + bw, y);
-      ctx.stroke();
-      /* the plus or minus one standard deviation band */
-      ctx.fillStyle = cL;
-      ctx.globalAlpha = 0.16;
-      ctx.fillRect(bx + bw * (0.5 + (mu[i] - sd[i]) / 3), y - 7, bw * (2 * sd[i] / 3), 14);
-      ctx.globalAlpha = 1;
-      ctx.beginPath();
-      ctx.arc(bx + bw * (0.5 + mu[i] / 3), y, 3, 0, Math.PI * 2);
-      ctx.fillStyle = muted;
-      ctx.fill();
-      /* epsilon, the term the equation above the canvas turns on */
-      cell(ctx, W * 0.39 - colW / 2, y - 8, colW, 16, accent, 0.30, eps.toFixed(2), ink);
-      /* the zero line, so the sampled value can be read against a scale */
-      ctx.strokeStyle = cssVar('--border', '#E0D6C9');
-      ctx.globalAlpha = 0.9;
-      ctx.beginPath();
-      ctx.moveTo(bx + bw * 0.5, y - 9); ctx.lineTo(bx + bw * 0.5, y + 9);
-      ctx.stroke();
-      ctx.globalAlpha = 1;
-      ctx.beginPath();
-      ctx.arc(bx + bw * (0.5 + z / 3), y, 4.5, 0, Math.PI * 2);
-      ctx.fillStyle = accent;
-      ctx.fill();
-      ctx.fillStyle = accent;
-      ctx.font = '600 8.5px ' + cssVar('--mono', 'monospace');
-      ctx.textAlign = 'center';
-      ctx.fillText(z.toFixed(2), bx + bw * (0.5 + z / 3), y - 10);
+    var observations = [{name:'A', mu:-0.65, sd:0.25}, {name:'B', mu:0.55, sd:0.45}, {name:'C', mu:0.05, sd:0.18}];
+    var phase = Math.min(2.9999, t * 3), index = Math.floor(phase), local = phase - index;
+    var obs = observations[index];
+    // One hand-selected illustrative noise value per observation.
+    var noises = [0.35, -1.45, 1.20];
+    var sampled = local >= 0.24;
+    var eps = noises[index];
+    var z = obs.mu + obs.sd * eps;
+    function text(s,x,y,size,bold) {
+      ctx.fillStyle=ink; ctx.font=(bold?'600 ':'')+size+'px '+cssVar('--font','sans-serif');
+      ctx.textAlign='center'; ctx.fillText(s,x,y);
     }
-
-    caption(ctx, W, H,
-            'the embedding is drawn from a distribution rather than read off directly',
-            'this sampling block is the only structural difference from the deterministic models');
+    function box(x,y,w,title,value) {
+      ctx.fillStyle=cssVar('--border','#E0D6C9'); roundRect(ctx,x,y,w,48,5); ctx.fill();
+      text(title,x+w/2,y+18,W<450?11:14,false);
+      text(value,x+w/2,y+38,W<450?13:16,true);
+    }
+    var gap=8, bw=(W-32-gap*2)/3;
+    box(16,14,bw,'Observation '+obs.name,'input x');
+    box(16+bw+gap,14,bw,'Encoder','x → μ, σ');
+    box(16+2*(bw+gap),14,bw,'μ = '+obs.mu.toFixed(2),'σ = '+obs.sd.toFixed(2));
+    text(sampled?'Sample: ε = '+eps.toFixed(2)+'   →   z = '+z.toFixed(2):'New observation: the encoder predicts μ and σ',W/2,90,W<450?12:16,true);
+    var left=30,right=W-30,y=H*0.56;
+    function px(v){return left+(v+2)/4*(right-left)}
+    ctx.strokeStyle=muted; ctx.lineWidth=1; ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(right,y);ctx.stroke();
+    for(var v=-2;v<=2;v++){ctx.beginPath();ctx.moveTo(px(v),y-4);ctx.lineTo(px(v),y+4);ctx.stroke();text(String(v),px(v),y+32,12,false)}
+    ctx.fillStyle=accent;ctx.globalAlpha=.16;ctx.fillRect(px(obs.mu-obs.sd),y-13,px(obs.mu+obs.sd)-px(obs.mu-obs.sd),26);ctx.globalAlpha=1;
+    ctx.fillStyle=muted;ctx.beginPath();ctx.arc(px(obs.mu),y,4,0,Math.PI*2);ctx.fill();
+    if(sampled){ctx.fillStyle=accent;ctx.beginPath();ctx.arc(px(z),y,6,0,Math.PI*2);ctx.fill();text(z.toFixed(2),px(z),y-23,16,true)}
+    text('One latent dimension · shaded band: μ ± σ',W/2,H-43,W<450?12:14,false);
+    text('Illustrative values · parameters stay fixed for each observation',W/2,H-20,W<450?10:12,false);
   };
 
   BLOCKS.gelu = function (ctx, W, H, t) {
@@ -1205,13 +1162,13 @@
     ctx.globalAlpha = 1 - p;
     fitMono(ctx, 'feature tensor, 4 channels x 8 positions', avail);
     ctx.fillText('feature tensor, 4 channels x 8 positions', W / 2, gy - 22);
-    fitMono(ctx, 'the model uses 256 x 109', avail);
-    ctx.fillText('the model uses 256 x 109', W / 2, gy - 12);
+    fitMono(ctx, 'example shape: 256 x 109', avail);
+    ctx.fillText('example shape: 256 x 109', W / 2, gy - 12);
     ctx.globalAlpha = p;
     fitMono(ctx, 'one long vector, 32 values', avail);
     ctx.fillText('one long vector, 32 values', W / 2, sy + gh + 12);
-    fitMono(ctx, 'the model uses 27,904', avail);
-    ctx.fillText('the model uses 27,904', W / 2, sy + gh + 22);
+    fitMono(ctx, 'example flattened length: 27,904', avail);
+    ctx.fillText('example flattened length: 27,904', W / 2, sy + gh + 22);
     ctx.globalAlpha = 1;
 
     ctx.fillStyle = accent;
@@ -1231,76 +1188,228 @@
   };
 
   BLOCKS.rf = function (ctx, W, H, t) {
-    var muted = cssVar('--muted', '#6B5D63'), ink = cssVar('--ink', '#2B1F24');
-    var accent = cssVar('--accent', '#8C2F4A');
-    var cS = cssVar('--d-strided', '#61223B'), cD = cssVar('--d-dilated', '#8C6B2F');
-    var layers = [
-      { name: 'strided 1', rf: 7, type: 's' }, { name: 'strided 2', rf: 19, type: 's' },
-      { name: 'strided 3', rf: 43, type: 's' }, { name: 'dilated d=1', rf: 91, type: 'd' },
-      { name: 'dilated d=2', rf: 187, type: 'd' }, { name: 'dilated d=4', rf: 379, type: 'd' },
-      { name: 'dilated d=8', rf: 763, type: 'd' }
+    var ink = cssVar('--ink', '#2B1F24'), muted = cssVar('--muted', '#6B5D63');
+    var configs = [
+      {name:'Standard', detail:'stride 1, dilation 1', colour:'#61223B', strides:[1,1,1,1], dilations:[1,1,1,1]},
+      {name:'Strided', detail:'stride 2, dilation 1', colour:'#4477AA', strides:[2,2,2,2], dilations:[1,1,1,1]},
+      {name:'Dilated', detail:'stride 1, dilation 1,2,4,8', colour:'#39846A', strides:[1,1,1,1], dilations:[1,2,4,8]}
     ];
-    var TOTAL = 6935;
-    var pad = 74, span = W - pad - 24;   /* gutter fits 'dilated d=8' */
-    var top = 30, rowH = (H - CAP - top - 26) / (layers.length + 1);
-    var step = Math.min(layers.length - 1, Math.floor(t * layers.length));
-    /* the loop holds just short of t = 1, so scale the fraction to still
-       resolve on the true final value rather than a hair under it */
-    var frac = Math.min(1, (t * layers.length - step) / 0.98);
-    var DEEPEST = layers[layers.length - 1].rf;
+    var depth = Math.min(4, Math.floor(t * 5) + 1), col = (W-24)/3;
+    title(ctx, 'One output position: input span grows with depth (filter width 3)', 12, 18, W);
+    configs.forEach(function(config,index){
+      var left=12+index*col, width=col-18, r=1, jump=1;
+      ctx.fillStyle=config.colour; ctx.font='600 11px '+cssVar('--font','sans-serif');ctx.textAlign='left';ctx.fillText(config.name,left,42);
+      fitMono(ctx,config.detail,width);ctx.fillText(config.detail,left,58);
+      for(var layer=0;layer<4;layer++){
+        r += 2*config.dilations[layer]*jump; jump *= config.strides[layer];
+        var y=82+layer*(H-CAP-108)/4;
+        ctx.fillStyle=muted;ctx.globalAlpha=.12;ctx.fillRect(left,y+14,width,12);ctx.globalAlpha=1;
+        ctx.font='10px '+cssVar('--font','sans-serif');ctx.fillStyle=ink;ctx.fillText('Layer '+(layer+1),left,y+7);
+        if(layer<depth){ctx.fillStyle=config.colour;ctx.fillRect(left,y+14,width*r/31,12);ctx.textAlign='right';ctx.fillText(r+' positions',left+width,y+7);ctx.textAlign='left';}
+      }
+    });
+    caption(ctx,W,H,'All bars use the same scale: 31 input positions.',
+      'Stride increases spacing for later layers; dilation spaces the positions read within a layer.');
+  };
 
-    title(ctx, 'span of the input record feeding one output position', pad - 34, 18, W);
+  /* 15. forward pass: a general feedforward network computing one
+     prediction. Three inputs, one hidden layer of four GELU units, one
+     linear output. Each unit is revealed in turn with the arithmetic it
+     performs, matching the layer equation given earlier on the page. */
+  BLOCKS.ffwd = function (ctx, W, H, t) {
+    var muted = cssVar('--muted', '#6B5D63');
+    var accent = cssVar('--accent', '#8C2F4A'), cM = cssVar('--d-mlp', '#3F6B4A');
+    var cL = cssVar('--d-latent', '#C2761F'), border = cssVar('--border', '#E0D6C9');
+    var fwd = ffForward();
+    var L = ffLayout(W, H);
 
-    for (var i = 0; i < layers.length; i++) {
-      var y = top + rowH * i;
-      var shown = i < step ? 1 : (i === step ? frac : 0);
-      /* the full record as a faint track */
-      ctx.fillStyle = muted;
-      ctx.globalAlpha = 0.10;
-      ctx.fillRect(pad, y + rowH * 0.25, span, rowH * 0.42);
+    var STAGES = 6;      /* 4 hidden units, 1 output, 1 hold */
+    var stage = Math.min(STAGES - 1, Math.floor(t * STAGES));
+    var hold = stage === 5;
+    var frac = hold ? 1 : Math.min(1, t * STAGES - stage);
+    var inHidden = !hold && stage < 4;
+    var atOutput = !hold && stage === 4;
+    var targetH = inHidden ? stage : -1;
+
+    function drawEdges(a, b, Wm, activeJ, reveal, done) {
+      for (var j = 0; j < b.length; j++) {
+        for (var i = 0; i < a.length; i++) {
+          var w = Wm[j][i];
+          var live = (j === activeJ && i < reveal) || done[j];
+          ctx.strokeStyle = w >= 0 ? cM : accent;
+          ctx.globalAlpha = live ? 0.30 + Math.min(0.55, Math.abs(w)) : 0.07;
+          ctx.lineWidth = live ? 0.8 + Math.abs(w) * 2.2 : 0.6;
+          ctx.beginPath();
+          ctx.moveTo(a[i].x + L.R, a[i].y);
+          ctx.lineTo(b[j].x - L.R, b[j].y);
+          ctx.stroke();
+          if (j === activeJ && i === reveal - 1) {
+            var mx = (a[i].x + L.R + b[j].x - L.R) / 2, my = (a[i].y + b[j].y) / 2;
+            ctx.fillStyle = w >= 0 ? cM : accent;
+            ctx.font = '600 8.5px ' + cssVar('--mono', 'monospace');
+            ctx.textAlign = 'center';
+            ctx.fillText(w.toFixed(2), mx, my - 3);
+          }
+        }
+      }
       ctx.globalAlpha = 1;
-      if (shown > 0) {
-        /* scaled to the deepest layer, so each bar is visibly twice the last */
-        var wpx = span * (layers[i].rf / DEEPEST) * shown;
-        ctx.fillStyle = layers[i].type === 's' ? cS : cD;
-        ctx.globalAlpha = i === step ? 0.85 : 0.5;
-        ctx.fillRect(pad, y + rowH * 0.25, Math.max(1.5, wpx), rowH * 0.42);
+    }
+    var hidDone = [0, 1, 2, 3].map(function (j) { return hold || stage > j; });
+    var outDone = hold || stage > 4;
+    var revealH = Math.min(3, Math.floor(frac * 3 / 0.7));
+    var revealO = Math.min(4, Math.floor(frac * 4 / 0.7));
+    drawEdges(L.pIn, L.pHid, FF_W1, targetH, inHidden ? revealH : 3, hidDone);
+    drawEdges(L.pHid, L.pOut, [FF_W2], atOutput ? 0 : -1, atOutput ? revealO : (outDone ? 4 : 0), [outDone]);
+
+    function nodes(p, vals, colour, lit, label) {
+      for (var j = 0; j < p.length; j++) {
+        ctx.beginPath();
+        ctx.arc(p[j].x, p[j].y, L.R, 0, Math.PI * 2);
+        ctx.fillStyle = colour;
+        ctx.globalAlpha = lit[j] ? 0.62 : 0.14;
+        ctx.fill();
         ctx.globalAlpha = 1;
+        ctx.strokeStyle = lit[j] ? colour : border;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.fillStyle = lit[j] ? '#fff' : muted;
+        ctx.font = '600 10px ' + cssVar('--mono', 'monospace');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(lit[j] ? vals[j].toFixed(2) : '?', p[j].x, p[j].y);
+        ctx.textBaseline = 'alphabetic';
       }
-      ctx.fillStyle = i <= step ? ink : muted;
-      ctx.font = '8.5px ' + cssVar('--mono', 'monospace');
-      ctx.textAlign = 'right';
-      ctx.fillText(layers[i].name, pad - 6, y + rowH * 0.62);
-      if (shown > 0.08) {
-        ctx.textAlign = 'left';
-        ctx.fillStyle = i === step ? accent : muted;
-        ctx.font = (i === step ? '600 ' : '') + '8.5px ' + cssVar('--mono', 'monospace');
-        ctx.fillText(Math.round(layers[i].rf * shown) + ' days',
-                     pad + Math.max(1.5, span * (layers[i].rf / DEEPEST) * shown) + 6,
-                     y + rowH * 0.62);
+      ctx.fillStyle = muted;
+      ctx.font = '9px ' + cssVar('--font', 'sans-serif');
+      ctx.textAlign = 'center';
+      ctx.fillText(label, p[0].x, L.yTop - 16);
+    }
+    nodes(L.pIn, FF_X, cM, [true, true, true], 'inputs');
+    nodes(L.pHid, fwd.hid, cM,
+          hidDone.map(function (d, j) { return d || (inHidden && targetH === j && frac > 0.92); }),
+          'hidden units, GELU');
+    nodes(L.pOut, [fwd.out], cL, [outDone || (atOutput && frac > 0.92)], 'output');
+
+    if (hold) {
+      caption(ctx, W, H,
+              'output = ' + fwd.out.toFixed(2) + ', compared against a target of ' + FF_TARGET.toFixed(2) + ' during training',
+              'the difference between the two drives every gradient in the animation below');
+    } else if (inHidden) {
+      var kk = revealH, terms = [];
+      for (var i = 0; i < kk; i++) terms.push(FF_W1[targetH][i].toFixed(2) + '(' + FF_X[i].toFixed(2) + ')');
+      var line = 'h' + (targetH + 1) + ' = GELU(' + (terms.length ? terms.join(' + ') + ' + ' : '') + FF_B1[targetH].toFixed(2) + ')';
+      if (kk === 3) line += ' = GELU(' + fwd.z1[targetH].toFixed(2) + ') = ' + fwd.hid[targetH].toFixed(2);
+      caption(ctx, W, H, line, 'each hidden unit sums its weighted inputs, adds a bias, then applies GELU');
+    } else {
+      var mm = revealO, terms2 = [];
+      for (var i2 = 0; i2 < mm; i2++) terms2.push(FF_W2[i2].toFixed(2) + '(' + fwd.hid[i2].toFixed(2) + ')');
+      var line2 = 'output = ' + (terms2.length ? terms2.join(' + ') + ' + ' : '') + FF_B2.toFixed(2);
+      if (mm === 4) line2 += ' = ' + fwd.out.toFixed(2);
+      caption(ctx, W, H, line2, 'the output layer is linear here, so the final sum is not passed through an activation');
+    }
+  };
+
+  /* 16. backward pass: the same network, propagating the loss gradient
+     from the output back to every weight. The chain rule is applied
+     explicitly at each stage rather than only stated, and the numbers
+     were checked against a numerical gradient before being fixed here. */
+  BLOCKS.backprop = function (ctx, W, H, t) {
+    var muted = cssVar('--muted', '#6B5D63');
+    var bad = cssVar('--bad', '#93312C'), border = cssVar('--border', '#E0D6C9');
+    var dim = cssVar('--d-pool', '#4A6670');
+    var fwd = ffForward();
+    var bwd = ffBackward(fwd);
+    var L = ffLayout(W, H);
+
+    var STAGES = 6;      /* the output gradient, 4 hidden units, 1 hold */
+    var stage = Math.min(STAGES - 1, Math.floor(t * STAGES));
+    var hold = stage === 5;
+    var frac = hold ? 1 : Math.min(1, t * STAGES - stage);
+    var atOutput = !hold && stage === 0;
+    var inHidden = !hold && stage >= 1 && stage <= 4;
+    var targetH = inHidden ? stage - 1 : -1;
+
+    /* gradient edges are drawn with the arrowhead end unused deliberately;
+       the highlighted stroke runs from the downstream (right) node back to
+       the upstream (left) node, so the direction of travel visually
+       reverses the forward pass without needing a separate arrow glyph */
+    function gradEdge(a, b, grad, live, showLabel) {
+      var mag = Math.min(1, Math.abs(grad) * 1.4);
+      ctx.strokeStyle = bad;
+      ctx.globalAlpha = live ? 0.25 + 0.6 * mag : 0.07;
+      ctx.lineWidth = live ? 0.8 + mag * 2.4 : 0.6;
+      ctx.beginPath();
+      ctx.moveTo(b.x - L.R, b.y);
+      ctx.lineTo(a.x + L.R, a.y);
+      ctx.stroke();
+      if (live && showLabel) {
+        var mx = (a.x + L.R + b.x - L.R) / 2, my = (a.y + b.y) / 2;
+        ctx.fillStyle = bad;
+        ctx.font = '600 8.5px ' + cssVar('--mono', 'monospace');
+        ctx.textAlign = 'center';
+        ctx.fillText(grad.toFixed(2), mx, my - 3);
       }
+      ctx.globalAlpha = 1;
+    }
+    var hidDone = [0, 1, 2, 3].map(function (j) { return hold || stage > j + 1; });
+    var revealW1 = Math.min(3, Math.floor(frac * 3 / 0.7));
+    for (var j = 0; j < 4; j++) {
+      var liveNow = inHidden && targetH === j;
+      for (var i = 0; i < 3; i++) {
+        var showLabel = liveNow && i === revealW1 - 1;
+        gradEdge(L.pIn[i], L.pHid[j], bwd.dW1[j][i], (liveNow && i < revealW1) || hidDone[j], showLabel);
+      }
+      gradEdge(L.pHid[j], L.pOut[0], bwd.dW2[j], hidDone[j] || liveNow || atOutput || hold, false);
     }
 
-    /* a separate strip keeps the comparison against the whole record, which
-       the bar scale above can no longer carry */
-    var ry2 = top + rowH * layers.length + 6;
-    ctx.fillStyle = muted;
-    ctx.globalAlpha = 0.14;
-    ctx.fillRect(pad, ry2, span, rowH * 0.40);
-    ctx.globalAlpha = 1;
-    var tick = span * (DEEPEST / TOTAL);
-    ctx.fillStyle = accent;
-    ctx.fillRect(pad, ry2, Math.max(2, tick), rowH * 0.40);
-    ctx.fillStyle = muted;
-    ctx.font = '8.5px ' + cssVar('--mono', 'monospace');
-    ctx.textAlign = 'right';
-    ctx.fillText('full record', pad - 6, ry2 + rowH * 0.32);
-    ctx.textAlign = 'left';
-    ctx.fillText('763 of 6,935 days', pad + Math.max(2, tick) + 6, ry2 + rowH * 0.32);
+    function nodes(p, vals, colour, lit, fallback, label) {
+      for (var k = 0; k < p.length; k++) {
+        ctx.beginPath();
+        ctx.arc(p[k].x, p[k].y, L.R, 0, Math.PI * 2);
+        ctx.fillStyle = lit[k] ? colour : dim;
+        ctx.globalAlpha = lit[k] ? 0.62 : 0.14;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = lit[k] ? colour : border;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.fillStyle = lit[k] ? '#fff' : muted;
+        ctx.font = '600 9.5px ' + cssVar('--mono', 'monospace');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(lit[k] ? vals[k].toFixed(2) : fallback, p[k].x, p[k].y);
+        ctx.textBaseline = 'alphabetic';
+      }
+      ctx.fillStyle = muted;
+      ctx.font = '9px ' + cssVar('--font', 'sans-serif');
+      ctx.textAlign = 'center';
+      ctx.fillText(label, p[0].x, L.yTop - 16);
+    }
+    /* inputs are never assigned a gradient in this network, so they show a
+       dash throughout rather than the "not yet computed" question mark
+       used for hidden units still waiting for their turn */
+    nodes(L.pIn, FF_X, dim, [false, false, false], '–', 'inputs');
+    nodes(L.pHid, bwd.dZ1, bad,
+          hidDone.map(function (d, j) { return d || (inHidden && targetH === j && frac > 0.92); }),
+          '?', 'dL / d(pre-activation)');
+    nodes(L.pOut, [bwd.dOut], bad, [true], '?', 'dL / d(output)');
 
-    caption(ctx, W, H,
-      'each layer roughly doubles the reach, ending at 763 days, about two annual cycles',
-      'the bars above are drawn against the deepest layer, and the strip below places 763 days inside the full record');
+    if (hold) {
+      caption(ctx, W, H,
+              'every weight gradient is now known, from dL/dW1 = ' + bwd.dW1[0][0].toFixed(2) + ' to dL/dW2 = ' + bwd.dW2[3].toFixed(2),
+              'an optimiser subtracts a small multiple of each gradient from its weight to reduce the loss');
+    } else if (atOutput) {
+      caption(ctx, W, H,
+              'dL/d(output) = output − target = ' + fwd.out.toFixed(2) + ' − ' + FF_TARGET.toFixed(2) + ' = ' + bwd.dOut.toFixed(2),
+              'squared-error loss, so the gradient at the output is simply the prediction error');
+    } else if (inHidden) {
+      var j2 = targetH;
+      var line = 'dL/dh' + (j2 + 1) + ' = dL/d(output) × w2 = ' + bwd.dOut.toFixed(2) + ' × ' + FF_W2[j2].toFixed(2) + ' = ' + bwd.dH[j2].toFixed(2);
+      if (revealW1 >= 1) {
+        line = 'dL/dz' + (j2 + 1) + ' = dL/dh' + (j2 + 1) + ' × GELU′(z' + (j2 + 1) + ') = ' + bwd.dZ1[j2].toFixed(2);
+      }
+      caption(ctx, W, H, line, 'the chain rule multiplies the gradient flowing in by the local derivative at each step');
+    }
   };
 
   /* ---------- mounting ---------- */
@@ -1313,7 +1422,7 @@
     period = period || 6;
 
     function resize() {
-      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      var dpr = (kind === 'ffwd' || kind === 'backprop') ? Math.max(2, Math.min(window.devicePixelRatio || 1, 3)) : Math.min(window.devicePixelRatio || 1, 2);
       var r = canvas.getBoundingClientRect();
       W = r.width; H = r.height;
       if (!W || !H) return;
@@ -1326,7 +1435,13 @@
       if (!W || !H) return;
       ctx.clearRect(0, 0, W, H);
       ctx.textBaseline = 'alphabetic';
-      drawFn(ctx, W, H, t);
+      // Enlarge the diagram's geometry and type together on opt-in pages.
+      // The canvas backing store still follows devicePixelRatio for crisp text.
+      var displayScale = Number(canvas.dataset.displayScale) || 1;
+      ctx.save();
+      ctx.scale(displayScale, displayScale);
+      drawFn(ctx, W / displayScale, H / displayScale, t);
+      ctx.restore();
     }
     var dwell = 0;
     var DWELL = 1.1;      /* seconds to hold the finished frame before looping */

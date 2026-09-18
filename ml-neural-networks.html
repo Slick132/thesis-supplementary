@@ -14,7 +14,7 @@
 <main>
   <section class="hero"><div class="wrap"><p class="eyebrow">Machine-learning guide</p><h1>Autoencoders and embedding geometry</h1><p class="lede">This page explains how an autoencoder represents an observation as a code, how the decoder shapes distances in that code space, and why Euclidean distance between codes is not always a measure of similarity between the reconstructed observations.</p></div></section>
   <div class="wrap layout">
-    <aside class="toc" aria-label="Page contents"><strong>On this page</strong><a href="#autoencoder">Autoencoders</a><a href="#geometry">Autoencoder geometry</a><a href="#geometry-distance-question">Why latent distance needs checking</a><a href="#geometry-autoencoder-geometry">Geometric role of the autoencoder</a><a href="#geometry-pullback-metric">Decoder Jacobian and pullback metric</a><a href="#geometry-paths">Decoded paths and the shortest route</a><a href="#geometry-geodesics">Geodesics</a><a href="#geometry-thesis-analysis">Use in the thesis</a></aside>
+    <aside class="toc" aria-label="Page contents"><strong>On this page</strong><a href="#autoencoder">Autoencoders</a><a href="#geometry">Autoencoder geometry</a><a href="#geometry-distance-question">Why latent distance needs checking</a><a href="#geometry-autoencoder-geometry">Geometric role of the autoencoder</a><a href="#geometry-pullback-metric">Decoder Jacobian and pullback metric</a><a href="#geometry-paths">Decoded paths and the shortest route</a><a href="#geometry-geodesics">Discrete geodesic procedure</a><a href="#geometry-thesis-analysis">Use in the thesis</a></aside>
     <div class="longform">
       
       
@@ -160,13 +160,7 @@
       <section id="geometry-paths">
       <h3>Decoded paths and the shortest route</h3>
       <p>
-        The quadratic form above gives the local effect of a displacement at a single code, and a route between two codes accumulates that effect along the path. The straight line between two codes is the simplest candidate route, and its decoded length is measured directly. The shortest route is the geodesic, defined as the path of smallest length under the metric. This subsection measures the decoded straight path, and the next subsection estimates the geodesic and compares the two.
-      </p>
-      <p>
-        A simple decoder-induced path places equally spaced points on the straight line between two
-        latent codes, decodes every point and sums the Euclidean distances between consecutive
-        decoded outputs. This procedure measures the length of the decoded straight path, not
-        necessarily the shortest path on the reconstructed manifold.
+        The geodesic distance is the shortest route that explicitly accounts for distortion. This subsection details how a straight line between two embeddings is converted into an estimated geodesic distance. The diagram below shows the straight line between two codes and the curve traced after decoding.
       </p>
       <figure class="figure-panel">
         <svg viewBox="0 0 520 300" role="img" aria-labelledby="decoded-path-title decoded-path-desc" font-family="'Inter','Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif">
@@ -212,8 +206,7 @@
         </figcaption>
       </figure>
       <p>
-        For a continuous latent curve <var>&gamma;</var>, the Riemannian length equals the arc
-        length of the decoded curve:
+        Let <var>&gamma;</var> be a continuous curve in the code space, parameterised by <var>t</var> on the interval from zero to one, with <var>&gamma;</var><sub>t</sub> the code at parameter <var>t</var> and <var>&#x3B3;&#x2D9;</var><sub>t</sub> the local displacement at that code. The metric <var>M</var><sub>&#x3B3;t</sub> converts that displacement into a decoded change, and the Riemannian length <var>L</var>[<var>&gamma;</var>] of the curve is the arc length of the decoded curve:
       </p>
       <div class="eq">
         <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
@@ -229,28 +222,34 @@
       </section>
 
     <section id="geometry-geodesics">
-      <h3>Geodesics and minimal decoded paths</h3>
       <p>
-        In distorted latent coordinates the geodesic is not necessarily a straight line, so the shortest decoded route
-        between two codes cannot be assumed to be the linear interpolation measured above.
-      </p>
-      <p>
-        The discrete decoded-arc-length energy and the minimisation procedure below follow Shao et
-        al. <a href="#reference-3" aria-label="Reference 3">[3]</a>, who minimised this energy over
-        the interior path points with the endpoints held fixed. Shao et al. stopped the optimisation on the squared gradient norm, whereas the thesis stopped it on the relative change in the energy.
+        The geodesic path is estimated with the procedure given below <a href="#reference-3" aria-label="Reference 3">[3]</a>. The procedure forms a straight line between two latent codes and places points along the line. Each point placed on the line is a linear interpolation between the two latent codes. The interior points are then optimised with the endpoints held fixed, and the optimised path is the discrete geodesic path.
       </p>
 
       <h3>Discrete geodesic procedure</h3>
       <div class="card procedure">
+        <p>
+          The inputs are the trained decoder <var>g</var>, the two endpoint codes <var>z</var><sub>A</sub> and <var>z</var><sub>B</sub>, the number of path points <var>T</var>, the step size <var>&#x3B1;</var>, the maximum number of iterations <var>N</var><sub>max</sub>, and the convergence tolerance <var>&#x3B5;</var>. The output is the optimised path from <var>z</var><sub>0</sub> to <var>z</var><sub>T&#x2212;1</sub>.
+        </p>
         <ol>
-          <li>Place <var>T</var> path points on a linear interpolation between the two fixed latent endpoints.</li>
-          <li>Treat the interior path points as optimisation variables while keeping the endpoints fixed.</li>
-          <li>Decode every path point using the trained decoder.</li>
-          <li>Calculate the sum of squared distances between consecutive decoded outputs.</li>
-          <li>Backpropagate through the decoder and update the interior path points.</li>
-          <li>Repeat until the relative change in the energy is below the convergence tolerance or the iteration limit is reached.</li>
+          <li>Initialise the path as a linear interpolation between <var>z</var><sub>A</sub> and <var>z</var><sub>B</sub>, so the path points sit at equal intervals along the straight line between the two endpoint codes.</li>
+          <li>Fix the endpoint codes <var>z</var><sub>0</sub> = <var>z</var><sub>A</sub> and <var>z</var><sub>T&#x2212;1</sub> = <var>z</var><sub>B</sub>, and treat the interior codes <var>z</var><sub>1</sub> to <var>z</var><sub>T&#x2212;2</sub> as the variables to optimise.</li>
+          <li>Set the previous energy to infinity.</li>
+          <li>Repeat for each iteration from one to <var>N</var><sub>max</sub>:
+            <ol>
+              <li>Decode every path point, so <var>x</var><sub>i</sub> = <var>g</var>(<var>z</var><sub>i</sub>) for <var>i</var> from zero to <var>T</var>&#x2212;1.</li>
+              <li>Calculate the energy <var>E</var> as the sum of the squared distances between consecutive decoded outputs.</li>
+              <li>Calculate the gradient of the energy with respect to the interior codes by backpropagation through the decoder.</li>
+              <li>Update each interior code by one gradient descent step with step size <var>&#x3B1;</var>.</li>
+              <li>Stop when the relative change in the energy since the previous iteration is below the tolerance <var>&#x3B5;</var>.</li>
+            </ol>
+          </li>
+          <li>Return the optimised path from <var>z</var><sub>0</sub> to <var>z</var><sub>T&#x2212;1</sub>.</li>
         </ol>
       </div>
+      <p>
+        In simpler terms, the procedure changes the positions of the interior codes until the route traced by the decoded outputs between the two endpoint codes is as short as possible. The energy sums the squared distances between consecutive decoded outputs, so a smaller energy corresponds to a shorter decoded route.
+      </p>
       <p>The discrete decoded-arc-length energy is</p>
       <div class="eq">
         <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
@@ -291,23 +290,13 @@
         </figcaption>
       </figure>
       <p>
-        The figure shows the estimation applied to a constructed code plane. The straight line between the two flagged codes provides the initial guess. The interior points are then moved to reduce the energy given above, so the optimised route leaves the straight line and passes around the end of the stretched region. The second route leads to the nearest code in the same group, and that route stays clear of the stretched region and is shorter after decoding even though the destination lies further away in the code space. The shading is constructed rather than fitted, so the figure shows the mechanism of the estimation rather than a measured result.
+        The figure shows the decoded distance. The two flagged codes are no longer classified as similar, because their decoded distance is larger than the decoded distance to the nearest code of the same group.
       </p>
     </section>
 
     <section id="geometry-thesis-analysis">
       <h3>Use in the thesis</h3>
-      <p>The 9,364 training embeddings produced more than 43 million unique pairs, so a complete Riemannian distance matrix was not constructed and the full dataset was not reclustered under that metric.</p>
-      <p>The main diagnostic used nearest-neighbour graph edges. Each straight latent path was divided into ten segments. The 11 decoded outputs were flattened across all six channels and time steps, and the consecutive decoded distances were summed. These path lengths were correlated with Euclidean distances in the standardised embedding.</p>
-      <p>For 1,200 sampled pairs spanning the Euclidean distance range, the interior path points were also optimised from a linear initialisation. This checked whether the straight-path conclusion remained valid when the decoded path energy was minimised.</p>
-      <div class="note">
-        <p>
-          Pairwise Riemannian distances can be used directly by methods that accept arbitrary
-          dissimilarities, including hierarchical clustering and graph-based analyses. Standard
-          <var>K</var>-means requires coordinates and cannot accept an arbitrary distance matrix
-          without a separate Riemannian formulation.
-        </p>
-      </div>
+      <p>The procedure was applied to 1,200 randomly sampled pairs spanning the Euclidean distance range, and the optimised Riemannian distance was compared with Euclidean distance in the standardised embedding. The two distances were strongly correlated, with Pearson and Spearman correlations of 0.842 and 0.834, so Euclidean distance is a practical proxy for similarity in the reconstructed input space.</p>
     </section>
 
     <section id="geometry-sources">

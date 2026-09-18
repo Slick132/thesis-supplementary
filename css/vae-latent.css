@@ -1,0 +1,5 @@
+.vae-latent{margin:24px 0;padding:20px;border:1px solid var(--border);border-radius:12px;background:var(--paper)}
+.vae-latent canvas{width:100%;height:auto;display:block;touch-action:none;cursor:grab;color:var(--ink)}
+.vae-latent label{display:grid;gap:8px}.vae-latent input{width:100%;accent-color:#8c2f4a}.vae-latent select,.vae-latent button{font:inherit;background:var(--page);color:var(--ink);border:1px solid var(--border);padding:8px;border-radius:6px}
+.vae-latent-controls{display:grid;grid-template-columns:1fr 1fr;gap:16px}.vae-latent-actions{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}.vae-readout{padding:14px;background:var(--page);border-radius:8px;overflow-wrap:anywhere}.vae-readout p{margin:8px 0}.vae-decoder{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:16px}.vae-decoder strong{padding:10px;border:1px solid var(--border);border-radius:8px}.vae-latent figcaption{font-size:.875rem;margin-top:18px}
+@media(max-width:550px){.vae-latent-controls{grid-template-columns:1fr}}

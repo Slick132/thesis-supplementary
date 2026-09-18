@@ -14,19 +14,16 @@
         ['machine-learning', 'Machine-learning guide', 'machine-learning.html'],
         ['manifold-hypothesis', 'Manifold hypothesis', 'manifold-hypothesis.html'],
         ['representation-learning', 'Representation learning', 'representation-learning.html'],
-        ['neural-networks', 'Neural networks and autoencoders', 'ml-neural-networks.html'],
+        ['neural-networks', 'Autoencoders and embedding geometry', 'ml-neural-networks.html'],
+        ['convolutional-operators', 'Neural-network operators', 'convolutional-operators.html'],
         ['som', 'Self-organising maps', 'ml-som.html'],
         ['vae', 'Variational autoencoders', 'ml-vae.html'],
-        ['deep-clustering', 'Deep embedded clustering', 'ml-deep-clustering.html']
       ]
     },
     {
       label: 'Methods and results',
       links: [
-        ['architectures', 'Architecture search', 'architectures.html'],
-        ['architecture-results', 'Architecture search results', 'architecture-results.html'],
-        ['geometry', 'Autoencoder geometry', 'geometry.html'],
-        ['feature-distributions', 'Feature distributions', 'feature-distributions.html']
+        ['architectures', 'Architecture search and results', 'architectures.html'],        ['feature-distributions', 'Feature distributions', 'feature-distributions.html']
       ]
     }
   ];

@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neural-network operators | Environmental regionalisation</title>
+<meta name="description" content="Animated one-dimensional convolution, pooling and receptive-field explanations.">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate">
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="bingbot" content="noindex, nofollow, noarchive, nosnippet">
+<!-- Opt out of model training and retrieval. -->
+<meta name="robots" content="noai, noimageai">
+<meta name="CCBot" content="nofollow">
+<link rel="stylesheet" href="css/styles.css">
+<script defer src="js/site-nav.js"></script>
+<link rel="stylesheet" href="css/convolutional-operators.css">
+</head>
+<body data-page="convolutional-operators">
+<header class="site-header"><div class="wrap"><a class="brand" href="index.html">Environmental regionalisation <span>supplementary material</span></a></div></header>
+<main><section class="hero"><div class="wrap"><p class="eyebrow">Machine-learning guide</p><h1>Neural-network operators</h1><p class="lede">Animated explanations of convolutions, pooling, activations and shape transformations used in neural networks.</p><p>The animations use illustrative values to make individual operations visible. See the <a href="architectures.html">architecture search and results</a> for the evaluated models.</p></div></section>
+<section><div class="wrap operators-page"><nav class="operator-index" aria-label="On this page">
+<a href="#stride-padding">Strided convolution</a>
+<a href="#dilation">Dilated convolution</a>
+<a href="#receptive-field">Growth of the receptive field</a>
+<a href="#pooling">Adaptive average pooling</a>
+<a href="#transposed">Transposed convolution</a>
+<a href="#pointwise">The 1 x 1 convolution</a><a href="#multichannel">Convolution over a multichannel series</a><a href="#activation">Nonlinear activation</a><a href="#flattening">Flattening and bridge</a><a href="#decoder-bridge">Decoder bridge and reshape</a><a href="#interpolation">Linear interpolation</a></nav><p class="fig-note">Diagrams are enlarged for readability. On smaller screens, scroll horizontally within a diagram to see the complete operation.</p>
+    <div class="card" id="stride-padding">
+      <h2>Strided convolution</h2>
+      <p>A strided convolution moves the kernel more than one position at a time. This example uses 17 input positions, a kernel width of seven and stride two, without padding. Six complete windows fit within the input. Consecutive windows overlap by five positions.</p>
+      <div class="eq"><math display="block"><msub><mi>L</mi><mtext>out</mtext></msub><mo>=</mo><mo>⌊</mo><mfrac><mrow><msub><mi>L</mi><mtext>in</mtext></msub><mo>−</mo><mi>k</mi></mrow><mi>s</mi></mfrac><mo>⌋</mo><mo>+</mo><mn>1</mn><mo>=</mo><mn>6</mn></math></div>
+      <div class="canvas-wrap operator-scroll" tabindex="0" role="region" aria-label="Scrollable operator animation"><canvas class="op" data-display-scale="1.5" data-block="strided" data-period="7" role="img" aria-label="Animation of an unpadded width-seven convolution moving across 17 inputs with stride two"></canvas></div>
+    </div>
+    <div class="card" id="dilation">
+      <h2>Dilated convolution</h2>
+      <p>The animation makes a separate left-to-right pass for each dilation rate. Seven weights are used in every pass. No padding is used in this toy example, so increasing dilation reduces the output length.</p>
+      <p>
+        A dilated convolution spaces the kernel weights apart according to the dilation rate.
+        Increasing dilation widens the kernel span without increasing the number of weights.
+        With stride one, same padding preserves the sequence length. Without padding, the output
+        becomes shorter because only kernel positions fully contained within the input are evaluated.
+      </p>
+      <div class="eq"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+  <mrow><mtext>weights</mtext><mo>=</mo><mi>k</mi><mo>=</mo><mn>7</mn></mrow>
+  <mspace width="1.4em"/>
+  <mrow><mtext>kernel span</mtext><mo>=</mo><mi>d</mi>
+    <mo stretchy="false">(</mo><mi>k</mi><mo>&minus;</mo><mn>1</mn><mo stretchy="false">)</mo>
+    <mo>+</mo><mn>1</mn></mrow>
+</math></div>
+
+          <div class="canvas-wrap operator-scroll" tabindex="0" role="region" aria-label="Scrollable operator animation"><canvas class="op" data-display-scale="1.5" data-block="dilated" data-period="24" role="img" aria-label="Animation of a dilated convolution sweeping left to right at dilation rates one, two, four and eight"></canvas></div>
+    </div>
+    <div class="card" id="same-padding">
+      <h3>Dilated convolution with same padding</h3>
+      <p>This smaller example illustrates one dilated layer. Seven weights at dilation two span 13 positions. With stride one, six zero-padding positions at each end preserve the length: 12 input positions produce 12 output positions.</p>
+      <div class="canvas-wrap operator-scroll" tabindex="0" role="region" aria-label="Scrollable same-padding animation"><canvas class="op" data-display-scale="1.5" data-block="dilatedSame" data-period="12" role="img" aria-label="Seven kernel weights spaced two positions apart slide over twelve inputs with six zero-padding positions at each end, producing twelve outputs"></canvas></div>
+    </div>
+    <div class="card" id="receptive-field">
+      <h2>Growth of the receptive field</h2>
+      <p>The receptive field is the span of input positions that can influence one output position. Stacking convolutional layers increases this span when the filters combine multiple positions. The amount of growth depends on the filter width, dilation and the strides of preceding layers.</p>
+      <p>The animation compares three example stacks with a filter width of three. Standard convolutions expand the span gradually. Strided convolutions increase the spacing between output positions, allowing later layers to cover a wider input span. Dilated convolutions read spaced positions without requiring a larger stride.</p>
+      <div class="canvas-wrap operator-scroll" tabindex="0" role="region" aria-label="Scrollable receptive-field comparison"><canvas class="op tall" data-display-scale="1" data-block="rf" data-period="12" role="img" aria-label="Four-layer comparison: standard receptive fields span 3, 5, 7 and 9 input positions; stride-two and increasing-dilation examples span 3, 7, 15 and 31"></canvas></div>
+      <p class="fig-note">The bars show the theoretical input span for one convolutional output position, assuming a sufficiently long input. Equal spans do not imply identical computations or output resolution. Pooling and fully connected layers can combine information across additional positions.</p>
+    </div>
+    <div class="card" id="pooling">
+      <h2>Adaptive average pooling</h2>
+      <p>
+        Adaptive average pooling reduces a sequence to a specified number of output positions by
+        averaging the values within each pooling window. The window boundaries depend on the input
+        and requested output lengths. Pooling is applied independently to each feature channel, so
+        the number of channels remains unchanged. Global average pooling is the special case with
+        one output position per channel, calculated by averaging over the entire sequence.
+      </p>
+      <div class="canvas-wrap operator-scroll" tabindex="0" role="region" aria-label="Scrollable operator animation"><canvas class="op tall" data-display-scale="1.5" data-block="pool" data-period="8" role="img" aria-label="Animation of adaptive average pooling reducing sixteen positions to four while keeping four channels"></canvas></div>
+    </div>
+    <div class="card" id="transposed">
+      <h2>Transposed convolution</h2>
+      <p>
+        The transposed convolution is the decoder counterpart of the strided layer. Each input
+        position multiplies the entire kernel and scatters its contributions across several output
+        positions, and where those contributions overlap they are added. The operation increases the
+        temporal length when the stride exceeds one, learns its own weights, and is the transpose of
+        the corresponding linear operation rather than an inverse convolution, so it cannot
+        guarantee recovery of information lost during downsampling.
+      </p>
+      <div class="eq"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+  <msub><mi>L</mi><mtext>out</mtext></msub><mo>=</mo>
+  <mo stretchy="false">(</mo><msub><mi>L</mi><mtext>in</mtext></msub><mo>&minus;</mo><mn>1</mn><mo stretchy="false">)</mo><mi>s</mi>
+  <mo>&minus;</mo><mn>2</mn><mi>p</mi>
+  <mo>+</mo><mi>d</mi><mo stretchy="false">(</mo><mi>k</mi><mo>&minus;</mo><mn>1</mn><mo stretchy="false">)</mo>
+  <mo>+</mo><msub><mi>p</mi><mtext>out</mtext></msub>
+  <mo>+</mo><mn>1</mn>
+</math></div>
+      <div class="canvas-wrap operator-scroll" tabindex="0" role="region" aria-label="Scrollable operator animation"><canvas class="op tall" data-display-scale="1.5" data-block="transposed" data-period="9" role="img" aria-label="Animation of a transposed convolution scattering each input across several output positions and summing the overlaps"></canvas></div>
+    </div>
+    <div class="card" id="pointwise">
+      <h2>The 1 x 1 convolution</h2>
+      <p>
+        A 1 x 1 convolution looks at all feature channels at one temporal position and learns a
+        new weighted combination of those channels. The operator mixes feature channels and can change the number of feature
+        maps without combining neighbouring positions. With stride one, the sequence length and
+        receptive-field span remain unchanged. The number of filters determines the number of output
+        channels, allowing the layer to reduce, preserve or increase the channel count.
+      </p>
+      <div class="eq"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+  <msub><mi>y</mi><mrow><mi>q</mi><mo>,</mo><mi>t</mi></mrow></msub>
+  <mo>=</mo><msub><mi>b</mi><mi>q</mi></msub><mo>+</mo>
+  <munderover><mo>&sum;</mo><mrow><mi>c</mi><mo>=</mo><mn>1</mn></mrow><msub><mi>C</mi><mtext>in</mtext></msub></munderover>
+  <msub><mi>w</mi><mrow><mi>q</mi><mo>,</mo><mi>c</mi></mrow></msub>
+  <msub><mi>x</mi><mrow><mi>c</mi><mo>,</mo><mi>t</mi></mrow></msub>
+</math></div>
+      <div class="canvas-wrap operator-scroll" tabindex="0" role="region" aria-label="Scrollable operator animation"><canvas class="op tall" data-display-scale="1.5" data-block="pointwise" data-period="8" role="img" aria-label="Animation of a one by one convolution mixing feature channels independently at each temporal position"></canvas></div>
+      <p class="fig-note">
+        The animation uses four input and three output channels so the calculation remains visible.
+      </p>
+    </div>
+    <div class="card" id="multichannel">
+      <h2>Convolution over a multichannel series</h2>
+      <p>
+        A filter slides along time and reads every input variable at each position, so one output
+        value combines information across input channels and neighbouring positions. A layer holds
+        several filters, and each produces its own feature map. The feature maps are learned
+        combinations of the inputs rather than direct copies of individual input variables.
+      </p>
+      <p>
+        Each filter holds a separate kernel for every input variable, so the weights of this layer
+        form a block of shape 3 x 2 x 3, being the number of output feature maps, the number of
+        input variables and the kernel width. The animation uses a width-three kernel with stride
+        one and a single zero-padding cell at each end, which is why the 12 positions survive the
+        layer. Without that padding a width-three kernel would leave 12 - 3 + 1 = 10 positions.
+      </p>
+      <div class="eq"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+  <msub><mi>a</mi><mrow><mi>q</mi><mo>,</mo><mi>t</mi></mrow></msub>
+  <mo>=</mo>
+  <msub><mi>b</mi><mi>q</mi></msub>
+  <mo>+</mo>
+  <munderover><mo>&sum;</mo><mrow><mi>c</mi><mo>=</mo><mn>1</mn></mrow><mi>C</mi></munderover>
+  <munderover><mo>&sum;</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>k</mi></munderover>
+  <msub><mi>w</mi><mrow><mi>q</mi><mo>,</mo><mi>c</mi><mo>,</mo><mi>j</mi></mrow></msub>
+  <mspace width="0.18em"/>
+  <msub>
+    <mover accent="true"><mi>x</mi><mo>&#732;</mo></mover>
+    <mrow><mi>c</mi><mo>,</mo><mi>t</mi><mo>+</mo><mi>j</mi><mo>&minus;</mo>
+      <mfrac><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow><mn>2</mn></mfrac></mrow>
+  </msub>
+</math></div>
+      <div class="canvas-wrap operator-scroll" tabindex="0" role="region" aria-label="Scrollable operator animation"><canvas class="op tall" data-display-scale="1.5" data-block="conv" data-period="9" role="img" aria-label="Animation of a convolution kernel sliding over two variables across twelve positions and producing three feature maps"></canvas></div>
+      <p class="fig-note">
+        Two variables over twelve positions and three filters. The tilde marks the zero-padded input, and the highlighted window is the
+        current kernel position and the value beneath is the output after the activation.
+      </p>
+    </div>
+
+    <div class="card" id="activation">
+      <h2>Nonlinear activation</h2>
+<p>A nonlinear activation transforms the output of a layer. Without nonlinear activations, a stack of affine layers is equivalent to a single affine mapping. This example shows the Gaussian error linear unit (GELU), which scales each input according to its value.</p>
+      <div class="eq"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+  <msub><mi>h</mi><mrow><mi>q</mi><mo>,</mo><mi>t</mi></mrow></msub>
+  <mo>=</mo>
+  <mi>GELU</mi>
+  <mo form="prefix" stretchy="false">(</mo>
+  <msub><mi>a</mi><mrow><mi>q</mi><mo>,</mo><mi>t</mi></mrow></msub>
+  <mo form="postfix" stretchy="false">)</mo>
+</math></div>
+      <div class="canvas-wrap operator-scroll" tabindex="0" role="region" aria-label="Scrollable operator animation"><canvas class="op" data-display-scale="1.5" data-general="true" data-block="gelu" data-period="7" role="img" aria-label="Animation of the GELU activation curve with a value sweeping along it, compared against the identity line"></canvas></div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+    <div class="card" id="flattening">
+      <h2>Flattening and the fully connected bridge</h2>
+<p>Flattening rearranges a feature tensor into a vector without changing its values. A fully connected bridge then combines these values using learned weights. A hidden layer with a nonlinear activation is followed here by a linear mapping to a smaller embedding.</p>
+      <div class="eq"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+  <mi>h</mi><mo>=</mo><mi>GELU</mi>
+  <mo form="prefix" stretchy="false">(</mo>
+  <msub><mi>W</mi><mn>1</mn></msub><mi>v</mi><mo>+</mo><msub><mi>b</mi><mn>1</mn></msub>
+  <mo form="postfix" stretchy="false">)</mo>
+  <mspace width="1.6em"/>
+  <mi>z</mi><mo>=</mo><msub><mi>W</mi><mn>2</mn></msub><mi>h</mi>
+  <mo>+</mo><msub><mi>b</mi><mn>2</mn></msub>
+</math></div>
+      <div class="canvas-wrap operator-scroll" tabindex="0" role="region" aria-label="Scrollable operator animation"><canvas class="op xl" data-display-scale="1.5" data-general="true" data-block="bridge" data-period="9" role="img" aria-label="Animation of a feature tensor being flattened and passed through a small network to an embedding"></canvas></div>
+<p class="fig-note">The shape chain and small network are illustrative examples of flattening followed by learned feature combinations.</p>
+    </div>
+
+
+    <div class="card" id="decoder-bridge">
+      <h2>Decoder bridge and reshape</h2>
+<p>A decoder bridge maps an embedding to a longer vector using learned layers. Reshaping arranges the vector into channels and sequence positions for subsequent processing. The bridge is learned separately from the encoder; reshaping itself only changes the arrangement of values.</p>
+      <div class="canvas-wrap operator-scroll" tabindex="0" role="region" aria-label="Scrollable operator animation"><canvas class="op" data-display-scale="1.5" data-general="true" data-block="decbridge" data-period="7" role="img" aria-label="Animation of the decoder bridge expanding a five-value embedding through a hidden layer into a full feature tensor"></canvas></div>
+      <div class="canvas-wrap operator-scroll" tabindex="0" role="region" aria-label="Scrollable operator animation"><canvas class="op tall" data-display-scale="1.5" data-general="true" data-block="reshape" data-period="8" role="img" aria-label="Animation of a feature tensor flattening into one long vector and folding back into channels and positions"></canvas></div>
+      <p class="fig-note">Flattening and reshaping only rearrange values. The order is fixed, so the two operations are exact inverses of one another.</p>
+    </div>
+
+
+    <div class="card" id="interpolation">
+      <h2>Linear interpolation</h2>
+<p>Linear interpolation estimates intermediate values between neighbouring positions. It changes the sequence length without learned weights and is applied independently to each channel. Increasing the number of positions does not recover information discarded by an earlier reduction.</p>
+      <div class="canvas-wrap operator-scroll" tabindex="0" role="region" aria-label="Scrollable operator animation"><canvas class="op tall" data-display-scale="1.5" data-general="true" data-block="interp" data-period="7" role="img" aria-label="Animation of linear interpolation inserting points between known feature values"></canvas></div>
+    </div>
+
+
+
+
+
+
+<p><a href="architectures.html">Continue to the architecture building blocks and model diagrams →</a></p>
+</div></section></main>
+<footer class="site-footer"><div class="wrap"><p>Electronic supplementary material for a Master of Commerce thesis, Stellenbosch University.</p></div></footer>
+<script src="js/blocks.js"></script>
+</body></html>

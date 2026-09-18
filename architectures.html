@@ -33,7 +33,7 @@
 <section class="hero">
   <div class="wrap">
     <p class="eyebrow">Supplement to the architecture-tuning appendix</p>
-    <h1>Every architecture in the search, animated</h1>
+    <h1>Architecture search and results</h1><p><a href="#search-results">Jump to the complete search results ↓</a></p>
     <p class="lede">
       The architecture search compared <span id="arch-count">37</span> configurations of a
       convolutional autoencoder across three stages. Each diagram below animates one of them,
@@ -76,253 +76,13 @@
 
 <section>
   <div class="wrap">
-    <h2>Building blocks of the architectures</h2>
-    <p class="section-lede">
-      The full diagrams run at 6,935 timesteps, where individual values and kernel positions
-      cannot be resolved. This section introduces each operator at a toy scale first, in the order
-      the data meets them, so the architecture diagrams that follow read as assemblies of parts
-      already understood.
-    </p>
+    <h2>Parallel-branch fusion</h2>
+    <p class="section-lede">The <a href="convolutional-operators.html">neural-network operators page</a> explains the individual operations. The example below shows how the parallel architectures combine their branches.</p>
+
+
 
     <div class="card">
-      <h3>1. Convolution over a multichannel series</h3>
-      <p>
-        A filter slides along time and reads every input variable at each position, so one output
-        value combines information across variables and across neighbouring days. A layer holds
-        several filters, and each produces its own feature map. The feature maps are learned
-        descriptors rather than reconstructed environmental variables, which matters because a
-        later diagram showing 256 channels is not showing 256 weather variables.
-      </p>
-      <p>
-        Each filter holds a separate kernel for every input variable, so the weights of this layer
-        form a block of shape 3 x 2 x 3, being the number of output feature maps, the number of
-        input variables and the kernel width. The animation uses a width-three kernel with stride
-        one and a single zero-padding cell at each end, which is why the 12 positions survive the
-        layer. Without that padding a width-three kernel would leave 12 - 3 + 1 = 10 positions.
-      </p>
-      <div class="eq"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
-  <msub><mi>a</mi><mrow><mi>q</mi><mo>,</mo><mi>t</mi></mrow></msub>
-  <mo>=</mo>
-  <msub><mi>b</mi><mi>q</mi></msub>
-  <mo>+</mo>
-  <munderover><mo>&sum;</mo><mrow><mi>c</mi><mo>=</mo><mn>1</mn></mrow><mi>C</mi></munderover>
-  <munderover><mo>&sum;</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>k</mi></munderover>
-  <msub><mi>w</mi><mrow><mi>q</mi><mo>,</mo><mi>c</mi><mo>,</mo><mi>j</mi></mrow></msub>
-  <mspace width="0.18em"/>
-  <msub>
-    <mover accent="true"><mi>x</mi><mo>&#732;</mo></mover>
-    <mrow><mi>c</mi><mo>,</mo><mi>t</mi><mo>+</mo><mi>j</mi><mo>&minus;</mo>
-      <mfrac><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow><mn>2</mn></mfrac></mrow>
-  </msub>
-</math></div>
-      <div class="canvas-wrap"><canvas class="op tall" data-block="conv" data-period="9" role="img" aria-label="Animation of a convolution kernel sliding over two variables across twelve days and producing three feature maps"></canvas></div>
-      <p class="fig-note">
-        Two variables over twelve days and three filters. The tilde marks the zero-padded input, and the highlighted window is the
-        current kernel position and the value beneath is the output after the activation.
-      </p>
-    </div>
-
-    <div class="card">
-      <h3>2. Nonlinear activation</h3>
-      <p>
-        Every convolution and every hidden fully connected layer is followed by a GELU activation.
-        Without the activation the whole encoder would collapse to a single linear map, and stacking
-        layers would add no expressive power. The values in the animation above are already passed
-        through GELU, which is why some pre-activation sums arrive at the feature map reduced or
-        near zero.
-      </p>
-      <div class="eq"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
-  <msub><mi>h</mi><mrow><mi>q</mi><mo>,</mo><mi>t</mi></mrow></msub>
-  <mo>=</mo>
-  <mi>GELU</mi>
-  <mo form="prefix" stretchy="false">(</mo>
-  <msub><mi>a</mi><mrow><mi>q</mi><mo>,</mo><mi>t</mi></mrow></msub>
-  <mo form="postfix" stretchy="false">)</mo>
-</math></div>
-      <div class="canvas-wrap"><canvas class="op" data-block="gelu" data-period="7" role="img" aria-label="Animation of the GELU activation curve with a value sweeping along it, compared against the identity line"></canvas></div>
-    </div>
-
-    <div class="card">
-      <h3>3. Strided convolution and same-padding</h3>
-      <p>
-        A strided layer steps the kernel two positions at a time, so the output holds one position
-        for every two inputs. Padding cells at both ends let the kernel centre sit on the first and
-        last day. The overlapping windows consult every input position, but the smaller output is
-        still a compressed representation and may discard information that the learned features do
-        not retain.
-      </p>
-      <div class="eq"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
-  <msub><mi>L</mi><mtext>out</mtext></msub>
-  <mo>=</mo>
-  <mo stretchy="false">&lfloor;</mo>
-  <mfrac>
-    <mrow><msub><mi>L</mi><mtext>in</mtext></msub><mo>+</mo><mn>2</mn><mi>p</mi><mo>&minus;</mo><mi>d</mi>
-      <mo stretchy="false">(</mo><mi>k</mi><mo>&minus;</mo><mn>1</mn><mo stretchy="false">)</mo>
-      <mo>&minus;</mo><mn>1</mn></mrow>
-    <mi>s</mi>
-  </mfrac>
-  <mo stretchy="false">&rfloor;</mo>
-  <mo>+</mo><mn>1</mn>
-</math>
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
-  <mrow><mtext>with&#160;</mtext><mi>k</mi><mo>=</mo><mn>7</mn><mo>,</mo>
-  <mi>s</mi><mo>=</mo><mn>2</mn><mo>,</mo>
-  <mi>d</mi><mo>=</mo><mn>1</mn><mo>,</mo>
-  <mi>p</mi><mo>=</mo><mn>3</mn><mo>:</mo></mrow>
-  <mspace width="0.6em"/>
-  <msub><mi>L</mi><mtext>out</mtext></msub><mo>=</mo>
-  <mo stretchy="false">&lceil;</mo>
-  <mfrac><msub><mi>L</mi><mtext>in</mtext></msub><mn>2</mn></mfrac>
-  <mo stretchy="false">&rceil;</mo>
-</math></div>
-      <div class="canvas-wrap"><canvas class="op" data-block="strided" data-period="7" role="img" aria-label="Animation of a strided convolution with padding cells at both ends"></canvas></div>
-    </div>
-
-    <div class="card">
-      <h3>4. Dilated convolution</h3>
-      <p>
-        A dilated layer keeps the stride at one and spaces the seven weights apart by the dilation
-        rate. The number of weights never changes, the span the kernel covers grows with the rate,
-        and the output length is preserved because the padding is adjusted to match. Stacking rates
-        of one, two, four and eight is what carries the selected model to a receptive field of 763
-        days without adding parameters.
-      </p>
-      <div class="eq"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
-  <mrow><mtext>weights</mtext><mo>=</mo><mi>k</mi><mo>=</mo><mn>7</mn></mrow>
-  <mspace width="1.4em"/>
-  <mrow><mtext>kernel span</mtext><mo>=</mo><mi>d</mi>
-    <mo stretchy="false">(</mo><mi>k</mi><mo>&minus;</mo><mn>1</mn><mo stretchy="false">)</mo>
-    <mo>+</mo><mn>1</mn></mrow>
-</math></div>
-
-          <div class="canvas-wrap"><canvas class="op" data-block="dilated" data-period="12" role="img" aria-label="Animation of a dilated convolution cycling through dilation rates one, two, four and eight"></canvas></div>
-    </div>
-
-    <div class="card">
-      <h3>5. Growth of the receptive field</h3>
-      <p>
-        Each layer widens the span of the input record that a single output position depends on.
-        Strided layers double the reach because the positions they read are already spaced apart,
-        and dilated layers add their own spacing on top. The selected model stacks three strided
-        layers and four dilated layers, which is what carries one feature position from seven days
-        to 763 days, a little over two annual cycles.
-      </p>
-      <div class="canvas-wrap"><canvas class="op tall" data-block="rf" data-period="10" role="img" aria-label="Animation of the receptive field growing layer by layer from seven days to 763 days against the full record"></canvas></div>
-      <p class="fig-note">
-        The receptive field is the reach of one convolutional position before the bridge. After the
-        pooling and the fully connected layers, every latent dimension depends on the whole record.
-      </p>
-    </div>
-
-    <div class="card">
-      <h3>6. Adaptive average pooling</h3>
-      <p>
-        Dilated stacks reach the bridge still holding their full length, so a separate reduction is
-        needed. Adaptive average pooling divides the time axis into a fixed number of bins and
-        averages within each, reducing temporal positions while leaving the number of feature
-        channels untouched. Global average pooling is the same idea with a single bin, so the
-        position of a feature within the sequence is no longer represented explicitly, which is why
-        the Dilated A configuration failed to reconstruct.
-      </p>
-      <div class="canvas-wrap"><canvas class="op tall" data-block="pool" data-period="8" role="img" aria-label="Animation of adaptive average pooling reducing sixteen positions to four while keeping four channels"></canvas></div>
-    </div>
-
-    <div class="card">
-      <h3>7. Flattening and the fully connected bridge</h3>
-      <p>
-        The convolutional stack produces features at many temporal positions, but the regionalisation
-        needs one vector per location. The bridge is where that happens. The feature tensor is
-        flattened into a single long vector, a hidden layer with GELU mixes it, and a final linear
-        layer produces the five-dimensional embedding. Every latent dimension therefore depends on
-        the whole record, not on one part of it.
-      </p>
-      <div class="eq"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
-  <mi>h</mi><mo>=</mo><mi>GELU</mi>
-  <mo form="prefix" stretchy="false">(</mo>
-  <msub><mi>W</mi><mn>1</mn></msub><mi>v</mi><mo>+</mo><msub><mi>b</mi><mn>1</mn></msub>
-  <mo form="postfix" stretchy="false">)</mo>
-  <mspace width="1.6em"/>
-  <mi>z</mi><mo>=</mo><msub><mi>W</mi><mn>2</mn></msub><mi>h</mi>
-  <mo>+</mo><msub><mi>b</mi><mn>2</mn></msub>
-</math></div>
-      <div class="canvas-wrap"><canvas class="op xl" data-block="bridge" data-period="9" role="img" aria-label="Animation of a feature tensor being flattened and passed through a small network to an embedding"></canvas></div>
-      <p class="fig-note">
-        The shape chain along the top is the real one used by the selected model. The small network
-        below carries toy values through four inputs, three hidden units and two latent units so the
-        arithmetic is visible.
-      </p>
-    </div>
-
-    <div class="card">
-      <h3>8. Decoder bridge and reshape</h3>
-      <p>
-        Reconstruction begins by reversing the change in shape, expanding the embedding back to a
-        feature tensor the convolutional decoder can work on. The mapping is separately learned
-        rather than an inverse of the encoder bridge, so the decoder is free to use different
-        weights to rebuild what the encoder compressed.
-      </p>
-      <div class="canvas-wrap"><canvas class="op" data-block="decbridge" data-period="7" role="img" aria-label="Animation of the decoder bridge expanding a five-value embedding through a hidden layer into a full feature tensor"></canvas></div>
-      <div class="canvas-wrap"><canvas class="op tall" data-block="reshape" data-period="8" role="img" aria-label="Animation of a feature tensor flattening into one long vector and folding back into channels and positions"></canvas></div>
-      <p class="fig-note">Flattening and reshaping only rearrange values. The order is fixed, so the two operations are exact inverses of one another.</p>
-    </div>
-
-    <div class="card">
-      <h3>9. Linear interpolation</h3>
-      <p>
-        Where the encoder pooled the time axis, the decoder has to restore the length before the
-        convolutional layers can run. Linear interpolation fills the gaps between neighbouring
-        feature values. It carries no weights, changes only the temporal resolution, and does not
-        recover values that pooling discarded.
-      </p>
-      <div class="canvas-wrap"><canvas class="op tall" data-block="interp" data-period="7" role="img" aria-label="Animation of linear interpolation inserting points between known feature values"></canvas></div>
-    </div>
-
-    <div class="card">
-      <h3>10. Transposed convolution</h3>
-      <p>
-        The transposed convolution is the decoder counterpart of the strided layer. Each input
-        position multiplies the entire kernel and scatters its contributions across several output
-        positions, and where those contributions overlap they are added. The operation increases the
-        temporal length when the stride exceeds one, learns its own weights, and is the transpose of
-        the corresponding linear operation rather than an inverse convolution, so it cannot
-        guarantee recovery of information lost during downsampling.
-      </p>
-      <div class="eq"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
-  <msub><mi>L</mi><mtext>out</mtext></msub><mo>=</mo>
-  <mo stretchy="false">(</mo><msub><mi>L</mi><mtext>in</mtext></msub><mo>&minus;</mo><mn>1</mn><mo stretchy="false">)</mo><mi>s</mi>
-  <mo>&minus;</mo><mn>2</mn><mi>p</mi>
-  <mo>+</mo><mi>d</mi><mo stretchy="false">(</mo><mi>k</mi><mo>&minus;</mo><mn>1</mn><mo stretchy="false">)</mo>
-  <mo>+</mo><msub><mi>p</mi><mtext>out</mtext></msub>
-  <mo>+</mo><mn>1</mn>
-</math></div>
-      <div class="canvas-wrap"><canvas class="op tall" data-block="transposed" data-period="9" role="img" aria-label="Animation of a transposed convolution scattering each input across several output positions and summing the overlaps"></canvas></div>
-    </div>
-
-    <div class="card">
-      <h3>11. The 1 x 1 convolution</h3>
-      <p>
-        A 1 x 1 convolution looks at all feature channels at one temporal position and learns a
-        new weighted combination of those channels. The operator changes the number of feature
-        maps without combining neighbouring days, so the temporal length and receptive field stay
-        unchanged. The parallel-concatenation architecture used the operator to reduce 256 feature
-        channels to 128 before the fully connected bridge.
-      </p>
-      <div class="eq"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
-  <msub><mi>y</mi><mrow><mi>q</mi><mo>,</mo><mi>t</mi></mrow></msub>
-  <mo>=</mo><msub><mi>b</mi><mi>q</mi></msub><mo>+</mo>
-  <munderover><mo>&sum;</mo><mrow><mi>c</mi><mo>=</mo><mn>1</mn></mrow><msub><mi>C</mi><mtext>in</mtext></msub></munderover>
-  <msub><mi>w</mi><mrow><mi>q</mi><mo>,</mo><mi>c</mi></mrow></msub>
-  <msub><mi>x</mi><mrow><mi>c</mi><mo>,</mo><mi>t</mi></mrow></msub>
-</math></div>
-      <div class="canvas-wrap"><canvas class="op tall" data-block="pointwise" data-period="8" role="img" aria-label="Animation of a one by one convolution mixing feature channels independently at each temporal position"></canvas></div>
-      <p class="fig-note">
-        The animation uses four input and three output channels so the calculation remains visible.
-        The evaluated architecture applied the same operation to 256 input and 128 output channels.
-      </p>
-    </div>
-
-    <div class="card">
-      <h3>12. Parallel-branch fusion</h3>
+      <h3>Parallel-branch fusion</h3>
       <p>
         Two of the Stage 2 architectures run a short-range strided branch alongside a long-range
         dilated branch and then have to join them. Concatenation stacks the two feature tensors and
@@ -334,30 +94,6 @@
       <div class="canvas-wrap"><canvas class="op tall" data-block="fusion" data-period="8" role="img" aria-label="Comparison animation of concatenation fusion with a one by one convolution against latent summation"></canvas></div>
     </div>
 
-    <div class="card">
-      <h3>13. Variational sampling</h3>
-      <p>
-        The variational models replace the single projection to the embedding with two, one
-        producing a mean and one a log variance, and then draw the embedding from that distribution.
-        The draw is written so that the randomness enters through a separate standard normal
-        variable, which keeps the network trainable by gradient descent. This block is the only
-        structural difference between the deterministic and variational diagrams, and it accounts
-        for the small difference in their parameter counts.
-      </p>
-      <div class="eq"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
-  <mi>z</mi><mo>=</mo><mi>&mu;</mi>
-  <mo>+</mo><mi>&sigma;</mi><mo>&#8857;</mo><mi>&epsilon;</mi>
-  <mspace width="1.4em"/>
-  <mi>&epsilon;</mi><mo>&#8764;</mo>
-  <mi>N</mi><mo stretchy="false">(</mo><mn>0</mn><mo>,</mo><mi>I</mi><mo stretchy="false">)</mo>
-</math></div>
-      <div class="canvas-wrap"><canvas class="op tall" data-block="vae" data-period="6" role="img" aria-label="Animation of variational sampling drawing an embedding around a mean with a standard deviation band"></canvas></div>
-      <p class="fig-note">
-        The grey dot is the mean and the shaded band spans one standard deviation. The moving marker
-        is a fresh draw. In the trained models the standard deviations stayed close to zero, so the
-        variational encoder behaved almost deterministically.
-      </p>
-    </div>
 
   </div>
 </section>
@@ -440,6 +176,31 @@
   </div>
 </section>
 
+<section id="search-results"><div class="wrap"><h2>Architecture search results</h2><p>Complete candidate definitions and validation tables for the three-stage search.</p></div><div class="wrap layout">
+<aside class="toc" aria-label="Page contents"><strong>On this page</strong><a href="#results-settings">Shared settings</a><a href="#results-stage1">Stage 1</a><a href="#results-stage2-definitions">Stage 2 definitions</a><a href="#results-stage2-results">Stage 2 results</a><a href="#results-stage3-det">Deterministic refinement</a><a href="#results-stage3-vae">Variational refinement</a></aside>
+<div class="longform">
+<section id="results-settings"><h2>Shared training settings</h2><div class="table-scroll"><table><thead><tr><th>Setting</th><th>Value</th><th>Setting</th><th>Value</th></tr></thead><tbody><tr><td>Optimiser</td><td>Adam</td><td>Initial learning rate</td><td>1&times;10<sup>&minus;3</sup></td></tr><tr><td>Scheduler</td><td>Cosine annealing</td><td>Minimum learning rate</td><td>1&times;10<sup>&minus;5</sup></td></tr><tr><td>Maximum epochs</td><td>100</td><td>Early-stopping patience</td><td>20</td></tr><tr><td>Batch size</td><td>64</td><td>Random seed</td><td>42</td></tr><tr><td>Gradient clip norm</td><td>1.0</td><td>Latent dimension</td><td>5, unless varied</td></tr><tr><td>Deterministic loss</td><td>Unweighted MSE</td><td></td><td></td></tr></tbody></table></div></section>
+
+<section id="results-stage1"><h2>Stage 1: encoder topology</h2><p>The single-head encoder applied one convolutional stack jointly to all six variables. The multi-head encoder applied one stack per variable and concatenated the outputs.</p><div class="table-scroll"><table><thead><tr><th>Pipeline</th><th>Topology</th><th class="num">Parameters</th><th class="num">Mean FVU</th><th class="num">Silhouette</th><th class="num">Spatial r</th><th class="num">Normalised Pillai V&#771;</th><th class="num">Erank ratio</th><th class="num">&kappa;</th><th>Collapse</th></tr></thead><tbody><tr><td>Deterministic</td><td>Single-head</td><td class="num">9,614,411</td><td class="num">0.0676</td><td class="num">0.289</td><td class="num">0.734</td><td class="num">0.711</td><td class="num">0.803</td><td class="num">5.5</td><td>pass</td></tr><tr><td>Deterministic</td><td>Multi-head</td><td class="num">57,665,291</td><td class="num">0.0351</td><td class="num">0.276</td><td class="num">0.643</td><td class="num">0.644</td><td class="num">0.614</td><td class="num">79.1</td><td>fail</td></tr><tr><td>Variational</td><td>Single-head</td><td class="num">9,615,056</td><td class="num">0.0700</td><td class="num">0.289</td><td class="num">0.659</td><td class="num">0.690</td><td class="num">0.943</td><td class="num">2.68</td><td>pass</td></tr><tr><td>Variational</td><td>Multi-head</td><td class="num">57,665,936</td><td class="num">0.0553</td><td class="num">0.271</td><td class="num">0.643</td><td class="num">0.705</td><td class="num">0.937</td><td class="num">2.90</td><td>pass</td></tr></tbody></table></div></section>
+
+<section id="results-stage2-definitions"><h2>Stage 2: candidate definitions</h2><div class="table-scroll"><table><thead><tr><th>Configuration</th><th>Encoder blocks</th><th>Reduction to bridge</th><th>Receptive field</th><th>Parameters</th><th>Bridge input</th><th>Decoder</th></tr></thead><tbody><tr><td>Strided baseline</td><td>6 strided</td><td>Built into encoder</td><td>379</td><td>9.61 M</td><td>27,904</td><td>6 transposed strided</td></tr><tr><td>Dilated A</td><td>6 dilated</td><td>Global average pool</td><td>379</td><td>2.51 M</td><td>256</td><td>Broadcast, 6 transposed dilated</td></tr><tr><td>Dilated B</td><td>6 dilated</td><td>Flatten, direct linear</td><td>379</td><td>21.97 M</td><td>1,775,360</td><td>Linear, 6 transposed dilated</td></tr><tr><td>Dilated C</td><td>6 dilated, 6 strided tail</td><td>Flatten, MLP</td><td>379</td><td>15.12 M</td><td>27,904</td><td>Mirrored 12-layer stack</td></tr><tr><td>Dilated D</td><td>6 dilated</td><td>Adaptive pool to 109</td><td>379</td><td>9.61 M</td><td>27,904</td><td>Upsample, 6 transposed dilated</td></tr><tr><td>Hybrid sequential</td><td>3 strided, 3 dilated</td><td>Adaptive pool to 109</td><td>379</td><td>9.61 M</td><td>27,904</td><td>Mirrored hybrid</td></tr><tr><td>Parallel concat</td><td>4 strided || 6 dilated</td><td>Concatenate, 1&times;1 convolution</td><td>91 / 757</td><td>4.68 M</td><td>13,952</td><td>Mirrored branches</td></tr><tr><td>Parallel sum</td><td>4 strided || 6 dilated</td><td>MLP per branch, sum</td><td>91 / 757</td><td>8.20 M</td><td>13,952 per branch</td><td>Mirrored branches</td></tr></tbody></table></div></section>
+
+<section id="results-stage2-results"><h2>Stage 2: validation results</h2><h3>Deterministic pipeline</h3><div class="table-scroll"><table><thead><tr><th>Configuration</th><th class="num">Parameters</th><th class="num">FVU</th><th class="num">Silhouette</th><th class="num">Spatial r</th><th class="num">Pillai V&#771;</th><th class="num">Erank</th><th class="num">&kappa;</th><th>Collapse</th></tr></thead><tbody>
+<tr><td>Strided baseline</td><td class="num">9,614,411</td><td class="num">0.0676</td><td class="num">0.289</td><td class="num">0.734</td><td class="num">0.711</td><td class="num">0.803</td><td class="num">5.5</td><td>pass</td></tr><tr><td>Dilated A</td><td class="num">2,508,875</td><td class="num">0.6427</td><td class="num">0.253</td><td class="num">0.550</td><td class="num">0.617</td><td class="num">0.734</td><td class="num">36.3</td><td>pass</td></tr><tr><td>Dilated B</td><td class="num">21,970,507</td><td class="num">0.0679</td><td class="num">0.323</td><td class="num">0.796</td><td class="num">0.709</td><td class="num">0.664</td><td class="num">17.8</td><td>fail</td></tr><tr><td>Dilated C</td><td class="num">15,122,507</td><td class="num">0.0618</td><td class="num">0.318</td><td class="num">0.302</td><td class="num">0.565</td><td class="num">0.661</td><td class="num">25.8</td><td>fail</td></tr><tr><td>Dilated D</td><td class="num">9,614,411</td><td class="num">0.0882</td><td class="num">0.326</td><td class="num">0.700</td><td class="num">0.671</td><td class="num">0.838</td><td class="num">4.9</td><td>pass</td></tr><tr><td>Hybrid sequential</td><td class="num">9,614,411</td><td class="num">0.0722</td><td class="num">0.325</td><td class="num">0.776</td><td class="num">0.692</td><td class="num">0.842</td><td class="num">5.6</td><td>pass</td></tr><tr><td>Parallel concat</td><td class="num">4,683,403</td><td class="num">0.1134</td><td class="num">0.345</td><td class="num">0.871</td><td class="num">0.696</td><td class="num">0.618</td><td class="num">30.6</td><td>fail</td></tr><tr><td>Parallel sum</td><td class="num">8,204,688</td><td class="num">0.1034</td><td class="num">0.342</td><td class="num">0.866</td><td class="num">0.711</td><td class="num">0.679</td><td class="num">16.0</td><td>fail</td></tr></tbody></table></div>
+<h3>Variational pipeline</h3><div class="table-scroll"><table><thead><tr><th>Configuration</th><th class="num">Parameters</th><th class="num">FVU</th><th class="num">Silhouette</th><th class="num">Spatial r</th><th class="num">Pillai V&#771;</th><th class="num">Erank</th><th class="num">&kappa;</th><th>Collapse</th></tr></thead><tbody>
+<tr><td>Strided baseline</td><td class="num">9,615,056</td><td class="num">0.0700</td><td class="num">0.289</td><td class="num">0.659</td><td class="num">0.690</td><td class="num">0.943</td><td class="num">2.68</td><td>pass</td></tr><tr><td>Dilated A</td><td class="num">2,509,520</td><td class="num">0.6463</td><td class="num">0.274</td><td class="num">0.538</td><td class="num">0.618</td><td class="num">0.742</td><td class="num">202.4</td><td>pass</td></tr><tr><td>Dilated B</td><td class="num">30,847,312</td><td class="num">0.0594</td><td class="num">0.284</td><td class="num">0.707</td><td class="num">0.697</td><td class="num">0.807</td><td class="num">6.85</td><td>pass</td></tr><tr><td>Dilated C</td><td class="num">15,123,152</td><td class="num">0.0832</td><td class="num">0.244</td><td class="num">0.603</td><td class="num">0.693</td><td class="num">0.894</td><td class="num">3.35</td><td>pass</td></tr><tr><td>Dilated D</td><td class="num">9,615,056</td><td class="num">0.1432</td><td class="num">0.311</td><td class="num">0.759</td><td class="num">0.687</td><td class="num">0.855</td><td class="num">4.53</td><td>pass</td></tr><tr><td>Hybrid sequential</td><td class="num">9,615,056</td><td class="num">0.1121</td><td class="num">0.306</td><td class="num">0.759</td><td class="num">0.710</td><td class="num">0.879</td><td class="num">4.42</td><td>pass</td></tr><tr><td>Parallel concat</td><td class="num">4,684,048</td><td class="num">0.1515</td><td class="num">0.327</td><td class="num">0.854</td><td class="num">0.684</td><td class="num">0.735</td><td class="num">9.54</td><td>pass</td></tr><tr><td>Parallel sum</td><td class="num">8,205,978</td><td class="num">0.1401</td><td class="num">0.340</td><td class="num">0.818</td><td class="num">0.683</td><td class="num">0.765</td><td class="num">12.53</td><td>pass</td></tr></tbody></table></div></section>
+
+<section id="results-stage3-det"><h2>Stage 3: deterministic refinement</h2><h3>Depth and width</h3><div class="table-scroll"><table><thead><tr><th>Phase</th><th>Configuration</th><th class="num">Parameters</th><th class="num">FVU</th><th class="num">Silhouette</th><th class="num">Spatial r</th><th class="num">Erank</th><th class="num">&kappa;</th></tr></thead><tbody><tr><td>A</td><td>Stage 2 baseline</td><td class="num">9,614,411</td><td class="num">0.0722</td><td class="num">0.325</td><td class="num">0.776</td><td class="num">0.842</td><td class="num">5.6</td></tr><tr><td>A</td><td>depth_strided_2</td><td class="num">9,270,091</td><td class="num">0.0760</td><td class="num">0.327</td><td class="num">0.780</td><td class="num">0.720</td><td class="num">13.0</td></tr><tr><td>A</td><td>depth_strided_4</td><td class="num">9,844,043</td><td class="num">0.0769</td><td class="num">0.274</td><td class="num">0.762</td><td class="num">0.767</td><td class="num">8.9</td></tr><tr><td>A</td><td>depth_dilated_2</td><td class="num">8,696,395</td><td class="num">0.0832</td><td class="num">0.342</td><td class="num">0.831</td><td class="num">0.771</td><td class="num">8.1</td></tr><tr><td>A</td><td>depth_dilated_4</td><td class="num">10,532,427</td><td class="num">0.0685</td><td class="num">0.279</td><td class="num">0.727</td><td class="num">0.820</td><td class="num">5.5</td></tr><tr><td>B</td><td>depth_dilated_4 reference</td><td class="num">10,532,427</td><td class="num">0.0685</td><td class="num">0.279</td><td class="num">0.727</td><td class="num">0.820</td><td class="num">5.5</td></tr><tr><td>B</td><td>width_narrow</td><td class="num">4,428,331</td><td class="num">0.1128</td><td class="num">0.304</td><td class="num">0.785</td><td class="num">0.757</td><td class="num">7.5</td></tr><tr><td>B</td><td>width_wide</td><td class="num">18,313,835</td><td class="num">0.0528</td><td class="num">0.256</td><td class="num">0.725</td><td class="num">0.799</td><td class="num">6.9</td></tr></tbody></table></div>
+<h3>Training settings</h3><div class="table-scroll"><table><thead><tr><th>Run</th><th class="num">FVU</th><th class="num">Silhouette</th><th class="num">Spatial r</th><th class="num">Erank</th><th class="num">&kappa;</th><th>Outcome</th></tr></thead><tbody><tr><td>Reference</td><td class="num">0.0685</td><td class="num">0.279</td><td class="num">0.727</td><td class="num">0.820</td><td class="num">5.5</td><td>retained</td></tr><tr><td>Lower learning rate</td><td class="num">0.0909</td><td class="num">0.305</td><td class="num">0.830</td><td class="num">0.711</td><td class="num">9.1</td><td>rejected</td></tr><tr><td>Dropout</td><td class="num">0.0919</td><td class="num">0.254</td><td class="num">0.698</td><td class="num">0.827</td><td class="num">5.2</td><td>rejected</td></tr><tr><td>Weight decay</td><td class="num">0.6345</td><td>N/A</td><td>N/A</td><td>fail</td><td class="num">1.0</td><td>collapsed</td></tr><tr><td>Dropout and weight decay</td><td class="num">0.6479</td><td>N/A</td><td>N/A</td><td>fail</td><td class="num">1.0</td><td>collapsed</td></tr><tr><td>Batch size 128</td><td class="num">0.0839</td><td class="num">0.311</td><td class="num">0.764</td><td class="num">0.794</td><td class="num">8.4</td><td>rejected</td></tr></tbody></table></div>
+<h3>Latent dimensionality</h3><div class="table-scroll"><table><thead><tr><th>z</th><th class="num">FVU</th><th class="num">Silhouette</th><th class="num">Spatial r</th><th class="num">Pillai V&#771;</th><th class="num">Erank</th><th class="num">&kappa;</th></tr></thead><tbody><tr><td>3</td><td class="num">0.0814</td><td class="num">0.318</td><td class="num">0.695</td><td class="num">0.701</td><td class="num">0.873</td><td class="num">3.8</td></tr><tr><td>5</td><td class="num">0.0685</td><td class="num">0.279</td><td class="num">0.727</td><td class="num">0.695</td><td class="num">0.820</td><td class="num">5.5</td></tr><tr><td>7</td><td class="num">0.0651</td><td class="num">0.262</td><td class="num">0.751</td><td class="num">0.694</td><td class="num">0.784</td><td class="num">7.6</td></tr><tr><td>10</td><td class="num">0.0623</td><td class="num">0.270</td><td class="num">0.696</td><td class="num">0.672</td><td class="num">0.647</td><td class="num">28.8</td></tr></tbody></table></div>
+<h3>Kernel size</h3><div class="table-scroll"><table><thead><tr><th>k</th><th class="num">Parameters</th><th class="num">RF days</th><th class="num">FVU</th><th class="num">Silhouette</th><th class="num">Spatial r</th><th class="num">Erank</th><th class="num">&kappa;</th></tr></thead><tbody><tr><td>3</td><td class="num">8,613,963</td><td class="num">255</td><td class="num">0.0793</td><td class="num">0.290</td><td class="num">0.764</td><td class="num">0.727</td><td class="num">11.72</td></tr><tr><td>7</td><td class="num">10,532,427</td><td class="num">763</td><td class="num">0.0685</td><td class="num">0.279</td><td class="num">0.727</td><td class="num">0.820</td><td class="num">5.5</td></tr><tr><td>15</td><td class="num">14,369,355</td><td class="num">1,779</td><td class="num">0.0665</td><td class="num">0.254</td><td class="num">0.649</td><td class="num">0.738</td><td class="num">11.17</td></tr><tr><td>30</td><td class="num">21,563,595</td><td class="num">3,684</td><td class="num">0.1544</td><td class="num">0.293</td><td class="num">0.741</td><td class="num">0.624</td><td class="num">15.54</td></tr></tbody></table></div></section>
+
+<section id="results-stage3-vae"><h2>Stage 3: variational refinement</h2><h3>Depth and width</h3><div class="table-scroll"><table><thead><tr><th>Phase</th><th>Configuration</th><th class="num">Parameters</th><th class="num">FVU</th><th class="num">Silhouette</th><th class="num">Spatial r</th><th class="num">Erank</th><th class="num">&kappa;</th></tr></thead><tbody><tr><td>A</td><td>depth_2</td><td class="num">28,554,512</td><td class="num">0.0657</td><td class="num">0.287</td><td class="num">0.621</td><td class="num">0.956</td><td class="num">2.13</td></tr><tr><td>A</td><td>depth_3</td><td class="num">28,669,392</td><td class="num">0.0700</td><td class="num">0.316</td><td class="num">0.669</td><td class="num">0.943</td><td class="num">2.46</td></tr><tr><td>A</td><td>depth_4</td><td class="num">29,161,424</td><td class="num">0.0706</td><td class="num">0.293</td><td class="num">0.626</td><td class="num">0.945</td><td class="num">2.36</td></tr><tr><td>A</td><td>depth_5</td><td class="num">15,802,576</td><td class="num">0.0760</td><td class="num">0.269</td><td class="num">0.647</td><td class="num">0.940</td><td class="num">2.59</td></tr><tr><td>A</td><td>depth_6 reference</td><td class="num">9,615,056</td><td class="num">0.0700</td><td class="num">0.289</td><td class="num">0.659</td><td class="num">0.943</td><td class="num">2.68</td></tr><tr><td>A</td><td>depth_7</td><td class="num">6,980,304</td><td class="num">0.0778</td><td class="num">0.244</td><td class="num">0.637</td><td class="num">0.944</td><td class="num">2.41</td></tr><tr><td>A</td><td>depth_8</td><td class="num">6,121,936</td><td class="num">0.0823</td><td class="num">0.220</td><td class="num">0.611</td><td class="num">0.946</td><td class="num">2.41</td></tr><tr><td>B</td><td>width_narrow</td><td class="num">4,199,344</td><td class="num">0.1443</td><td class="num">0.297</td><td class="num">0.722</td><td class="num">0.867</td><td class="num">4.24</td></tr><tr><td>B</td><td>reference</td><td class="num">9,615,056</td><td class="num">0.0700</td><td class="num">0.289</td><td class="num">0.659</td><td class="num">0.943</td><td class="num">2.68</td></tr><tr><td>B</td><td>width_wide</td><td class="num">16,249,328</td><td class="num">0.0599</td><td class="num">0.240</td><td class="num">0.559</td><td class="num">0.945</td><td class="num">2.51</td></tr></tbody></table></div>
+<h3>Training settings</h3><div class="table-scroll"><table><thead><tr><th>Run</th><th class="num">FVU</th><th class="num">Silhouette</th><th class="num">Spatial r</th><th class="num">Pillai V&#771;</th><th class="num">Erank</th><th class="num">&kappa;</th></tr></thead><tbody><tr><td>Reference</td><td class="num">0.0700</td><td class="num">0.289</td><td class="num">0.659</td><td class="num">0.690</td><td class="num">0.943</td><td class="num">2.68</td></tr><tr><td>AdamW and weight decay</td><td class="num">0.0698</td><td class="num">0.273</td><td class="num">0.674</td><td class="num">0.658</td><td class="num">0.955</td><td class="num">2.39</td></tr><tr><td>AdamW, dropout and weight decay</td><td class="num">0.1013</td><td class="num">0.287</td><td class="num">0.663</td><td class="num">0.689</td><td class="num">0.936</td><td class="num">2.59</td></tr><tr><td>Batch size 128</td><td class="num">0.0808</td><td class="num">0.266</td><td class="num">0.710</td><td class="num">0.664</td><td class="num">0.922</td><td class="num">2.81</td></tr><tr><td>Dropout</td><td class="num">0.0975</td><td class="num">0.288</td><td class="num">0.658</td><td class="num">0.691</td><td class="num">0.937</td><td class="num">2.50</td></tr><tr><td>Lower learning rate</td><td class="num">0.1013</td><td class="num">0.282</td><td class="num">0.772</td><td class="num">0.698</td><td class="num">0.836</td><td class="num">5.40</td></tr></tbody></table></div>
+<h3>Latent dimensionality</h3><div class="table-scroll"><table><thead><tr><th>z</th><th class="num">FVU</th><th class="num">Silhouette</th><th class="num">Spatial r</th><th class="num">Pillai V&#771;</th><th class="num">Erank</th><th class="num">&kappa;</th></tr></thead><tbody><tr><td>3</td><td class="num">0.0936</td><td class="num">0.310</td><td class="num">0.709</td><td class="num">0.666</td><td class="num">0.949</td><td class="num">2.28</td></tr><tr><td>5</td><td class="num">0.0700</td><td class="num">0.289</td><td class="num">0.659</td><td class="num">0.690</td><td class="num">0.943</td><td class="num">2.68</td></tr><tr><td>7</td><td class="num">0.0661</td><td class="num">0.238</td><td class="num">0.635</td><td class="num">0.692</td><td class="num">0.929</td><td class="num">3.60</td></tr><tr><td>10</td><td class="num">0.0653</td><td class="num">0.197</td><td class="num">0.603</td><td class="num">0.708</td><td class="num">0.930</td><td class="num">3.53</td></tr></tbody></table></div>
+<h3>Kernel size</h3><div class="table-scroll"><table><thead><tr><th>k</th><th class="num">Parameters</th><th class="num">FVU</th><th class="num">Silhouette</th><th class="num">Spatial r</th><th class="num">Erank</th><th class="num">&kappa;</th></tr></thead><tbody><tr><td>3</td><td class="num">8,220,880</td><td class="num">0.0917</td><td class="num">0.298</td><td class="num">0.722</td><td class="num">0.887</td><td class="num">3.72</td></tr><tr><td>7</td><td class="num">9,615,056</td><td class="num">0.0700</td><td class="num">0.289</td><td class="num">0.659</td><td class="num">0.943</td><td class="num">2.68</td></tr><tr><td>15</td><td class="num">12,403,408</td><td class="num">0.0709</td><td class="num">0.258</td><td class="num">0.640</td><td class="num">0.940</td><td class="num">2.40</td></tr><tr><td>30</td><td class="num">17,565,776</td><td class="num">0.0817</td><td class="num">0.265</td><td class="num">0.512</td><td class="num">0.783</td><td class="num">386.8</td></tr></tbody></table></div></section>
+</div></div>
+</section>
 </main>
 
 <footer class="site-footer">

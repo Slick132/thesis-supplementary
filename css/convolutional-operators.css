@@ -1,0 +1,12 @@
+.operators-page .card{scroll-margin-top:90px;margin:24px 0}
+.operator-index{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+.operator-index a{padding:8px 12px;border:1px solid var(--border);border-radius:6px;background:var(--paper)}
+.operators-page .operator-scroll{overflow-x:auto;overscroll-behavior-inline:contain}
+.operators-page canvas.op{width:100%;min-width:1080px;height:315px}
+.operators-page canvas.op.tall{height:450px}
+.operators-page canvas.op.xl{height:645px}
+.operators-page #pointwise canvas.op{height:570px}
+.operators-page #transposed canvas.op{height:540px}
+.operators-page #dilation canvas.op{height:375px}
+.operator-scroll:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+@media(max-width:600px){.operators-page .card{padding:16px}.operator-index{display:grid}.operators-page .eq{overflow-x:auto}}
