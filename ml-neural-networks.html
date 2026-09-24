@@ -14,7 +14,7 @@
 <main>
 <section class="hero"><div class="wrap"><p class="eyebrow">Machine-learning guide</p><h1>Autoencoders and embedding geometry</h1><p class="lede">This page accompanies the Embedding geometry and environmental similarity subsections in the methodology and results chapters. It provides additional explanations, visualisations and pseudocode for analysing distances through the decoder.</p></div></section>
   <div class="wrap layout">
-    <aside class="toc" aria-label="Page contents"><strong>On this page</strong><a href="#autoencoder">Autoencoders</a><a href="#geometry">Autoencoder geometry</a><a href="#geometry-distance-question">Why latent distance needs checking</a><a href="#geometry-autoencoder-geometry">Geometric role of the autoencoder</a><a href="#geometry-pullback-metric">Decoder Jacobian and pullback metric</a><a href="#geometry-paths">Decoded paths and the shortest route</a><a href="#geometry-geodesics">Discrete geodesic procedure</a><a href="#geometry-thesis-analysis">Use in the thesis</a></aside>
+    <aside class="toc" aria-label="Page contents"><strong>On this page</strong><a href="#autoencoder">Autoencoders</a><a href="#geometry">Autoencoder geometry</a><a href="#geometry-distance-question">Why latent distance needs checking</a><a href="#geometry-autoencoder-geometry">Geometric role of the autoencoder</a><a href="#geometry-pullback-metric">Decoder Jacobian and pullback metric</a><a href="#geometry-paths">Decoded paths and the shortest route</a><a href="#geometry-geodesics">Discrete geodesic procedure</a></aside>
     <div class="longform">
       
       
@@ -93,7 +93,7 @@
         code-space distance into a large distance in the reconstructed input. In general Euclidean distance is used as a proxy for similarity in the input space, although the proxy does not hold in every case, since the decoder stretches the code space unevenly. The proxy holds when the curvature is low.
       </p>
       <p>
-        Empirical evidence, however, suggests that curvature is typically low enough for this assumption to hold across many datasets. Consequently, much of the literature directly clusters embeddings without prior curvature evaluation
+        Empirical evidence, however, suggests that curvature is typically low enough for this assumption to hold across many datasets in general. Consequently, much of the literature directly clusters embeddings without prior curvature evaluation
         <a href="#reference-3" aria-label="Reference 3">[3]</a>.
 
       </p>
@@ -154,6 +154,9 @@
         change. A small value means that the same latent step produces little reconstructed change.
         Variation in the metric across the code space therefore describes local stretching and
         compression by the decoder.
+      </p>
+      <p>
+        Explicitly evaluating the decoder Jacobian at many points introduces additional computational cost, particularly when reconstructed outputs are high-dimensional. The distance analyses in this thesis avoided constructing the full Jacobian and pullback metric by calculating distances between consecutive decoded outputs. For the optimised paths, backpropagation provided gradients of the discrete path energy directly with respect to the intermediate embeddings.
       </p>
     </section>
 
@@ -292,11 +295,6 @@
       <p>
         The figure shows the decoded distance. The two flagged codes are no longer classified as similar, because their decoded distance is larger than the decoded distance to the nearest code of the same group.
       </p>
-    </section>
-
-    <section id="geometry-thesis-analysis">
-      <h3>Use in the thesis</h3>
-      <p>The procedure was applied to 1,200 randomly sampled pairs spanning the Euclidean distance range, and the optimised Riemannian distance was compared with Euclidean distance in the standardised embedding. The two distances were strongly correlated, with Pearson and Spearman correlations of 0.842 and 0.834, so Euclidean distance is a practical proxy for similarity in the reconstructed input space.</p>
     </section>
 
     <section id="geometry-sources">
