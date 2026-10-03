@@ -13,6 +13,7 @@ Laubscher-Pretorius, Stellenbosch University).
 | `geometry.html` | Extended technical background on the manifold hypothesis, decoder-induced distance, the pullback metric and sampled geodesic paths. |
 | `feature-distributions.html` | Complete distributions of the 33 climate features under the K&ouml;ppen-Geiger and feature-learning regionalisations. |
 | `research-transparency.html` | Description of generative-AI assistance, representative prompts and the reusable thesis-editing skill. |
+| `software-environment.html` | Frequently used analysis libraries, recorded versions, environment differences and a dependency-checked reference profile. Recorded historical versions are distinguished from reproduction pins. |
 
 ## How the architecture diagrams work
 

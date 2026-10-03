@@ -1,0 +1,1112 @@
+{
+  "checked_on": "2026-10-03",
+  "target": {
+    "python_version": "3.12",
+    "python_full_version": "3.12.11",
+    "sys_platform": "linux",
+    "platform_system": "Linux",
+    "platform_machine": "x86_64",
+    "implementation_name": "cpython",
+    "implementation_version": "3.12.11",
+    "platform_python_implementation": "CPython",
+    "extra": ""
+  },
+  "checks": [
+    {
+      "package": "numpy",
+      "dependency": "python",
+      "requires": ">=3.9",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "pandas",
+      "dependency": "python",
+      "requires": ">=3.9",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "pandas",
+      "dependency": "numpy",
+      "requires": ">=1.26.0",
+      "selected": "1.26.4",
+      "passes": true
+    },
+    {
+      "package": "pandas",
+      "dependency": "python-dateutil",
+      "requires": ">=2.8.2",
+      "selected": "2.9.0.post0",
+      "passes": true
+    },
+    {
+      "package": "pandas",
+      "dependency": "pytz",
+      "requires": ">=2020.1",
+      "selected": "2026.4",
+      "passes": true
+    },
+    {
+      "package": "pandas",
+      "dependency": "tzdata",
+      "requires": ">=2022.7",
+      "selected": "2026.4",
+      "passes": true
+    },
+    {
+      "package": "matplotlib",
+      "dependency": "python",
+      "requires": ">=3.9",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "matplotlib",
+      "dependency": "contourpy",
+      "requires": ">=1.0.1",
+      "selected": "1.3.3",
+      "passes": true
+    },
+    {
+      "package": "matplotlib",
+      "dependency": "cycler",
+      "requires": ">=0.10",
+      "selected": "0.12.1",
+      "passes": true
+    },
+    {
+      "package": "matplotlib",
+      "dependency": "fonttools",
+      "requires": ">=4.22.0",
+      "selected": "4.66.1",
+      "passes": true
+    },
+    {
+      "package": "matplotlib",
+      "dependency": "kiwisolver",
+      "requires": ">=1.3.1",
+      "selected": "1.5.1",
+      "passes": true
+    },
+    {
+      "package": "matplotlib",
+      "dependency": "numpy",
+      "requires": "<2,>=1.21",
+      "selected": "1.26.4",
+      "passes": true
+    },
+    {
+      "package": "matplotlib",
+      "dependency": "packaging",
+      "requires": ">=20.0",
+      "selected": "26.3",
+      "passes": true
+    },
+    {
+      "package": "matplotlib",
+      "dependency": "pillow",
+      "requires": ">=8",
+      "selected": "12.3.0",
+      "passes": true
+    },
+    {
+      "package": "matplotlib",
+      "dependency": "pyparsing",
+      "requires": ">=2.3.1",
+      "selected": "3.3.3",
+      "passes": true
+    },
+    {
+      "package": "matplotlib",
+      "dependency": "python-dateutil",
+      "requires": ">=2.7",
+      "selected": "2.9.0.post0",
+      "passes": true
+    },
+    {
+      "package": "torch",
+      "dependency": "python",
+      "requires": ">=3.9.0",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "torch",
+      "dependency": "filelock",
+      "requires": "",
+      "selected": "4.0.9",
+      "passes": true
+    },
+    {
+      "package": "torch",
+      "dependency": "typing-extensions",
+      "requires": ">=4.10.0",
+      "selected": "4.16.0",
+      "passes": true
+    },
+    {
+      "package": "torch",
+      "dependency": "setuptools",
+      "requires": "",
+      "selected": "84.0.0",
+      "passes": true
+    },
+    {
+      "package": "torch",
+      "dependency": "sympy",
+      "requires": ">=1.13.3",
+      "selected": "1.14.0",
+      "passes": true
+    },
+    {
+      "package": "torch",
+      "dependency": "networkx",
+      "requires": "",
+      "selected": "3.7",
+      "passes": true
+    },
+    {
+      "package": "torch",
+      "dependency": "jinja2",
+      "requires": "",
+      "selected": "3.1.6",
+      "passes": true
+    },
+    {
+      "package": "torch",
+      "dependency": "fsspec",
+      "requires": "",
+      "selected": "2026.9.0",
+      "passes": true
+    },
+    {
+      "package": "torch",
+      "dependency": "nvidia-cuda-nvrtc-cu12",
+      "requires": "==12.8.93",
+      "selected": "12.8.93",
+      "passes": true
+    },
+    {
+      "package": "torch",
+      "dependency": "nvidia-cuda-runtime-cu12",
+      "requires": "==12.8.90",
+      "selected": "12.8.90",
+      "passes": true
+    },
+    {
+      "package": "torch",
+      "dependency": "nvidia-cuda-cupti-cu12",
+      "requires": "==12.8.90",
+      "selected": "12.8.90",
+      "passes": true
+    },
+    {
+      "package": "torch",
+      "dependency": "nvidia-cudnn-cu12",
+      "requires": "==9.10.2.21",
+      "selected": "9.10.2.21",
+      "passes": true
+    },
+    {
+      "package": "torch",
+      "dependency": "nvidia-cublas-cu12",
+      "requires": "==12.8.4.1",
+      "selected": "12.8.4.1",
+      "passes": true
+    },
+    {
+      "package": "torch",
+      "dependency": "nvidia-cufft-cu12",
+      "requires": "==11.3.3.83",
+      "selected": "11.3.3.83",
+      "passes": true
+    },
+    {
+      "package": "torch",
+      "dependency": "nvidia-curand-cu12",
+      "requires": "==10.3.9.90",
+      "selected": "10.3.9.90",
+      "passes": true
+    },
+    {
+      "package": "torch",
+      "dependency": "nvidia-cusolver-cu12",
+      "requires": "==11.7.3.90",
+      "selected": "11.7.3.90",
+      "passes": true
+    },
+    {
+      "package": "torch",
+      "dependency": "nvidia-cusparse-cu12",
+      "requires": "==12.5.8.93",
+      "selected": "12.5.8.93",
+      "passes": true
+    },
+    {
+      "package": "torch",
+      "dependency": "nvidia-cusparselt-cu12",
+      "requires": "==0.7.1",
+      "selected": "0.7.1",
+      "passes": true
+    },
+    {
+      "package": "torch",
+      "dependency": "nvidia-nccl-cu12",
+      "requires": "==2.27.3",
+      "selected": "2.27.3",
+      "passes": true
+    },
+    {
+      "package": "torch",
+      "dependency": "nvidia-nvtx-cu12",
+      "requires": "==12.8.90",
+      "selected": "12.8.90",
+      "passes": true
+    },
+    {
+      "package": "torch",
+      "dependency": "nvidia-nvjitlink-cu12",
+      "requires": "==12.8.93",
+      "selected": "12.8.93",
+      "passes": true
+    },
+    {
+      "package": "torch",
+      "dependency": "nvidia-cufile-cu12",
+      "requires": "==1.13.1.3",
+      "selected": "1.13.1.3",
+      "passes": true
+    },
+    {
+      "package": "torch",
+      "dependency": "triton",
+      "requires": "==3.4.0",
+      "selected": "3.4.0",
+      "passes": true
+    },
+    {
+      "package": "scikit-learn",
+      "dependency": "python",
+      "requires": ">=3.9",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "scikit-learn",
+      "dependency": "numpy",
+      "requires": ">=1.19.5",
+      "selected": "1.26.4",
+      "passes": true
+    },
+    {
+      "package": "scikit-learn",
+      "dependency": "scipy",
+      "requires": ">=1.6.0",
+      "selected": "1.11.4",
+      "passes": true
+    },
+    {
+      "package": "scikit-learn",
+      "dependency": "joblib",
+      "requires": ">=1.2.0",
+      "selected": "1.4.2",
+      "passes": true
+    },
+    {
+      "package": "scikit-learn",
+      "dependency": "threadpoolctl",
+      "requires": ">=3.1.0",
+      "selected": "3.7.0",
+      "passes": true
+    },
+    {
+      "package": "scipy",
+      "dependency": "python",
+      "requires": ">=3.9",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "scipy",
+      "dependency": "numpy",
+      "requires": "<1.28.0,>=1.21.6",
+      "selected": "1.26.4",
+      "passes": true
+    },
+    {
+      "package": "tqdm",
+      "dependency": "python",
+      "requires": ">=3.7",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "joblib",
+      "dependency": "python",
+      "requires": ">=3.8",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "statsmodels",
+      "dependency": "python",
+      "requires": ">=3.9",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "statsmodels",
+      "dependency": "numpy",
+      "requires": "<3,>=1.22.3",
+      "selected": "1.26.4",
+      "passes": true
+    },
+    {
+      "package": "statsmodels",
+      "dependency": "scipy",
+      "requires": "!=1.9.2,>=1.8",
+      "selected": "1.11.4",
+      "passes": true
+    },
+    {
+      "package": "statsmodels",
+      "dependency": "pandas",
+      "requires": "!=2.1.0,>=1.4",
+      "selected": "2.2.3",
+      "passes": true
+    },
+    {
+      "package": "statsmodels",
+      "dependency": "patsy",
+      "requires": ">=0.5.6",
+      "selected": "1.0.3",
+      "passes": true
+    },
+    {
+      "package": "statsmodels",
+      "dependency": "packaging",
+      "requires": ">=21.3",
+      "selected": "26.3",
+      "passes": true
+    },
+    {
+      "package": "seaborn",
+      "dependency": "python",
+      "requires": ">=3.8",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "seaborn",
+      "dependency": "numpy",
+      "requires": "!=1.24.0,>=1.20",
+      "selected": "1.26.4",
+      "passes": true
+    },
+    {
+      "package": "seaborn",
+      "dependency": "pandas",
+      "requires": ">=1.2",
+      "selected": "2.2.3",
+      "passes": true
+    },
+    {
+      "package": "seaborn",
+      "dependency": "matplotlib",
+      "requires": "!=3.6.1,>=3.4",
+      "selected": "3.8.2",
+      "passes": true
+    },
+    {
+      "package": "nvidia-cuda-nvrtc-cu12",
+      "dependency": "python",
+      "requires": ">=3",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "nvidia-cuda-runtime-cu12",
+      "dependency": "python",
+      "requires": ">=3",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "nvidia-cuda-cupti-cu12",
+      "dependency": "python",
+      "requires": ">=3",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "nvidia-cudnn-cu12",
+      "dependency": "python",
+      "requires": ">=3",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "nvidia-cudnn-cu12",
+      "dependency": "nvidia-cublas-cu12",
+      "requires": "",
+      "selected": "12.8.4.1",
+      "passes": true
+    },
+    {
+      "package": "nvidia-cublas-cu12",
+      "dependency": "python",
+      "requires": ">=3",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "nvidia-cufft-cu12",
+      "dependency": "python",
+      "requires": ">=3",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "nvidia-cufft-cu12",
+      "dependency": "nvidia-nvjitlink-cu12",
+      "requires": "",
+      "selected": "12.8.93",
+      "passes": true
+    },
+    {
+      "package": "nvidia-curand-cu12",
+      "dependency": "python",
+      "requires": ">=3",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "nvidia-cusolver-cu12",
+      "dependency": "python",
+      "requires": ">=3",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "nvidia-cusolver-cu12",
+      "dependency": "nvidia-cublas-cu12",
+      "requires": "",
+      "selected": "12.8.4.1",
+      "passes": true
+    },
+    {
+      "package": "nvidia-cusolver-cu12",
+      "dependency": "nvidia-nvjitlink-cu12",
+      "requires": "",
+      "selected": "12.8.93",
+      "passes": true
+    },
+    {
+      "package": "nvidia-cusolver-cu12",
+      "dependency": "nvidia-cusparse-cu12",
+      "requires": "",
+      "selected": "12.5.8.93",
+      "passes": true
+    },
+    {
+      "package": "nvidia-cusparse-cu12",
+      "dependency": "python",
+      "requires": ">=3",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "nvidia-cusparse-cu12",
+      "dependency": "nvidia-nvjitlink-cu12",
+      "requires": "",
+      "selected": "12.8.93",
+      "passes": true
+    },
+    {
+      "package": "nvidia-cusparselt-cu12",
+      "dependency": "python",
+      "requires": "",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "nvidia-nccl-cu12",
+      "dependency": "python",
+      "requires": ">=3",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "nvidia-nvtx-cu12",
+      "dependency": "python",
+      "requires": ">=3",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "nvidia-nvjitlink-cu12",
+      "dependency": "python",
+      "requires": ">=3",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "nvidia-cufile-cu12",
+      "dependency": "python",
+      "requires": ">=3",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "triton",
+      "dependency": "python",
+      "requires": ">=3.9,<3.14",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "triton",
+      "dependency": "setuptools",
+      "requires": ">=40.8.0",
+      "selected": "84.0.0",
+      "passes": true
+    },
+    {
+      "package": "contourpy",
+      "dependency": "python",
+      "requires": ">=3.11",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "contourpy",
+      "dependency": "numpy",
+      "requires": ">=1.25",
+      "selected": "1.26.4",
+      "passes": true
+    },
+    {
+      "package": "cycler",
+      "dependency": "python",
+      "requires": ">=3.8",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "fonttools",
+      "dependency": "python",
+      "requires": ">=3.11",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "kiwisolver",
+      "dependency": "python",
+      "requires": ">=3.10",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "packaging",
+      "dependency": "python",
+      "requires": ">=3.9",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "patsy",
+      "dependency": "python",
+      "requires": ">=3.6",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "patsy",
+      "dependency": "numpy",
+      "requires": ">=1.4",
+      "selected": "1.26.4",
+      "passes": true
+    },
+    {
+      "package": "patsy",
+      "dependency": "packaging",
+      "requires": "",
+      "selected": "26.3",
+      "passes": true
+    },
+    {
+      "package": "pillow",
+      "dependency": "python",
+      "requires": ">=3.10",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "pyparsing",
+      "dependency": "python",
+      "requires": ">=3.9",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "python-dateutil",
+      "dependency": "python",
+      "requires": "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "python-dateutil",
+      "dependency": "six",
+      "requires": ">=1.5",
+      "selected": "1.17.0",
+      "passes": true
+    },
+    {
+      "package": "pytz",
+      "dependency": "python",
+      "requires": "",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "setuptools",
+      "dependency": "python",
+      "requires": ">=3.10",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "six",
+      "dependency": "python",
+      "requires": ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "sympy",
+      "dependency": "python",
+      "requires": ">=3.9",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "sympy",
+      "dependency": "mpmath",
+      "requires": "<1.4,>=1.1.0",
+      "selected": "1.3.0",
+      "passes": true
+    },
+    {
+      "package": "mpmath",
+      "dependency": "python",
+      "requires": "",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "threadpoolctl",
+      "dependency": "python",
+      "requires": ">=3.9",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "typing-extensions",
+      "dependency": "python",
+      "requires": ">=3.9",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "tzdata",
+      "dependency": "python",
+      "requires": ">=2",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "colorama",
+      "dependency": "python",
+      "requires": "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "filelock",
+      "dependency": "python",
+      "requires": ">=3.10",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "fsspec",
+      "dependency": "python",
+      "requires": ">=3.10",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "jinja2",
+      "dependency": "python",
+      "requires": ">=3.7",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "jinja2",
+      "dependency": "markupsafe",
+      "requires": ">=2.0",
+      "selected": "3.0.4",
+      "passes": true
+    },
+    {
+      "package": "markupsafe",
+      "dependency": "python",
+      "requires": ">=3.9",
+      "selected": "3.12.11",
+      "passes": true
+    },
+    {
+      "package": "networkx",
+      "dependency": "python",
+      "requires": "!=3.14.1,>=3.12",
+      "selected": "3.12.11",
+      "passes": true
+    }
+  ],
+  "pypi_release_metadata": {
+    "numpy": {
+      "version": "1.26.4",
+      "url": "https://pypi.org/pypi/numpy/1.26.4/json",
+      "requires_python": ">=3.9",
+      "requires_dist": []
+    },
+    "pandas": {
+      "version": "2.2.3",
+      "url": "https://pypi.org/pypi/pandas/2.2.3/json",
+      "requires_python": ">=3.9",
+      "requires_dist": [
+        "numpy>=1.22.4; python_version < \"3.11\"",
+        "numpy>=1.23.2; python_version == \"3.11\"",
+        "numpy>=1.26.0; python_version >= \"3.12\"",
+        "python-dateutil>=2.8.2",
+        "pytz>=2020.1",
+        "tzdata>=2022.7",
+        "hypothesis>=6.46.1; extra == \"test\"",
+        "pytest>=7.3.2; extra == \"test\"",
+        "pytest-xdist>=2.2.0; extra == \"test\"",
+        "pyarrow>=10.0.1; extra == \"pyarrow\"",
+        "bottleneck>=1.3.6; extra == \"performance\"",
+        "numba>=0.56.4; extra == \"performance\"",
+        "numexpr>=2.8.4; extra == \"performance\"",
+        "scipy>=1.10.0; extra == \"computation\"",
+        "xarray>=2022.12.0; extra == \"computation\"",
+        "fsspec>=2022.11.0; extra == \"fss\"",
+        "s3fs>=2022.11.0; extra == \"aws\"",
+        "gcsfs>=2022.11.0; extra == \"gcp\"",
+        "pandas-gbq>=0.19.0; extra == \"gcp\"",
+        "odfpy>=1.4.1; extra == \"excel\"",
+        "openpyxl>=3.1.0; extra == \"excel\"",
+        "python-calamine>=0.1.7; extra == \"excel\"",
+        "pyxlsb>=1.0.10; extra == \"excel\"",
+        "xlrd>=2.0.1; extra == \"excel\"",
+        "xlsxwriter>=3.0.5; extra == \"excel\"",
+        "pyarrow>=10.0.1; extra == \"parquet\"",
+        "pyarrow>=10.0.1; extra == \"feather\"",
+        "tables>=3.8.0; extra == \"hdf5\"",
+        "pyreadstat>=1.2.0; extra == \"spss\"",
+        "SQLAlchemy>=2.0.0; extra == \"postgresql\"",
+        "psycopg2>=2.9.6; extra == \"postgresql\"",
+        "adbc-driver-postgresql>=0.8.0; extra == \"postgresql\"",
+        "SQLAlchemy>=2.0.0; extra == \"mysql\"",
+        "pymysql>=1.0.2; extra == \"mysql\"",
+        "SQLAlchemy>=2.0.0; extra == \"sql-other\"",
+        "adbc-driver-postgresql>=0.8.0; extra == \"sql-other\"",
+        "adbc-driver-sqlite>=0.8.0; extra == \"sql-other\"",
+        "beautifulsoup4>=4.11.2; extra == \"html\"",
+        "html5lib>=1.1; extra == \"html\"",
+        "lxml>=4.9.2; extra == \"html\"",
+        "lxml>=4.9.2; extra == \"xml\"",
+        "matplotlib>=3.6.3; extra == \"plot\"",
+        "jinja2>=3.1.2; extra == \"output-formatting\"",
+        "tabulate>=0.9.0; extra == \"output-formatting\"",
+        "PyQt5>=5.15.9; extra == \"clipboard\"",
+        "qtpy>=2.3.0; extra == \"clipboard\"",
+        "zstandard>=0.19.0; extra == \"compression\"",
+        "dataframe-api-compat>=0.1.7; extra == \"consortium-standard\"",
+        "adbc-driver-postgresql>=0.8.0; extra == \"all\"",
+        "adbc-driver-sqlite>=0.8.0; extra == \"all\"",
+        "beautifulsoup4>=4.11.2; extra == \"all\"",
+        "bottleneck>=1.3.6; extra == \"all\"",
+        "dataframe-api-compat>=0.1.7; extra == \"all\"",
+        "fastparquet>=2022.12.0; extra == \"all\"",
+        "fsspec>=2022.11.0; extra == \"all\"",
+        "gcsfs>=2022.11.0; extra == \"all\"",
+        "html5lib>=1.1; extra == \"all\"",
+        "hypothesis>=6.46.1; extra == \"all\"",
+        "jinja2>=3.1.2; extra == \"all\"",
+        "lxml>=4.9.2; extra == \"all\"",
+        "matplotlib>=3.6.3; extra == \"all\"",
+        "numba>=0.56.4; extra == \"all\"",
+        "numexpr>=2.8.4; extra == \"all\"",
+        "odfpy>=1.4.1; extra == \"all\"",
+        "openpyxl>=3.1.0; extra == \"all\"",
+        "pandas-gbq>=0.19.0; extra == \"all\"",
+        "psycopg2>=2.9.6; extra == \"all\"",
+        "pyarrow>=10.0.1; extra == \"all\"",
+        "pymysql>=1.0.2; extra == \"all\"",
+        "PyQt5>=5.15.9; extra == \"all\"",
+        "pyreadstat>=1.2.0; extra == \"all\"",
+        "pytest>=7.3.2; extra == \"all\"",
+        "pytest-xdist>=2.2.0; extra == \"all\"",
+        "python-calamine>=0.1.7; extra == \"all\"",
+        "pyxlsb>=1.0.10; extra == \"all\"",
+        "qtpy>=2.3.0; extra == \"all\"",
+        "scipy>=1.10.0; extra == \"all\"",
+        "s3fs>=2022.11.0; extra == \"all\"",
+        "SQLAlchemy>=2.0.0; extra == \"all\"",
+        "tables>=3.8.0; extra == \"all\"",
+        "tabulate>=0.9.0; extra == \"all\"",
+        "xarray>=2022.12.0; extra == \"all\"",
+        "xlrd>=2.0.1; extra == \"all\"",
+        "xlsxwriter>=3.0.5; extra == \"all\"",
+        "zstandard>=0.19.0; extra == \"all\""
+      ]
+    },
+    "matplotlib": {
+      "version": "3.8.2",
+      "url": "https://pypi.org/pypi/matplotlib/3.8.2/json",
+      "requires_python": ">=3.9",
+      "requires_dist": [
+        "contourpy>=1.0.1",
+        "cycler>=0.10",
+        "fonttools>=4.22.0",
+        "kiwisolver>=1.3.1",
+        "numpy<2,>=1.21",
+        "packaging>=20.0",
+        "pillow>=8",
+        "pyparsing>=2.3.1",
+        "python-dateutil>=2.7",
+        "importlib-resources>=3.2.0; python_version < \"3.10\""
+      ]
+    },
+    "torch": {
+      "version": "2.8.0",
+      "url": "https://pypi.org/pypi/torch/2.8.0/json",
+      "requires_python": ">=3.9.0",
+      "requires_dist": [
+        "filelock",
+        "typing-extensions>=4.10.0",
+        "setuptools; python_version >= \"3.12\"",
+        "sympy>=1.13.3",
+        "networkx",
+        "jinja2",
+        "fsspec",
+        "nvidia-cuda-nvrtc-cu12==12.8.93; platform_system == \"Linux\" and platform_machine == \"x86_64\"",
+        "nvidia-cuda-runtime-cu12==12.8.90; platform_system == \"Linux\" and platform_machine == \"x86_64\"",
+        "nvidia-cuda-cupti-cu12==12.8.90; platform_system == \"Linux\" and platform_machine == \"x86_64\"",
+        "nvidia-cudnn-cu12==9.10.2.21; platform_system == \"Linux\" and platform_machine == \"x86_64\"",
+        "nvidia-cublas-cu12==12.8.4.1; platform_system == \"Linux\" and platform_machine == \"x86_64\"",
+        "nvidia-cufft-cu12==11.3.3.83; platform_system == \"Linux\" and platform_machine == \"x86_64\"",
+        "nvidia-curand-cu12==10.3.9.90; platform_system == \"Linux\" and platform_machine == \"x86_64\"",
+        "nvidia-cusolver-cu12==11.7.3.90; platform_system == \"Linux\" and platform_machine == \"x86_64\"",
+        "nvidia-cusparse-cu12==12.5.8.93; platform_system == \"Linux\" and platform_machine == \"x86_64\"",
+        "nvidia-cusparselt-cu12==0.7.1; platform_system == \"Linux\" and platform_machine == \"x86_64\"",
+        "nvidia-nccl-cu12==2.27.3; platform_system == \"Linux\" and platform_machine == \"x86_64\"",
+        "nvidia-nvtx-cu12==12.8.90; platform_system == \"Linux\" and platform_machine == \"x86_64\"",
+        "nvidia-nvjitlink-cu12==12.8.93; platform_system == \"Linux\" and platform_machine == \"x86_64\"",
+        "nvidia-cufile-cu12==1.13.1.3; platform_system == \"Linux\" and platform_machine == \"x86_64\"",
+        "triton==3.4.0; platform_system == \"Linux\" and platform_machine == \"x86_64\"",
+        "optree>=0.13.0; extra == \"optree\"",
+        "opt-einsum>=3.3; extra == \"opt-einsum\"",
+        "pyyaml; extra == \"pyyaml\""
+      ]
+    },
+    "scikit-learn": {
+      "version": "1.5.2",
+      "url": "https://pypi.org/pypi/scikit-learn/1.5.2/json",
+      "requires_python": ">=3.9",
+      "requires_dist": [
+        "numpy>=1.19.5",
+        "scipy>=1.6.0",
+        "joblib>=1.2.0",
+        "threadpoolctl>=3.1.0",
+        "numpy>=1.19.5; extra == \"build\"",
+        "scipy>=1.6.0; extra == \"build\"",
+        "cython>=3.0.10; extra == \"build\"",
+        "meson-python>=0.16.0; extra == \"build\"",
+        "numpy>=1.19.5; extra == \"install\"",
+        "scipy>=1.6.0; extra == \"install\"",
+        "joblib>=1.2.0; extra == \"install\"",
+        "threadpoolctl>=3.1.0; extra == \"install\"",
+        "matplotlib>=3.3.4; extra == \"benchmark\"",
+        "pandas>=1.1.5; extra == \"benchmark\"",
+        "memory_profiler>=0.57.0; extra == \"benchmark\"",
+        "matplotlib>=3.3.4; extra == \"docs\"",
+        "scikit-image>=0.17.2; extra == \"docs\"",
+        "pandas>=1.1.5; extra == \"docs\"",
+        "seaborn>=0.9.0; extra == \"docs\"",
+        "memory_profiler>=0.57.0; extra == \"docs\"",
+        "sphinx>=7.3.7; extra == \"docs\"",
+        "sphinx-copybutton>=0.5.2; extra == \"docs\"",
+        "sphinx-gallery>=0.16.0; extra == \"docs\"",
+        "numpydoc>=1.2.0; extra == \"docs\"",
+        "Pillow>=7.1.2; extra == \"docs\"",
+        "pooch>=1.6.0; extra == \"docs\"",
+        "sphinx-prompt>=1.4.0; extra == \"docs\"",
+        "sphinxext-opengraph>=0.9.1; extra == \"docs\"",
+        "plotly>=5.14.0; extra == \"docs\"",
+        "polars>=0.20.30; extra == \"docs\"",
+        "sphinx-design>=0.5.0; extra == \"docs\"",
+        "sphinx-design>=0.6.0; extra == \"docs\"",
+        "sphinxcontrib-sass>=0.3.4; extra == \"docs\"",
+        "pydata-sphinx-theme>=0.15.3; extra == \"docs\"",
+        "sphinx-remove-toctrees>=1.0.0.post1; extra == \"docs\"",
+        "matplotlib>=3.3.4; extra == \"examples\"",
+        "scikit-image>=0.17.2; extra == \"examples\"",
+        "pandas>=1.1.5; extra == \"examples\"",
+        "seaborn>=0.9.0; extra == \"examples\"",
+        "pooch>=1.6.0; extra == \"examples\"",
+        "plotly>=5.14.0; extra == \"examples\"",
+        "matplotlib>=3.3.4; extra == \"tests\"",
+        "scikit-image>=0.17.2; extra == \"tests\"",
+        "pandas>=1.1.5; extra == \"tests\"",
+        "pytest>=7.1.2; extra == \"tests\"",
+        "pytest-cov>=2.9.0; extra == \"tests\"",
+        "ruff>=0.2.1; extra == \"tests\"",
+        "black>=24.3.0; extra == \"tests\"",
+        "mypy>=1.9; extra == \"tests\"",
+        "pyamg>=4.0.0; extra == \"tests\"",
+        "polars>=0.20.30; extra == \"tests\"",
+        "pyarrow>=12.0.0; extra == \"tests\"",
+        "numpydoc>=1.2.0; extra == \"tests\"",
+        "pooch>=1.6.0; extra == \"tests\"",
+        "conda-lock==2.5.6; extra == \"maintenance\""
+      ]
+    },
+    "scipy": {
+      "version": "1.11.4",
+      "url": "https://pypi.org/pypi/scipy/1.11.4/json",
+      "requires_python": ">=3.9",
+      "requires_dist": [
+        "numpy<1.28.0,>=1.21.6",
+        "pytest; extra == \"test\"",
+        "pytest-cov; extra == \"test\"",
+        "pytest-timeout; extra == \"test\"",
+        "pytest-xdist; extra == \"test\"",
+        "asv; extra == \"test\"",
+        "mpmath; extra == \"test\"",
+        "gmpy2; extra == \"test\"",
+        "threadpoolctl; extra == \"test\"",
+        "scikit-umfpack; extra == \"test\"",
+        "pooch; extra == \"test\"",
+        "sphinx!=4.1.0; extra == \"doc\"",
+        "pydata-sphinx-theme==0.9.0; extra == \"doc\"",
+        "sphinx-design>=0.2.0; extra == \"doc\"",
+        "matplotlib>2; extra == \"doc\"",
+        "numpydoc; extra == \"doc\"",
+        "jupytext; extra == \"doc\"",
+        "myst-nb; extra == \"doc\"",
+        "pooch; extra == \"doc\"",
+        "mypy; extra == \"dev\"",
+        "typing_extensions; extra == \"dev\"",
+        "types-psutil; extra == \"dev\"",
+        "pycodestyle; extra == \"dev\"",
+        "ruff; extra == \"dev\"",
+        "cython-lint>=0.12.2; extra == \"dev\"",
+        "rich-click; extra == \"dev\"",
+        "click; extra == \"dev\"",
+        "doit>=0.36.0; extra == \"dev\"",
+        "pydevtool; extra == \"dev\""
+      ]
+    },
+    "tqdm": {
+      "version": "4.67.1",
+      "url": "https://pypi.org/pypi/tqdm/4.67.1/json",
+      "requires_python": ">=3.7",
+      "requires_dist": [
+        "colorama; platform_system == \"Windows\"",
+        "pytest>=6; extra == \"dev\"",
+        "pytest-cov; extra == \"dev\"",
+        "pytest-timeout; extra == \"dev\"",
+        "pytest-asyncio>=0.24; extra == \"dev\"",
+        "nbval; extra == \"dev\"",
+        "requests; extra == \"discord\"",
+        "slack-sdk; extra == \"slack\"",
+        "requests; extra == \"telegram\"",
+        "ipywidgets>=6; extra == \"notebook\""
+      ]
+    },
+    "joblib": {
+      "version": "1.4.2",
+      "url": "https://pypi.org/pypi/joblib/1.4.2/json",
+      "requires_python": ">=3.8",
+      "requires_dist": []
+    },
+    "statsmodels": {
+      "version": "0.14.4",
+      "url": "https://pypi.org/pypi/statsmodels/0.14.4/json",
+      "requires_python": ">=3.9",
+      "requires_dist": [
+        "numpy<3,>=1.22.3",
+        "scipy!=1.9.2,>=1.8",
+        "pandas!=2.1.0,>=1.4",
+        "patsy>=0.5.6",
+        "packaging>=21.3",
+        "cython>=3.0.10; extra == \"build\"",
+        "cython>=3.0.10; extra == \"develop\"",
+        "cython<4,>=3.0.10; extra == \"develop\"",
+        "setuptools-scm[toml]~=8.0; extra == \"develop\"",
+        "matplotlib>=3; extra == \"develop\"",
+        "colorama; extra == \"develop\"",
+        "joblib; extra == \"develop\"",
+        "pytest<8,>=7.3.0; extra == \"develop\"",
+        "pytest-randomly; extra == \"develop\"",
+        "pytest-xdist; extra == \"develop\"",
+        "pytest-cov; extra == \"develop\"",
+        "flake8; extra == \"develop\"",
+        "isort; extra == \"develop\"",
+        "pywinpty; os_name == \"nt\" and extra == \"develop\"",
+        "sphinx; extra == \"docs\"",
+        "nbconvert; extra == \"docs\"",
+        "jupyter-client; extra == \"docs\"",
+        "ipykernel; extra == \"docs\"",
+        "matplotlib; extra == \"docs\"",
+        "nbformat; extra == \"docs\"",
+        "numpydoc; extra == \"docs\"",
+        "pandas-datareader; extra == \"docs\""
+      ]
+    },
+    "seaborn": {
+      "version": "0.13.2",
+      "url": "https://pypi.org/pypi/seaborn/0.13.2/json",
+      "requires_python": ">=3.8",
+      "requires_dist": [
+        "numpy>=1.20,!=1.24.0",
+        "pandas>=1.2",
+        "matplotlib>=3.4,!=3.6.1",
+        "pytest ; extra == \"dev\"",
+        "pytest-cov ; extra == \"dev\"",
+        "pytest-xdist ; extra == \"dev\"",
+        "flake8 ; extra == \"dev\"",
+        "mypy ; extra == \"dev\"",
+        "pandas-stubs ; extra == \"dev\"",
+        "pre-commit ; extra == \"dev\"",
+        "flit ; extra == \"dev\"",
+        "numpydoc ; extra == \"docs\"",
+        "nbconvert ; extra == \"docs\"",
+        "ipykernel ; extra == \"docs\"",
+        "sphinx<6.0.0 ; extra == \"docs\"",
+        "sphinx-copybutton ; extra == \"docs\"",
+        "sphinx-issues ; extra == \"docs\"",
+        "sphinx-design ; extra == \"docs\"",
+        "pyyaml ; extra == \"docs\"",
+        "pydata_sphinx_theme==0.10.0rc2 ; extra == \"docs\"",
+        "scipy>=1.7 ; extra == \"stats\"",
+        "statsmodels>=0.12 ; extra == \"stats\""
+      ]
+    }
+  }
+}

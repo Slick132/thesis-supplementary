@@ -1,0 +1,207 @@
+{
+  "review_date": "2026-10-03",
+  "source_directory": "Clustering time series",
+  "files_read": {
+    ".py": 681,
+    ".json": 422,
+    ".ipynb": 73,
+    ".txt": 150,
+    ".log": 157
+  },
+  "unique_code_documents": 569,
+  "method": "One count per byte-distinct Python script or notebook code document; static imports, not executed calls. Standard-library and local modules excluded from the displayed analysis-package table.",
+  "scan_limits": [
+    {
+      "file": "Across all years\\HyperparameterTune.ipynb",
+      "reason": "larger than 80 MB; not read"
+    }
+  ],
+  "frequent_analysis_packages": [
+    {
+      "module": "numpy",
+      "unique_documents": 442,
+      "examples": [
+        "Across all years\\hydro_preprocessor.py",
+        "Across all years\\PreProcessData.ipynb",
+        "Across all years\\Comapring Precip Standardscaler vs min max\\experiment_utils.py",
+        "Across all years\\Comapring Precip Standardscaler vs min max\\hydro_preprocessor.py",
+        "Across all years\\Comapring Precip Standardscaler vs min max\\plot_comparison.py"
+      ]
+    },
+    {
+      "module": "pandas",
+      "unique_documents": 396,
+      "examples": [
+        "Across all years\\hydro_preprocessor.py",
+        "Across all years\\PreProcessData.ipynb",
+        "Across all years\\Comapring Precip Standardscaler vs min max\\experiment_utils.py",
+        "Across all years\\Comapring Precip Standardscaler vs min max\\hydro_preprocessor.py",
+        "Across all years\\Comapring Precip Standardscaler vs min max\\plot_comparison.py"
+      ]
+    },
+    {
+      "module": "matplotlib",
+      "unique_documents": 320,
+      "examples": [
+        "Across all years\\PreProcessData.ipynb",
+        "Across all years\\Comapring Precip Standardscaler vs min max\\plot_comparison.py",
+        "Across all years\\Comapring Precip Standardscaler vs min max\\PrecipMinMax.ipynb",
+        "Across all years\\Comapring Precip Standardscaler vs min max\\workbench\\plots.py",
+        "Across all years\\Experiments notebook\\HumidityScaling_Ablation_2006_2007.ipynb"
+      ]
+    },
+    {
+      "module": "torch",
+      "unique_documents": 287,
+      "examples": [
+        "Across all years\\Comapring Precip Standardscaler vs min max\\experiment_utils.py",
+        "Across all years\\Comapring Precip Standardscaler vs min max\\PrecipMinMax.ipynb",
+        "Across all years\\Comapring Precip Standardscaler vs min max\\run_case_A1_robust_all_iqr25_75.py",
+        "Across all years\\Comapring Precip Standardscaler vs min max\\run_case_A2_robust_all_iqr5_95.py",
+        "Across all years\\Comapring Precip Standardscaler vs min max\\run_case_GATED_A2.py"
+      ]
+    },
+    {
+      "module": "sklearn",
+      "unique_documents": 229,
+      "examples": [
+        "Across all years\\hydro_preprocessor.py",
+        "Across all years\\Comapring Precip Standardscaler vs min max\\experiment_utils.py",
+        "Across all years\\Comapring Precip Standardscaler vs min max\\hydro_preprocessor.py",
+        "Across all years\\Comapring Precip Standardscaler vs min max\\PrecipMinMax.ipynb",
+        "Across all years\\Comapring Precip Standardscaler vs min max\\run_case_GATED_A2.py"
+      ]
+    },
+    {
+      "module": "scipy",
+      "unique_documents": 153,
+      "examples": [
+        "Across all years\\PreProcessData.ipynb",
+        "Adapted Loss functions of Clustering algorithms\\elevation_regularised_clustering.ipynb",
+        "Architecture tuneing without rel humdiity\\create_clustering_pipeline.py",
+        "Architecture Tuning (STEP 3 - NEW)\\Cluster Maps of the final model\\kmeans_bioclim.py",
+        "Architecture Tuning (STEP 3 - NEW)\\Phase 1\\compute_diagnostics.py"
+      ]
+    },
+    {
+      "module": "tqdm",
+      "unique_documents": 49,
+      "examples": [
+        "Architecture tuneing without rel humdiity\\create_clustering_pipeline.py",
+        "Architecture tuneing without rel humdiity\\latent_interpretation_analysis.py",
+        "Architecture tuneing without rel humdiity\\run_perturbation_tests.py",
+        "Architecture tuneing without rel humdiity\\train_utils.py",
+        "Autoencoder Tuneing On fulle time series\\linear_surrogate_regression.py"
+      ]
+    },
+    {
+      "module": "joblib",
+      "unique_documents": 42,
+      "examples": [
+        "Adapted Loss functions of Clustering algorithms\\elevation_regularised_clustering.ipynb",
+        "Clustering Final Model Embeddings (STEP 5 - NEW)\\dbscan_simple.ipynb",
+        "Clustering Final Model Embeddings (STEP 5 - NEW)\\Comparison of Regionalisations\\regionalisation_comparison.ipynb",
+        "Clustering Final Model Embeddings (STEP 5 - NEW)\\GMM\\gmm_posterior_structure.py",
+        "Clustering Final Model Embeddings (STEP 5 - NEW)\\GMM\\verify_embeddings_gmm.original.ipynb"
+      ]
+    },
+    {
+      "module": "statsmodels",
+      "unique_documents": 25,
+      "examples": [
+        "Architecture Tuning (STEP 3 - NEW)\\Phase 1\\compute_diagnostics.py",
+        "Architecture Tuning (STEP 3 - NEW)\\Phase 1\\Multihead Compression analysis\\compute_diagnostics.py",
+        "Architecture Tuning (STEP 3 - NEW)\\Phase 2\\compute_diagnostics.py",
+        "Architecture Tuning (STEP 3 - NEW)\\Phase 2\\Narrower hybrid_parralel_concat\\compute_diagnostics.py",
+        "Architecture Tuning (STEP 3 - NEW)\\Phase 2\\Results\\Downloaded VAE\\VAE\\Phase 2\\run_diagnostics.py"
+      ]
+    },
+    {
+      "module": "seaborn",
+      "unique_documents": 14,
+      "examples": [
+        "Across all years\\Comapring Precip Standardscaler vs min max\\PrecipMinMax.ipynb",
+        "Across all years\\Comapring Precip Standardscaler vs min max\\workbench\\plots.py",
+        "Across all years\\Experiments notebook\\HumidityScaling_Ablation_2006_2007.ipynb",
+        "Across all years\\Experiments notebook\\Precip_Preprocessing_Ablation_Workbench_2006_2007.ipynb",
+        "Across all years\\Experiments notebook\\WindScaling_Ablation_2006_2007.ipynb"
+      ]
+    }
+  ],
+  "recorded_sources": [
+    {
+      "id": "architecture-log",
+      "file": "Architecture Tuning (STEP 3 - NEW)\\Phase 1\\architecture_comparison_results\\analytics_log.txt",
+      "kind": "runtime log",
+      "versions": {
+        "python": "3.12.11",
+        "torch": "2.8.0+cu128",
+        "numpy": "1.26.4"
+      }
+    },
+    {
+      "id": "deduplicated-run",
+      "file": "Architecture Tuning (STEP 3 - NEW)\\Deduplicated Final Model Retraining\\Results\\dedupilicated model\\outputs\\run_20260911_190540_2651f8\\run_config.json",
+      "kind": "separate reconstruction sensitivity run",
+      "versions": {
+        "python": "3.12.11",
+        "torch": "2.8.0+cu128",
+        "numpy": "1.26.4"
+      }
+    },
+    {
+      "id": "geodesic-run",
+      "file": "Clustering Final Model Embeddings (STEP 5 - NEW)\\Analysing the Manifold Riemann\\Geodesic Latent Path Comparison\\outputs\\final_1200\\manifest.json",
+      "kind": "1,200-pair run manifest",
+      "versions": {
+        "torch": "2.8.0+cu128",
+        "numpy": "1.26.4",
+        "scipy": "1.11.4",
+        "matplotlib": "3.8.2"
+      }
+    },
+    {
+      "id": "local-kernel-run",
+      "file": "Architecture Tuning (STEP 3 - NEW)\\Phase 3\\Phase 3 Part E (Kernel Sensitivity)\\Results\\comparison_results\\analytics_log.txt",
+      "kind": "separate local kernel-sensitivity run",
+      "versions": {
+        "python": "3.13.5",
+        "torch": "2.6.0+cu124",
+        "numpy": "2.2.6"
+      }
+    }
+  ],
+  "reference_profile": {
+    "python": "3.12.11",
+    "pins": {
+      "numpy": "1.26.4",
+      "pandas": "2.2.3",
+      "matplotlib": "3.8.2",
+      "torch": "2.8.0",
+      "scikit-learn": "1.5.2",
+      "scipy": "1.11.4",
+      "tqdm": "4.67.1",
+      "joblib": "1.4.2",
+      "statsmodels": "0.14.4",
+      "seaborn": "0.13.2"
+    },
+    "unrecorded_pins_are_not_historical_versions": true
+  },
+  "compatibility": {
+    "target": {
+      "python_version": "3.12",
+      "python_full_version": "3.12.11",
+      "sys_platform": "linux",
+      "platform_system": "Linux",
+      "platform_machine": "x86_64",
+      "implementation_name": "cpython",
+      "implementation_version": "3.12.11",
+      "platform_python_implementation": "CPython",
+      "extra": ""
+    },
+    "dependency_constraints_checked": 109,
+    "resolved_distributions": 48,
+    "all_checks_pass": true,
+    "scope": "Release dependency metadata and a pip dry run with Linux x86_64 wheels; Linux CUDA dependencies requested explicitly because the audit host is Windows. No packages installed and no GPU/runtime or research-result equivalence test performed."
+  }
+}

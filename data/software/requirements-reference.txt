@@ -1,0 +1,14 @@
+# Compatible reference profile, not a historical environment lockfile.
+# Target: CPython 3.12.11, Linux x86_64.
+# NumPy, SciPy, Matplotlib and PyTorch match the saved geodesic manifest.
+# Other versions are reproduction pins, not verified historical versions.
+numpy==1.26.4
+pandas==2.2.3
+matplotlib==3.8.2
+torch==2.8.0
+scikit-learn==1.5.2
+scipy==1.11.4
+tqdm==4.67.1
+joblib==1.4.2
+statsmodels==0.14.4
+seaborn==0.13.2

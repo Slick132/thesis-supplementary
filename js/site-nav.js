@@ -5,7 +5,8 @@
       links: [
         ['overview', 'Overview', 'index.html'],
         ['about', 'About Chris', 'index.html#about'],
-        ['transparency', 'AI use and transparency', 'research-transparency.html']
+        ['transparency', 'AI use and transparency', 'research-transparency.html'],
+        ['software', 'Software and environment', 'software-environment.html']
       ]
     },
     {
