@@ -28,9 +28,9 @@
       <p class="eyebrow">Research transparency</p>
       <h1>Use of generative AI</h1>
       <p class="lede">
-        Generative-AI tools supported selected writing and software-development tasks during the
-        preparation of the thesis and this electronic supplement. This page records the main forms
-        of assistance and provides the reusable instructions and representative prompts.
+        Generative-AI tools supported selected writing and software-development tasks throughout the course of this master's
+        degree, including preparation of the thesis and this electronic supplement.
+        This page presents the main forms of assistance and provides the reusable instructions and prompts.
       </p>
     </div>
   </section>
@@ -41,6 +41,8 @@
       <a href="#role">Role of generative AI</a>
       <a href="#skills">Reusable instructions</a>
       <a href="#prompts">Representative prompts</a>
+      <a href="#literature">Literature search and source checking</a>
+      <a href="#tools">Tools used</a>
     </aside>
 
     <article class="longform">
@@ -59,9 +61,6 @@
           wording, code changes, analyses and visualisations and remains responsible for the
           submitted work.
         </p>
-        <p class="transparency-note">
-          The examples below document the main types of interaction. These are template prompts that were reused throughout the research.
-        </p>
       </section>
 
       <section id="skills">
@@ -69,7 +68,7 @@
         <p>
           A skill is a reusable instruction package that guides an AI system during a recurring
           type of task. The main custom skill used for thesis writing was a skill named Thesis Flow
-          Editor. The skill was used only to recommend proposed edits; no changes were
+          Editor. The skill was used only to recommend proposed edits, no changes were
           accepted or applied without approval from the author. The skill was used primarily to correct grammatical and
           spelling errors and to suggest clearer ways of phrasing paragraphs.
         </p>
@@ -172,6 +171,19 @@ The writing rules are provided below in no particular order:
 
 </pre>
         </details>
+        <h3>Example usage:</h3>
+        <p><strong>Original paragraph</strong></p>
+        <blockquote>
+          <p>Each location had measurements for six climate variables over several years. There were many values for each location, which made comparing locations difficult. The autoencoder produced an embedding vector for each location. These vectors were then used to compare locations and group them into clusters.</p>
+        </blockquote>
+        <p><strong>Request to the agent</strong></p>
+        <blockquote>
+          <p>Use the Thesis Flow Editor skill to improve the flow of this paragraph. The main message is that the autoencoder converted long climate records into embedding vectors that were used to compare and cluster locations. Present a proposed draft that brings the main message out more clearly.</p>
+        </blockquote>
+        <p><strong>Agent output</strong></p>
+        <blockquote>
+          <p>Comparing locations directly was difficult because each location had several years of measurements for six climate variables. The autoencoder converted these climate records into an embedding vector for each location. The vectors were then used to compare locations and group them into clusters.</p>
+        </blockquote>
       </section>
 
       <section id="prompts">
@@ -211,6 +223,32 @@ Preserve every numerical value and label and produce a transparent figure. Save 
 Diagnose the reported behaviour and identify potential causes. List the potential errors and suggested code changes.</pre>
         </details>
 
+      </section>
+      <section id="literature">
+        <h2>Literature search and source checking</h2>
+        <p>
+          For the identification of relevant literature, generative AI was used mainly as a
+          search engine to find and recommend publications on specific topics and questions
+          in the thesis. The recommended publications
+          were downloaded and stored in a local repository. Agents also used PDF tools to
+          identify potentially relevant passages and suggest how the publications could support
+          a claim or provide additional information.
+        </p>
+        <p>
+          The author read the recommended literature and manually checked the relevant passages
+          and claims before deciding whether to include a publication in the thesis. The author
+          formulated the arguments from the source publications and remained responsible for
+          the final wording. Any agent suggestions were reviewed and approved by the author
+          before inclusion.
+        </p>
+      </section>
+      <section id="tools">
+        <h2>Tools used</h2>
+        <p>The main tools used were:</p>
+        <ul>
+          <li>OpenAI: <a href="https://chatgpt.com/">ChatGPT</a> and <a href="https://openai.com/codex/">Codex</a>.</li>
+          <li>Anthropic: <a href="https://claude.ai/">Claude</a> and <a href="https://claude.com/product/claude-code">Claude Code</a>.</li>
+        </ul>
       </section>
     </article>
   </div>
