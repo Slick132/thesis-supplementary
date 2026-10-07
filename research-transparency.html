@@ -28,9 +28,9 @@
       <p class="eyebrow">Research transparency</p>
       <h1>Use of generative AI</h1>
       <p class="lede">
-        Generative-AI tools supported selected writing and software-development tasks throughout the course of this master's
-        degree, including preparation of the thesis and this electronic supplement.
-        This page presents the main forms of assistance and provides the reusable instructions and prompts.
+        Generative-AI tools were used <strong>as assistance</strong> during this master's degree.
+        The author reviewed the suggestions, made the final decisions and remains responsible for
+        the submitted work. This page records the main uses and examples of the instructions and prompts.
       </p>
     </div>
   </section>
@@ -38,152 +38,42 @@
   <div class="wrap layout">
     <aside class="toc" aria-label="Page contents">
       <strong>On this page</strong>
-      <a href="#role">Role of generative AI</a>
-      <a href="#skills">Reusable instructions</a>
-      <a href="#prompts">Representative prompts</a>
       <a href="#literature">Literature search and source checking</a>
+      <a href="#role">Other uses of generative AI</a>
+      <a href="#prompts">Representative prompts</a>
       <a href="#tools">Tools used</a>
     </aside>
 
     <article class="longform">
-      <section id="role">
-        <h2>Role of generative AI</h2>
+      <section id="literature">
+        <h2>Literature search and source checking</h2>
         <p>
-          Generative AI assisted with sentence-level suggestions of thesis prose, development and
-          refinement of figures, code development and debugging, construction of the supplementary website,
-          and post-development reviews of code correctness and simulation setups. The author,
-          assisted by AI tools such as Codex and Claude Code, wrote the research code and used AI
-          review after implementation to identify possible logical, numerical or presentation
-          problems.
+          A retrieval-augmented generation (RAG) system was developed to assist with searching a
+          local repository of downloaded publications. AI tools also assisted with finding
+          relevant literature and locating passages for consideration.
         </p>
         <p>
-          Generative-AI output was mainly treated as assistance. The author selected the final
-          wording, code changes, analyses and visualisations and remains responsible for the
-          submitted work.
+          The author read the recommended publications and checked the relevant passages and
+          claims before inclusion. The author formulated the arguments from the source
+          publications and approved the final wording.
         </p>
       </section>
 
-      <section id="skills">
-        <h2>Reusable instruction sets</h2>
+      <section id="role">
+        <h2>Other uses of generative AI</h2>
+        <p>AI tools provided assistance with:</p>
+        <ul>
+          <li>Grammar and spelling checks.</li>
+          <li>Code development, debugging and review.</li>
+          <li>Reviews of simulation setups.</li>
+          <li>Figure preparation and the supplementary website.</li>
+        </ul>
         <p>
-          A skill is a reusable instruction package that guides an AI system during a recurring
-          type of task. The main custom skill used for thesis writing was a skill named Thesis Flow
-          Editor. The skill was used only to recommend proposed edits, no changes were
-          accepted or applied without approval from the author. The skill was used primarily to correct grammatical and
-          spelling errors and to suggest clearer ways of phrasing paragraphs.
+          Reusable instructions guided grammar and spelling suggestions while requiring
+          preservation of the meaning and technical content. The author reviewed and approved
+          proposed changes before inclusion.
         </p>
-        <p>
-          Skills are primarily written instructions, although a skill can also include supporting
-          references, scripts, templates or assets. The complete custom skill is given below.
-        </p>
-        <details class="prompt-card">
-          <summary>The Thesis Flow Editor Skill</summary>
-          <pre># Thesis Flow Editor
-
-Make suggestions for the supplied text. Suggestions should improve how sentences connect without rewriting or adjusting the argument.
-
-## Preserve the source
-
-- Preserve the meaning, scope, numbers, variable names and technical terminology.
-- Preserve LaTeX commands, environments, labels, references, citations, acronyms and mathematical notation.
-- Do not add claims, evidence, interpretations or citations.
-- Work only on the text supplied by the user.
-
-## Match the preferred flow
-
-- Use third person and British English.
-- Use past tense for empirical procedures, observations and conclusions. Use present tense for definitions and general properties.
-- Prefer moderate-length sentences that connect closely related actions or ideas.
-- Do not split a continuous procedure merely to shorten the sentences. Sentence length is secondary to natural flow.
-- Keep separate sentences when the subject changes.
-- Use transitions such as `before`, `while`, `because`, `therefore` and participial phrases only when the logical relationship is exact.
-- Use `before` for a direct sequence, `with` for controlled conditions, `while` for a genuine comparison and a participial phrase such as `making` for a direct consequence.
-- Avoid repeating `then`, the same noun phrase or the same conclusion in consecutive sentences.
-- Prefer explicit nouns over vague references such as `this`, `it`, `they` or `these`.
-- State the mechanism directly instead of using evaluative labels or empty phrasing.
-- Preserve the procedural order of the source text.
-- Retain the original sentence order unless changing the order materially improves the logical progression and flow of the provided text.
-
-## Response and editing behaviour
-
-- When the user requests suggestions, return a clearly marked proposed LaTeX-safe version without editing any files.
-
-# Writing Rules
-
-The writing rules are provided below in no particular order:
-
-1. Write in the third person.
-
-2. On the use of tenses:
-   a) By default, write in present tense.
-   b) The empirical process followed and discussion of observations are done in past tense.
-   c) Conclusions are written in past tense.
-   d) Do not use present continuous tense, e.g. “Optimising of the control parameters...”; rather, “Optimisation of the control parameters...”.
-
-3. Avoid the use of pronouns, such as “it, its, this, them, they, which”. These pronouns introduce ambiguities.
-
-4. Avoid uncertain terms such as “some” and “certain” unless the available evidence requires qualified language. 
-
-5. Do not use “etc”. Be complete and specific.
-
-6. Avoid footnotes and clarifications in parentheses. These break reading flow.
-
-7. Make sure that each concept is defined before it is used.
-
-8. Note the meaning of “it’s” as “it is”. Note the difference between the pronoun “its” and “it is”.
-
-9. Do not use contractions such as “don’t”, “we’re”.
-
-10. Avoid using apostrophes to indicate position, such as “the algorithm’s performance...”. Here, rather write as “the performance of the algorithm...”.
-
-11. Note the difference between “to” and “too”.
-
-12. Also, note the difference between “amount” and “number of”. The latter refers to countable objects, the former to non-countable objects.
-
-13. Convention is that single-digit numbers are given in words, and multi-digit numbers in numeric form.
-
-14. About sentences:
-   a) Write in short, flowing sentences. Long sentences become difficult to follow.
-   b) Write in full sentences.
-   c) Do not start a sentence with a symbol, or a number.
-   d) Do not start a sentence with a citation label.
-   e) Do not start a sentence with “And” or “But”.
-
-15. About paragraphs:
-   a) Each paragraph should flow from the previous paragraph.
-   b) Do not write in long paragraphs. A paragraph is like a function in programming: The function should have one goal, one focus. However, avoid too short paragraphs. Both make reading difficult.
-
-16. With reference to symbols:
-   a) Make sure that all mathematical symbols are given in math mode.
-   d) Give vectors in bold, lower case.
-   e) Give matrices in bold, upper case.
-   f) Sets and sequences are in upper case, not bold.
-   g) Functions are in lower case, not bold.
-   h) Scalars are in lower case, not bold.
-   i) Superscripts and subscripts of vectors and matrices are not in bold.
-
-17. Provide all Latin words, such as “et al”, in italics.
-
-18. Singular versus plural forms:
-   a) criterion is singular; criteria is plural.
-   b) optima, minima, maxima are plural; optimum, minimum, maximum are singular.
-
-
-</pre>
-        </details>
-        <h3>Example usage:</h3>
-        <p><strong>Original paragraph</strong></p>
-        <blockquote>
-          <p>Each location had measurements for six climate variables over several years. There were many values for each location, which made comparing locations difficult. The autoencoder produced an embedding vector for each location. These vectors were then used to compare locations and group them into clusters.</p>
-        </blockquote>
-        <p><strong>Request to the agent</strong></p>
-        <blockquote>
-          <p>Use the Thesis Flow Editor skill to improve the flow of this paragraph. The main message is that the autoencoder converted long climate records into embedding vectors that were used to compare and cluster locations. Present a proposed draft that brings the main message out more clearly.</p>
-        </blockquote>
-        <p><strong>Agent output</strong></p>
-        <blockquote>
-          <p>Comparing locations directly was difficult because each location had several years of measurements for six climate variables. The autoencoder converted these climate records into an embedding vector for each location. The vectors were then used to compare locations and group them into clusters.</p>
-        </blockquote>
+        <p>No confidential data were provided to the AI systems.</p>
       </section>
 
       <section id="prompts">
@@ -223,24 +113,6 @@ Preserve every numerical value and label and produce a transparent figure. Save 
 Diagnose the reported behaviour and identify potential causes. List the potential errors and suggested code changes.</pre>
         </details>
 
-      </section>
-      <section id="literature">
-        <h2>Literature search and source checking</h2>
-        <p>
-          For the identification of relevant literature, generative AI was used mainly as a
-          search engine to find and recommend publications on specific topics and questions
-          in the thesis. The recommended publications
-          were downloaded and stored in a local repository. Agents also used PDF tools to
-          identify potentially relevant passages and suggest how the publications could support
-          a claim or provide additional information.
-        </p>
-        <p>
-          The author read the recommended literature and manually checked the relevant passages
-          and claims before deciding whether to include a publication in the thesis. The author
-          formulated the arguments from the source publications and remained responsible for
-          the final wording. Any agent suggestions were reviewed and approved by the author
-          before inclusion.
-        </p>
       </section>
       <section id="tools">
         <h2>Tools used</h2>
